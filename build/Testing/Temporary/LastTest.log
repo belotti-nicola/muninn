@@ -1,0 +1,19 @@
+Start testing: May 07 23:25 CEST
+----------------------------------------------------------
+1/1 Testing: TestInstantiatorQ
+1/1 Test: TestInstantiatorQ
+Command: "/home/nicola/Projects/muninn/build/test/queue/TestInstantiatorQ"
+Directory: /home/nicola/Projects/muninn/build/test/queue
+"TestInstantiatorQ" start time: May 07 23:25 CEST
+Output:
+----------------------------------------------------------
+push_q first element is null, adding!
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"TestInstantiatorQ" end time: May 07 23:25 CEST
+"TestInstantiatorQ" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: May 07 23:25 CEST

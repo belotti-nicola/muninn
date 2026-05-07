@@ -1,0 +1,1 @@
+/usr/bin/cc -g CMakeFiles/TestInstantiatorQ.dir/test_queue.c.o -o TestInstantiatorQ  ../../libmuninn.a 
