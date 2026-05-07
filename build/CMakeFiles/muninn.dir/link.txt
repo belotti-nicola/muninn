@@ -1,2 +1,0 @@
-/usr/bin/ar qc libmuninn.a CMakeFiles/muninn.dir/src/queue/queue.c.o CMakeFiles/muninn.dir/src/queue/elem.c.o
-/usr/bin/ranlib libmuninn.a
