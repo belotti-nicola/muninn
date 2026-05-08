@@ -11,28 +11,41 @@ queue_t *queue_create()
     printf("simple_queue_t* pointer is null!\n");
     exit(EXIT_FAILURE);
   }
-  qptr->size = 0;
+  qptr->size    = 0;
+  qptr->first   = NULL;
+  qptr->last    = NULL;
+
 
   return qptr;
 }
 
 elem_t *queue_pop(queue_t *q)
 {
-  if(q == NULL)
-  {
-    printf("popping from a NULL simple_queue_t\n");
-    return NULL;
-  }
-  if(q->size == 0)
-  {
-    printf("popping a simple_queue_t which is empty!\n");
-    return NULL;
-  }
+    if (q == NULL)
+    {
+      printf("popping from a NULL simple_queue_t\n");
+      return NULL;
+    }
 
-  q->size -= 1;
-  elem_t *pop_this = q->first;
-  q->first = pop_this->next;
-  return pop_this;
+    if (q->size == 0)
+    {
+      printf("popping a simple_queue_t which is empty!\n");
+      return NULL;
+    }
+
+    elem_t *pop_this = q->first;
+
+    q->first = pop_this->next;
+    q->size--;
+
+    if (q->first == NULL)
+    {
+      q->last = NULL;
+    }
+
+    pop_this->next = NULL;
+
+    return pop_this;
 }
 
 void queue_push(queue_t *q, elem_t *e)

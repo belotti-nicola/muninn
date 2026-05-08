@@ -16,3 +16,8 @@ elem_t *elem_create(const char *msg, elem_t *next)
     ptr->next    = next;
     return ptr;
 }
+
+void elem_destroy(elem_t *e)
+{
+    free(e);
+}

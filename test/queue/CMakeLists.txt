@@ -1,4 +1,4 @@
-function(add_frixia_test test_name source_file)
+function(add_munin_test test_name source_file)
     add_executable(${test_name} ${source_file})
 
     target_link_libraries(${test_name}
@@ -15,4 +15,5 @@ function(add_frixia_test test_name source_file)
 endfunction()
 
 
-add_frixia_test(TestInstantiatorQ test_queue.c)
+add_munin_test(TestInstantiatorQPush test_queue_push.c)
+add_munin_test(TestInstantiatorQPop  test_queue_pop.c)

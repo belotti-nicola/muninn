@@ -17,19 +17,33 @@ bool check_q_push(queue_t *q,int value,int loc)
 int main()
 {
     queue_t *q = queue_create();
+    if ( q == NULL )
+    {
+        printf("Error at line %d: queue is null!\n",__LINE__);
+        return 1;
+    }
+
     if ( !check_q_push(q,0,__LINE__) )
     {
         return 1;
     }
 
-    elem_t *tmp = elem_create("Hello",NULL);
-
+    elem_t *tmp;
     tmp = elem_create("Hello",NULL);
     queue_push(q,tmp);
     if ( !check_q_push(q,1,__LINE__) )
     {
         return 1;
     }
+    if ( tmp != q->first )
+    {
+        printf("Error at line %d: head is different\n",__LINE__);
+    }
+    if ( tmp != q->last )
+    {
+        printf("Error at line %d: last is different\n",__LINE__);
+    }
+
 
     tmp = elem_create("World",NULL);
     queue_push(q,tmp);
@@ -37,23 +51,9 @@ int main()
     {
         return 1;
     }
-
-
-    tmp = queue_pop(q);
-    if ( tmp == NULL )
+    if ( tmp != q->first )
     {
-        printf("Error at line %d: found NULL elem!\n",__LINE__);
-        return 1;
-    }
-    if ( tmp->message == NULL )
-    {
-        printf("Error at line %d: found NULL message!\n",__LINE__);
-        return 1;
-    }
-    if ( strcmp(tmp->message,"Hello") == 1)
-    {
-        printf("Error at line %d: found %s instead of 'Hello'!\n",__LINE__,tmp->message);
-        return 1;
+        printf("Error at line %d: head is different\n",__LINE__);
     }
 
 
