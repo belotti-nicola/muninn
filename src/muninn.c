@@ -3,16 +3,19 @@
 
 #include "muninn.h"
 
-muninn_t muninn_create(const char *path)
+void muninn_setup(const char *path, muninn_t *m)
 {
-    muninn_t m;
-    m.running = false;
-    *(m.keep_looping) = true;
-    m.path[0] = '\0';
-    m.file    = NULL;
 
-    return m;
+    strncpy(m->path, path, PATH_LEN - 1);
+    m->path[PATH_LEN - 1] = '\0';
+
+    m->file = NULL;
+    m->q = ts_queue_setup();
+
+    atomic_init(&m->running, false);
+    atomic_init(&m->keep_looping, true);
 }
+
 void muninn_start(muninn_t *muninn)
 {
     int rc = pthread_create(
@@ -22,9 +25,6 @@ void muninn_start(muninn_t *muninn)
         printf("Error! %d\n",rc);
         return;
     }
-    
-    bool b = muninn->running;
-    b = true;
 }
 
 void muninn_log(muninn_t *muninn, const char *msg)
@@ -33,13 +33,17 @@ void muninn_log(muninn_t *muninn, const char *msg)
     strncpy(qm.message, msg, sizeof(qm.message) - 1);
     qm.message[sizeof(qm.message) - 1] = '\0';
 
-    ts_queue_push(muninn->q, &qm);
+    ts_queue_push(&muninn->q, &qm);
 }
 
 void muninn_join(muninn_t *muninn)
 {
+    atomic_store(&muninn->keep_looping, false);
 
-    int rc = pthread_join(muninn->thread,NULL);
+    //TODO WAKE MECHANISM TO IMPLEMENT
+    muninn_log(muninn,"termination");
+
+    int rc = pthread_join(muninn->thread, NULL);
     if( rc != 0 )
     {
         printf("Error! %d\n",rc);
@@ -51,16 +55,31 @@ void *muninn_thread_function(void *arg)
 {
     muninn_t *muninn = (muninn_t *)arg;
 
-    queue_message_t qm;
-    bool *keep_looping = muninn->keep_looping;
-    while(*keep_looping)
+    muninn->file = fopen(muninn->path, "a");
+    if (muninn->file == NULL)
     {
-        bool ec = ts_queue_pop(muninn->q,&qm);
-        if(ec)
-        {
-            printf("%s\n",qm.message);
-        }
+        perror("fopen");
+        atomic_store(&muninn->running, false);
+        return NULL;
     }
 
-    ts_queue_release(*muninn->q);
+    atomic_store(&muninn->running, true);
+
+    queue_message_t qm;
+    while(atomic_load(&muninn->keep_looping))
+    {
+        bool ec = ts_queue_pop(&muninn->q,&qm);
+        if(ec)
+        {
+            fprintf(muninn->file, "%s\n", qm.message);
+            fflush(muninn->file);
+        }
+    }
+    atomic_store(&muninn->running, false);
+
+    fclose(muninn->file);
+    muninn->file = NULL;
+    ts_queue_release(&muninn->q);
+
+    return NULL;
 }

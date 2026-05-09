@@ -26,6 +26,6 @@ int main()
     }
 
 
-    ts_queue_release(tsq);
+    ts_queue_release(&tsq);
     return 0;
 }

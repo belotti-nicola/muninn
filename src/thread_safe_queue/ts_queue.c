@@ -13,19 +13,18 @@ ts_queue_t ts_queue_setup()
     return retVal;
 }
 
-bool ts_queue_pop(ts_queue_t* q,queue_message_t *out)
+bool ts_queue_pop(ts_queue_t* q, queue_message_t *out)
 {
     pthread_mutex_lock(&q->mutex);
-    
-    queue_t target = q->queue;
-    while( target.size == 0)
+
+    while (q->queue.size == 0)
     {
         pthread_cond_wait(
-            &(q->empty),
-            &(q->mutex)
+            &q->empty,
+            &q->mutex
         );
     }
-    bool retVal = queue_pop(&target,out);
+    bool retVal = queue_pop(&q->queue, out);
 
     pthread_mutex_unlock(&q->mutex);
     return retVal;
@@ -47,12 +46,12 @@ bool ts_queue_push(ts_queue_t* q, queue_message_t *msg)
     return retVal;
 }
 
-void ts_queue_release(ts_queue_t q)
-{
+void ts_queue_release(ts_queue_t *q)
+{   
     pthread_mutex_destroy(
-        &(q.mutex)
+        &(q->mutex)
     );
      pthread_cond_destroy(
-        &(q.empty)
+        &(q->empty)
     );
 }
