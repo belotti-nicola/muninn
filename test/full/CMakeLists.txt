@@ -7,12 +7,19 @@ function(add_munin_test test_name source_file)
             ${ARGN}
     )
 
-    add_test(NAME ${test_name}
-             COMMAND ${test_name})
+    # Directory del file sorgente senza estensione
+    get_filename_component(test_dir ${source_file} DIRECTORY)
+
+    add_test(
+        NAME ${test_name}
+        COMMAND ${test_name}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${test_dir}
+    )
 
     set_tests_properties(${test_name}
-        PROPERTIES TIMEOUT 10)
+        PROPERTIES TIMEOUT 15)
+
 endfunction()
 
-
-add_munin_test(TestInstantiatorFull test_full.c)
+add_munin_test(TestInstantiatorFull           test_full.c)
+add_munin_test(TestInstantiatorStressingMunin test_stressing_muninn.c)

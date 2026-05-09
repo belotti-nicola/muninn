@@ -3,21 +3,17 @@
 
 #include "muninn.h"
 
-void muninn_setup(const char *path, muninn_t *m)
+void muninn_init(const char *path, muninn_t *muninn)
 {
+    strncpy(muninn->path, path, P_SIZE - 1);
+    muninn->path[P_SIZE - 1] = '\0';
 
-    strncpy(m->path, path, PATH_LEN - 1);
-    m->path[PATH_LEN - 1] = '\0';
+    muninn->file = NULL;
+    muninn->q = ts_queue_setup();
 
-    m->file = NULL;
-    m->q = ts_queue_setup();
+    atomic_init(&muninn->running, false);
+    atomic_init(&muninn->keep_looping, true);
 
-    atomic_init(&m->running, false);
-    atomic_init(&m->keep_looping, true);
-}
-
-void muninn_start(muninn_t *muninn)
-{
     int rc = pthread_create(
         &(muninn->thread),NULL,muninn_thread_function,muninn);
     if( rc != 0 )
@@ -36,19 +32,22 @@ void muninn_log(muninn_t *muninn, const char *msg)
     ts_queue_push(&muninn->q, &qm);
 }
 
-void muninn_join(muninn_t *muninn)
+void muninn_shutdown(muninn_t *muninn)
 {
     atomic_store(&muninn->keep_looping, false);
 
-    //TODO WAKE MECHANISM TO IMPLEMENT
-    muninn_log(muninn,"termination");
-
+    ts_queue_wake_without_push(&muninn->q);
     int rc = pthread_join(muninn->thread, NULL);
     if( rc != 0 )
     {
         printf("Error! %d\n",rc);
         return;
     }
+
+    fclose(muninn->file);
+    muninn->file = NULL;
+
+    ts_queue_release(&muninn->q);
 }
 
 void *muninn_thread_function(void *arg)
@@ -77,9 +76,6 @@ void *muninn_thread_function(void *arg)
     }
     atomic_store(&muninn->running, false);
 
-    fclose(muninn->file);
-    muninn->file = NULL;
     ts_queue_release(&muninn->q);
-
     return NULL;
 }

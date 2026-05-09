@@ -6,18 +6,16 @@
 
 int main(void)
 {
-    muninn_t logger;
+    muninn_t muninn;
 
-    muninn_setup("test.log", &logger);
+    muninn_init("test.log", &muninn);
 
-    muninn_start(&logger);
-
-    muninn_log(&logger, "hello");
-    muninn_log(&logger, "world");
+    muninn_log(&muninn, "hello");
+    muninn_log(&muninn, "world");
 
     sleep(1);
 
-    muninn_join(&logger);
+    muninn_shutdown(&muninn);
 
 
     FILE *test_file = fopen("test.log", "r");
@@ -31,7 +29,18 @@ int main(void)
     fgets(buffer, sizeof(buffer), test_file);
     assert(strncmp(buffer, "world", 5) == 0);
 
-    fclose(test_file);
+    if (fgets(buffer, sizeof(buffer), test_file) == NULL)
+    {
+        if (feof(test_file))
+        {
+            
+        }
+        else if (ferror(test_file))
+        {
+            return 1;
+        }
+    }
 
+    fclose(test_file);
     return 0;
 }

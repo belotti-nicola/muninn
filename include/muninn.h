@@ -9,10 +9,10 @@
 #include <stdatomic.h>
 #include "internal/ts_queue.h"
 
-#define PATH_LEN 256
+#include <internal/munin_int.h>
 
 typedef struct {
-    char path[PATH_LEN];
+    char path[P_SIZE];
     FILE* file;
     atomic_bool running;
     atomic_bool keep_looping;
@@ -22,10 +22,8 @@ typedef struct {
 
 } muninn_t;
 
-void     muninn_setup(const char *path, muninn_t *m);
-void     muninn_start(muninn_t *muninn);
+void     muninn_init(const char *path, muninn_t *m);
 void     muninn_log(muninn_t *muninn,const char *msg);
-void     muninn_join(muninn_t *muninn);
-
+void     muninn_shutdown(muninn_t *muninn);
 
 #endif 

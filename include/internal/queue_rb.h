@@ -5,8 +5,7 @@
 #include <stdbool.h>
 #include "queue_message.h"
 
-#define BUFFER_LENGTH 1024
-
+#include <internal/munin_int.h>
 
 typedef struct queue 
 {
@@ -14,7 +13,7 @@ typedef struct queue
     size_t last_index;
     size_t size;
 
-    queue_message_t buffer[1024];
+    queue_message_t buffer[Q_SIZE];
     
 
 } queue_t;

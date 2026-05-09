@@ -6,6 +6,7 @@ ts_queue_t ts_queue_setup()
     ts_queue_t retVal;
 
     retVal.queue = queue_setup();
+    retVal.stop = false;
 
     pthread_mutex_init(&retVal.mutex, NULL);
     pthread_cond_init(&retVal.empty, NULL);
@@ -17,13 +18,17 @@ bool ts_queue_pop(ts_queue_t* q, queue_message_t *out)
 {
     pthread_mutex_lock(&q->mutex);
 
-    while (q->queue.size == 0)
+    while (q->queue.size == 0 && !q->stop)
     {
-        pthread_cond_wait(
-            &q->empty,
-            &q->mutex
-        );
+        pthread_cond_wait(&q->empty, &q->mutex);
     }
+
+    if (q->stop)
+    {
+        pthread_mutex_unlock(&q->mutex);
+        return false;
+    }
+
     bool retVal = queue_pop(&q->queue, out);
 
     pthread_mutex_unlock(&q->mutex);
@@ -54,4 +59,15 @@ void ts_queue_release(ts_queue_t *q)
      pthread_cond_destroy(
         &(q->empty)
     );
+}
+
+void ts_queue_wake_without_push(ts_queue_t *q)
+{
+    pthread_mutex_lock(&q->mutex);
+
+    q->stop = true;
+    pthread_cond_broadcast(&q->empty);
+    
+    pthread_mutex_unlock(&q->mutex);
+
 }

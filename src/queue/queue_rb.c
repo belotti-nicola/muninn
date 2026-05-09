@@ -25,7 +25,7 @@ bool queue_pop(queue_t *q,queue_message_t *out)
   int target_index  = q->first_index;
   *out              = q->buffer[target_index];
 
-  target_index = (target_index + 1) % BUFFER_LENGTH;
+  target_index = (target_index + 1) % Q_SIZE;
 
   q->first_index = target_index;
 
@@ -36,15 +36,15 @@ bool queue_pop(queue_t *q,queue_message_t *out)
 
 bool queue_push(queue_t *q, queue_message_t *e)
 {
-  if(q->size >= BUFFER_LENGTH)
+  if(q->size >= Q_SIZE)
   {
-    fprintf(stderr, "Limit reached. Size is:%d.\n", BUFFER_LENGTH);
+    fprintf(stderr, "Limit reached. Size is:%d.\n", Q_SIZE);
     return false;
   }
 
   q->buffer[q->last_index] = *e;
 
-  q->last_index = (q->last_index + 1) % BUFFER_LENGTH;
+  q->last_index = (q->last_index + 1) % Q_SIZE;
 
   q->size++;
 

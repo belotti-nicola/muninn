@@ -11,7 +11,7 @@ function(add_munin_test test_name source_file)
              COMMAND ${test_name})
 
     set_tests_properties(${test_name}
-        PROPERTIES TIMEOUT 10)
+        PROPERTIES TIMEOUT 5)
 endfunction()
 
 
