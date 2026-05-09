@@ -1,18 +1,18 @@
-#include "internal/queue_rb.h"
+#include "internal/ts_queue.h"
 #include <string.h>
 #include <stdlib.h>
 
 int main()
 {
-    queue_t q = queue_setup();
+    ts_queue_t tsq = ts_queue_setup();
     queue_message_t qm = 
     {
         .message = "A"
     };
     bool cmd;
     
-    queue_push(&q,&qm);
-    cmd = queue_pop(&q,&qm);
+    ts_queue_push(&tsq,&qm);
+    cmd = ts_queue_pop(&tsq,&qm);
     if(cmd == false)
     {
         printf("Error at line %d: queue failure!\n",__LINE__);
@@ -25,5 +25,7 @@ int main()
         return 1;
     }
 
+
+    ts_queue_release(tsq);
     return 0;
 }

@@ -14,8 +14,10 @@ set(MUNINN_SOURCES
     #src/log_message.h
     #src/log_message.c
 
-    src/queue/queue.c
-    src/queue/elem.c
+    src/queue/queue_message.c
+    src/queue/queue_rb.c
+    src/thread_safe_queue/ts_queue.c
+    src/muninn.c
 )
 
 add_subdirectory(test)
