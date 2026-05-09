@@ -13,13 +13,13 @@ function(add_munin_test test_name source_file)
     add_test(
         NAME ${test_name}
         COMMAND ${test_name}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${test_dir}
+        WORKING_DIRECTORY $<TARGET_FILE_DIR:${test_name}>
     )
 
     set_tests_properties(${test_name}
-        PROPERTIES TIMEOUT 15)
+        PROPERTIES TIMEOUT 20)
 
 endfunction()
 
-add_munin_test(TestInstantiatorFull           test_full.c)
-add_munin_test(TestInstantiatorStressingMunin test_stressing_muninn.c)
+add_munin_test(TestInstantiatorFull            test_full.c)
+add_munin_test(TestInstantiatorStressingMuninm test_stressing_muninn.c)

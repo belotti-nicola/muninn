@@ -15,7 +15,6 @@ typedef struct {
     char path[P_SIZE];
     FILE* file;
     atomic_bool running;
-    atomic_bool keep_looping;
     pthread_t thread;
 
     ts_queue_t q;

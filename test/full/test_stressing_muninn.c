@@ -10,9 +10,9 @@
 
 #include "muninn.h"
 
-#define THREAD_COUNT           8
-#define MSG_PER_THREAD         100
-#define MAX_LINE_SIZE          128
+#define THREAD_COUNT           20
+#define MSG_PER_THREAD         200
+#define MAX_LINE_SIZE          512
 #define TEST_LOG_FILE          "stress_test.log"
 
 typedef struct
@@ -125,6 +125,7 @@ int main(void)
         assert(rc == 0);
     }
 
+    
     /*
      * WAIT ALL PRODUCERS
      */
@@ -132,9 +133,6 @@ int main(void)
     {
         pthread_join(threads[i], NULL);
     }
-
-
-    sleep(10);
 
     /*
      * SHUTDOWN LOGGER

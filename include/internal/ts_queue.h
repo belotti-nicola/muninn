@@ -16,7 +16,8 @@ typedef struct ts_queue
 ts_queue_t   ts_queue_setup();
 bool         ts_queue_pop(ts_queue_t* q,queue_message_t *out);
 bool         ts_queue_push(ts_queue_t* q,queue_message_t *msg);
+void         ts_queue_stop(ts_queue_t *q);
 void         ts_queue_release(ts_queue_t *q);
-void         ts_queue_wake_without_push(ts_queue_t *q);
+
 
 #endif
