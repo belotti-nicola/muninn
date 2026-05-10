@@ -1,0 +1,11 @@
+#ifndef COMPRESSION_FORMATS_TYPE
+#define COMPRESSION_FORMATS_TYPE
+
+typedef enum COMPRESSION_TYPE
+{
+    GZIP,
+    ZSTD
+
+} COMPRESSION_TYPE;
+
+#endif

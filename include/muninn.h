@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdatomic.h>
 #include "internal/ts_queue.h"
+#include <stdint.h>
 
 #include <internal/munin_int.h>
 
@@ -16,6 +17,8 @@ typedef struct {
     FILE* file;
     atomic_bool running;
     pthread_t thread;
+    pthread_t compressor;
+    uint64_t written_bytes;
 
     ts_queue_t q;
 

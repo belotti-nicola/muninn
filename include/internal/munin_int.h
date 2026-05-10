@@ -19,6 +19,8 @@
 
 #define P_SIZE  256  //MAXIMUM LOG PATH SIZE
 
+#define F_MAX_SIZE 1024*1024 //MAXIMUM FILE SIZE
+
 void *muninn_thread_function(void *arg);
 
 #endif

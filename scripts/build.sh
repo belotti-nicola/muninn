@@ -6,3 +6,4 @@ cd build
 cmake -S .. -B .
 make
 cmake --install . --prefix ~/.local
+cd .. && sudo cmake --install build --prefix /usr/local

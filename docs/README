@@ -1,0 +1,3 @@
+before compiling you need to:
+
+sudo apt install libzstd-dev

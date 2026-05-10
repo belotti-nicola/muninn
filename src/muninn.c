@@ -1,5 +1,6 @@
 #include "internal/munin_int.h"
 #include <string.h>
+#include <internal/zstd_wrapper.h>
 
 #include "muninn.h"
 
@@ -8,18 +9,28 @@ void muninn_init(const char *path, muninn_t *muninn)
     strncpy(muninn->path, path, P_SIZE - 1);
     muninn->path[P_SIZE - 1] = '\0';
 
+    muninn->written_bytes = 0;
     muninn->file = NULL;
     muninn->q = ts_queue_setup();
 
     atomic_init(&muninn->running, false);
 
-    int rc = pthread_create(
+    int rc;
+    rc = pthread_create(
         &(muninn->thread),NULL,muninn_thread_function,muninn);
     if( rc != 0 )
     {
-        printf("Error! %d\n",rc);
+        printf("Error! muninn_thread_function %d\n",rc);
         return;
     }
+
+    // rc = pthread_create(
+    //     &(muninn->thread),NULL,muninn_rotated_compressor,muninn);
+    // if( rc != 0 )
+    // {
+    //     printf("Error! muninn_rotated_compressor %d\n",rc);
+    //     return;
+    // }
 }
 
 void muninn_log(muninn_t *muninn, const char *msg)
@@ -33,6 +44,8 @@ void muninn_log(muninn_t *muninn, const char *msg)
 
 void muninn_shutdown(muninn_t *muninn)
 {
+    
+    
     ts_queue_stop(&muninn->q);
     int rc = pthread_join(muninn->thread, NULL);
     if( rc != 0 )
@@ -60,6 +73,11 @@ void *muninn_thread_function(void *arg)
     {
         fprintf(muninn->file, "%s\n", qm.message);
         fflush(muninn->file);
+        muninn->written_bytes += strlen(qm.message)+1;
+        if(muninn->written_bytes < F_MAX_SIZE)
+        {
+            continue;
+        }
     }
 
     atomic_store(&muninn->running, false);
@@ -68,3 +86,4 @@ void *muninn_thread_function(void *arg)
     muninn->file = NULL;
     return NULL;
 }
+

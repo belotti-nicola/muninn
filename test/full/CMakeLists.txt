@@ -22,4 +22,5 @@ function(add_munin_test test_name source_file)
 endfunction()
 
 add_munin_test(TestInstantiatorFull            test_full.c)
-add_munin_test(TestInstantiatorStressingMuninm test_stressing_muninn.c)
+add_munin_test(TestInstantiatorStressingMuninn test_stressing_muninn.c)
+add_munin_test(TestInstantiatorCompression     test_compression.c)
