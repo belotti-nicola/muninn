@@ -6,9 +6,12 @@
 
 int main(void)
 {
+    char logname[256];
+    snprintf(logname, sizeof(logname), "%s.log", __FILE__);
+
     muninn_t muninn;
 
-    muninn_init("test_full.log", &muninn);
+    muninn_init(logname, &muninn);
 
     muninn_log(&muninn, "hello");
     muninn_log(&muninn, "world");

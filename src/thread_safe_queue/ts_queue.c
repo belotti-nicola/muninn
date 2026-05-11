@@ -1,17 +1,13 @@
 
 #include "ts_queue.h"
 
-ts_queue_t ts_queue_setup()
+void ts_queue_setup(ts_queue_t *tsq)
 {
-    ts_queue_t retVal;
+    tsq->queue = queue_setup();
+    tsq->stop = false;
 
-    retVal.queue = queue_setup();
-    retVal.stop = false;
-
-    pthread_mutex_init(&retVal.mutex, NULL);
-    pthread_cond_init(&retVal.empty, NULL);
-
-    return retVal;
+    pthread_mutex_init(&tsq->mutex, NULL);
+    pthread_cond_init(&tsq->empty, NULL);
 }
 
 bool ts_queue_pop(ts_queue_t* q, queue_message_t *out)

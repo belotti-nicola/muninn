@@ -4,7 +4,8 @@
 
 int main()
 {
-    ts_queue_t q = ts_queue_setup();
+    ts_queue_t q;
+    ts_queue_setup(&q);
     queue_message_t qm = 
     {
         .message = "A"

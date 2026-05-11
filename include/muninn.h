@@ -4,23 +4,25 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <stdbool.h>
 #include <stdatomic.h>
-#include "internal/ts_queue.h"
 #include <stdint.h>
 
 #include <internal/munin_int.h>
 
-typedef struct {
-    char path[P_SIZE];
-    FILE* file;
-    atomic_bool running;
-    pthread_t thread;
-    pthread_t compressor;
-    uint64_t written_bytes;
+#include <internal/compressor_th.h>
+#include <internal/logger_th.h>
 
-    ts_queue_t q;
+typedef struct {
+    atomic_bool running;
+    char path[P_SIZE];
+
+    compressor_th_data compressor_th;
+    ts_queue_t         compressor_q;
+
+    logger_th_data     logger_th;
+    ts_queue_t         logger_q;
+
 
 } muninn_t;
 

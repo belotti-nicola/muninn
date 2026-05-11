@@ -2,88 +2,42 @@
 #include <string.h>
 #include <internal/zstd_wrapper.h>
 
+#include <internal/compressor_th.h>
+#include <internal/logger_th.h>
+
 #include "muninn.h"
 
 void muninn_init(const char *path, muninn_t *muninn)
 {
-    strncpy(muninn->path, path, P_SIZE - 1);
-    muninn->path[P_SIZE - 1] = '\0';
+    ts_queue_setup(&muninn->logger_q);
+    ts_queue_setup(&muninn->compressor_q);
+    
+    logger_th_data lthdata;
+    lthdata.queue = muninn->logger_q;
+    strncpy(lthdata.path, path, P_SIZE - 1);
+    lthdata.written_bytes = 0;
+    lthdata.file = NULL;
 
-    muninn->written_bytes = 0;
-    muninn->file = NULL;
-    muninn->q = ts_queue_setup();
+    compressor_th_data cthdata;
+    cthdata.tasks = muninn->compressor_q;
+    
+    logger_th_start(&lthdata);
+    compressor_th_start(&cthdata);
 
-    atomic_init(&muninn->running, false);
+    atomic_init(&muninn->running, true);
 
-    int rc;
-    rc = pthread_create(
-        &(muninn->thread),NULL,muninn_thread_function,muninn);
-    if( rc != 0 )
-    {
-        printf("Error! muninn_thread_function %d\n",rc);
-        return;
-    }
-
-    // rc = pthread_create(
-    //     &(muninn->thread),NULL,muninn_rotated_compressor,muninn);
-    // if( rc != 0 )
-    // {
-    //     printf("Error! muninn_rotated_compressor %d\n",rc);
-    //     return;
-    // }
 }
 
 void muninn_log(muninn_t *muninn, const char *msg)
 {
-    queue_message_t qm;
-    strncpy(qm.message, msg, sizeof(qm.message) - 1);
-    qm.message[sizeof(qm.message) - 1] = '\0';
-
-    ts_queue_push(&muninn->q, &qm);
+    logger_th_perform(&muninn->logger_th,msg);
 }
 
 void muninn_shutdown(muninn_t *muninn)
 {
-    
-    
-    ts_queue_stop(&muninn->q);
-    int rc = pthread_join(muninn->thread, NULL);
-    if( rc != 0 )
-    {
-        printf("Error! %d\n",rc);
-        return;
-    }
+    compressor_th_stop(&muninn->compressor_th);
+    compressor_th_join(&muninn->compressor_th);
 
-    ts_queue_release(&muninn->q);
+    logger_th_stop(&muninn->logger_th);
+    logger_th_join(&muninn->logger_th);
 }
-
-void *muninn_thread_function(void *arg)
-{
-    muninn_t *muninn = (muninn_t *)arg;
-
-    muninn->file = fopen(muninn->path, "a");
-    if (!muninn->file)
-        return NULL;
-
-    atomic_store(&muninn->running, true);
-
-    queue_message_t qm;
-
-    while (ts_queue_pop(&muninn->q, &qm))
-    {
-        fprintf(muninn->file, "%s\n", qm.message);
-        fflush(muninn->file);
-        muninn->written_bytes += strlen(qm.message)+1;
-        if(muninn->written_bytes < F_MAX_SIZE)
-        {
-            continue;
-        }
-    }
-
-    atomic_store(&muninn->running, false);
-
-    fclose(muninn->file);
-    muninn->file = NULL;
-    return NULL;
-}
-

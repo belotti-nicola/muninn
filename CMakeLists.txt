@@ -14,6 +14,8 @@ set(MUNINN_SOURCES
     src/queue/queue_rb.c
     src/thread_safe_queue/ts_queue.c
     src/compressor/format/zstd/zstd_wrapper.c
+    src/compressor/compressor_th.c
+    src/logger/logger_th.c
     src/muninn.c
 )
 
