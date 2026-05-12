@@ -1,24 +1,20 @@
 #include <internal/logger_th.h>
 #include <unistd.h>
-#include <dirent.h>
 #include <string.h>
 
 
-#define TESTPATH "test_log.txt"
+#define TESTPATH "test_log_th_routine.txt"
 
 int main()
 {
-    ts_queue_t q;ts_queue_setup(&q);
     logger_th_data data;
-    
-    data.queue = q;
+    ts_queue_t q;ts_queue_setup(&q);
+    data.queue = &q;
     strcpy(data.path,TESTPATH);
     
     logger_th_start(&data);
-   
     logger_th_perform(&data,"hello");
     logger_th_perform(&data,"world");
-
     logger_th_stop(&data);
     logger_th_join(&data);
 
@@ -29,29 +25,28 @@ int main()
         return 1;
     }
 
-    bool res;
-    char buffer[256];
-    res = fgets(buffer, sizeof(buffer), file);
-    if(res == NULL)
+
+    char buffer[128];
+    if (fgets(buffer, sizeof(buffer), file) == NULL)
     {
-        printf("Error: char pointer is null at line %d.\n",__LINE__);
+        printf("Error: fgets failed at line %d.\n", __LINE__);
         return 1;
     }
-    if(strncmp(buffer, "hello", 5) == 1)
+    if(strncmp(buffer, "hello", 5) != 0)
     {
-        printf("Error: string log differs from expected at line %d.\n",__LINE__);
+        printf("Error: string log(%s) differs from expected(%s) at line %d.\n",buffer,"hello",__LINE__);
         return 1;
     }
 
-    res = fgets(buffer, sizeof(buffer), file);
-    if(res == NULL)
+    fgets(buffer, sizeof(buffer), file);
+    if(buffer == NULL)
     {
         printf("Error: char pointer is null at line %d.\n",__LINE__);
         return 1;
     }
-    if(strncmp(buffer, "world", 5) == 1)
+    if(strncmp(buffer, "world", 5) != 0)
     {
-        printf("Error: string log differs from expected at line %d.\n",__LINE__);
+       printf("Error: string log(%s) differs from expected(%s) at line %d.\n",buffer,"world",__LINE__);
         return 1;
     }
 

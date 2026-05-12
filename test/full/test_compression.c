@@ -6,6 +6,8 @@
 #include <dirent.h>
 
 #define RERUN_TIMES 1
+#define TEST_LOG "test_compression.log"
+
 
 int zst_files_counter(const char* path)
 {
@@ -31,7 +33,7 @@ int zst_files_counter(const char* path)
 int main(void)
 {
     muninn_t muninn;
-    muninn_init("test_compression.log", &muninn);
+    muninn_init(TEST_LOG, &muninn);
 
 
     char message[M_SIZE];

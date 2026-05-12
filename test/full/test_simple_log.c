@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define LOG "test_log_th_routine.log"
+#define LOG "test_simple.log"
 
 int main(void)
 {

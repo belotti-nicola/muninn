@@ -27,8 +27,6 @@ void muninn_init(const char *path, muninn_t *muninn)
     compressor_th_start(&muninn->compressor_th);
     atomic_init(&muninn->running, true);
 
-    printf("%p %p %p\n",&muninn->compressor_q,&muninn->compressor_th.tasks,&muninn->logger_th.compress_q);
-
 }
 
 void muninn_log(muninn_t *muninn, const char *msg)

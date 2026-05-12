@@ -32,9 +32,6 @@ int main()
     ts_queue_t q;ts_queue_setup(&q);
     compressor_th_data data;data.tasks = &q;
     
-    int rc;
-    compressor_th_start(&data);
-    
 
     FILE* f = fopen(TESTPATH,"w");
     if(f == NULL)
@@ -44,8 +41,8 @@ int main()
     }
     fclose(f);
     
+    compressor_th_start(&data);
     compressor_th_perform(&data,TESTPATH);
-
     compressor_th_stop(&data);
     compressor_th_join(&data);
 

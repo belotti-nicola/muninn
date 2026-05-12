@@ -17,10 +17,6 @@ int logger_th_start(logger_th_data *lth_data)
 
 int logger_th_stop(logger_th_data *lth_data)
 {
-    if(atomic_load(&lth_data->running) == false)
-    {
-        return 0;
-    }
     ts_queue_stop(lth_data->queue);
     return 0;
 }
@@ -86,6 +82,7 @@ static void *logger_th_function(void *arg)
             strcat(rotating_file, ".rotating");
         }
         strcpy(qm_compressor.message,rotating_file);
+        rename(lth->path,rotating_file);
 
         ts_queue_push(lth->compress_q,&qm_compressor);
         lth->file = fopen(lth->path, "a");
@@ -93,6 +90,7 @@ static void *logger_th_function(void *arg)
         {
             return NULL;
         }
+        lth->written_bytes = 0;
     }
     
     atomic_store(&lth->running, false);

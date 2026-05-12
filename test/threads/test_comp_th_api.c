@@ -4,7 +4,7 @@
 int main()
 {
     compressor_th_data data;
-    ts_queue_t q;
+    ts_queue_t q;ts_queue_setup(&q);
     data.tasks = &q;
     
     int rc;
@@ -14,9 +14,7 @@ int main()
         printf("Error: compressor_th_start");
         return 1;
     }
-    
-    sleep(1);
-    
+        
     rc = compressor_th_stop(&data);
     if ( rc != 0)
     {
