@@ -5,7 +5,7 @@ int main()
 {
     compressor_th_data data;
     ts_queue_t q;
-    data.tasks = q;
+    data.tasks = &q;
     
     int rc;
     rc = compressor_th_start(&data);

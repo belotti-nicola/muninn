@@ -9,7 +9,7 @@
 //      Allocating Q_SIZE * M_SIZE bytes in the stack. 
 //      THIS CAN LEAD TO POTENTIAL STACKOVERFLOW CRASHES
 //
-#define Q_SIZE 4096  //MAXIMUM QUEUE SIZE
+#define Q_SIZE 1024  //MAXIMUM QUEUE SIZE
 #define M_SIZE  256  //MAXIMUM MESSAGE LENGTH
 //
 //

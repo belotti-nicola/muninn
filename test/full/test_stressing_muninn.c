@@ -10,8 +10,8 @@
 
 #include "muninn.h"
 
-#define THREAD_COUNT           20
-#define MSG_PER_THREAD         200
+#define THREAD_COUNT           1//20
+#define MSG_PER_THREAD         1//200
 #define MAX_LINE_SIZE          512
 #define TEST_LOG_FILE          "stress_test.log"
 

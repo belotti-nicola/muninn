@@ -9,9 +9,9 @@
 
 typedef struct compressor_th_data
 {
-    pthread_t   th;
-    atomic_bool running;
-    ts_queue_t  tasks;
+    pthread_t    th;
+    atomic_bool  running;
+    ts_queue_t  *tasks;
 
 } compressor_th_data;
 

@@ -30,7 +30,7 @@ int zst_files_counter()
 int main()
 {
     ts_queue_t q;ts_queue_setup(&q);
-    compressor_th_data data;data.tasks = q;
+    compressor_th_data data;data.tasks = &q;
     
     int rc;
     compressor_th_start(&data);

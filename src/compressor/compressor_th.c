@@ -22,21 +22,16 @@ int compressor_th_stop(compressor_th_data *cth_data)
     {
         return 0;
     }
-    ts_queue_stop(&cth_data->tasks);
+    ts_queue_stop(cth_data->tasks);
     return 0;
 }
 
 int compressor_th_join(compressor_th_data *cth_data)
 {
-    if(atomic_load(&cth_data->running) == false)
-    {
-        return 0;
-    }
-
     int rc = pthread_join(cth_data->th,NULL);
     if(rc != 0)
     {
-        fprintf(stderr,"Error joining thread.\n");
+        fprintf(stderr,"Error joining compressor thread.\n");
         return 1;
     }
 
@@ -50,7 +45,7 @@ static void *compressor_th_function(void *arg)
     queue_message_t qm;
     while(true)
     {
-        if(ts_queue_pop(&cth_data->tasks,&qm))
+        if(ts_queue_pop(cth_data->tasks,&qm))
         {
             zstd_compress_file(qm.message);
         }
@@ -60,6 +55,7 @@ static void *compressor_th_function(void *arg)
         }
 
     }
+    fprintf(stdout,"Compressor end.\n");
     return NULL;
 }
 
@@ -72,5 +68,5 @@ void compressor_th_perform(compressor_th_data *cth_data,const char *filepath)
     
     queue_message_t qm; 
     strcpy(qm.message,filepath);
-    ts_queue_push(&cth_data->tasks,&qm);
+    ts_queue_push(cth_data->tasks,&qm);
 }

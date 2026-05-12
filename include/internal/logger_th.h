@@ -9,14 +9,14 @@
 
 typedef struct logger_th_data
 {
-    char        path[P_SIZE];
-    pthread_t   th;
-    atomic_bool running;
-    FILE*       file;
-    uint64_t    written_bytes;
+    char         path[P_SIZE];
+    pthread_t    th;
+    atomic_bool  running;
+    FILE*        file;
+    uint64_t     written_bytes;
 
-    ts_queue_t  queue;
-    ts_queue_t  compress_q;
+    ts_queue_t  *queue;
+    ts_queue_t  *compress_q;
 
 } logger_th_data;
 

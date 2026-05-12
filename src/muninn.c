@@ -9,22 +9,25 @@
 
 void muninn_init(const char *path, muninn_t *muninn)
 {
+    strncpy(muninn->path, path, P_SIZE - 1);
+    
     ts_queue_setup(&muninn->logger_q);
     ts_queue_setup(&muninn->compressor_q);
-    
-    logger_th_data lthdata;
-    lthdata.queue = muninn->logger_q;
-    strncpy(lthdata.path, path, P_SIZE - 1);
-    lthdata.written_bytes = 0;
-    lthdata.file = NULL;
 
-    compressor_th_data cthdata;
-    cthdata.tasks = muninn->compressor_q;
-    
-    logger_th_start(&lthdata);
-    compressor_th_start(&cthdata);
+    memset(&muninn->logger_th, 0, sizeof(logger_th_data));
+    memset(&muninn->compressor_th, 0, sizeof(compressor_th_data));
 
+    strncpy(muninn->logger_th.path, path, P_SIZE - 1);
+    muninn->logger_th.queue = &muninn->logger_q;
+    muninn->logger_th.compress_q = &muninn->compressor_q;
+       
+    muninn->compressor_th.tasks = &muninn->compressor_q;
+    
+    logger_th_start(&muninn->logger_th);
+    compressor_th_start(&muninn->compressor_th);
     atomic_init(&muninn->running, true);
+
+    printf("%p %p %p\n",&muninn->compressor_q,&muninn->compressor_th.tasks,&muninn->logger_th.compress_q);
 
 }
 

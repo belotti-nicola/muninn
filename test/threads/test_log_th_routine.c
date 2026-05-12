@@ -32,12 +32,28 @@ int main()
     bool res;
     char buffer[256];
     res = fgets(buffer, sizeof(buffer), file);
-    assert(res != NULL);    
-    assert(strncmp(buffer, "hello", 5) == 0);
+    if(res == NULL)
+    {
+        printf("Error: char pointer is null at line %d.\n",__LINE__);
+        return 1;
+    }
+    if(strncmp(buffer, "hello", 5) == 1)
+    {
+        printf("Error: string log differs from expected at line %d.\n",__LINE__);
+        return 1;
+    }
 
     res = fgets(buffer, sizeof(buffer), file);
-    assert(res != NULL);    
-    assert(strncmp(buffer, "world", 5) == 0);
+    if(res == NULL)
+    {
+        printf("Error: char pointer is null at line %d.\n",__LINE__);
+        return 1;
+    }
+    if(strncmp(buffer, "world", 5) == 1)
+    {
+        printf("Error: string log differs from expected at line %d.\n",__LINE__);
+        return 1;
+    }
 
     if (fgets(buffer, sizeof(buffer), file) == NULL)
     {

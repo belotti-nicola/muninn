@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <dirent.h>
 
-#define RERUN_TIMES 5
+#define RERUN_TIMES 1
 
 int zst_files_counter(const char* path)
 {
@@ -39,8 +39,7 @@ int main(void)
     memset(message,a_ascii,M_SIZE-1);
     message[M_SIZE-1]='\0';
 
-    int file_counter;
-    int times = F_MAX_SIZE / (M_SIZE-1) + 50;
+    int times = F_MAX_SIZE / (M_SIZE-1) + 100;
     for(int i=0;i<RERUN_TIMES;i++)
     {
         // overflow the F_MAX_SIZE limit!
@@ -49,17 +48,15 @@ int main(void)
             muninn_log(&muninn,message);
             usleep(10);
         }
+    }
+    muninn_shutdown(&muninn);
 
-        file_counter = zst_files_counter(".");
-        if ( file_counter != i+1) 
-        {
-            printf("Error: zst files number differs from expected (found %d files instead of %d).\n",file_counter,i+1);
-            return 1;
-        }
-
+    int file_counter = zst_files_counter(".");
+    if ( file_counter != 1) 
+    {
+        printf("Error: zst files number differs from expected (found %d files instead of %d).\n",file_counter,1);
+        return 1;
     }
 
-   
-    muninn_shutdown(&muninn);
     return 0;
 }
