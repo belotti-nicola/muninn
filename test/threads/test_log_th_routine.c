@@ -38,7 +38,11 @@ int main()
         return 1;
     }
 
-    fgets(buffer, sizeof(buffer), file);
+    if (fgets(buffer, sizeof(buffer), file) == NULL)
+    {
+        printf("Error: fgets failed at line %d.\n", __LINE__);
+        return 1;
+    }
     if(buffer == NULL)
     {
         printf("Error: char pointer is null at line %d.\n",__LINE__);

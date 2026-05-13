@@ -1,0 +1,473 @@
+// compress.c
+
+#include "compress.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+#include <zstd.h>
+#include <zlib.h>
+#include <lz4.h>
+#include <lzma.h>
+
+void compress_free(void *p)
+{
+    free(p);
+}
+
+//
+// ------------------------------------------------------------
+// COMPRESSION
+// ------------------------------------------------------------
+//
+
+static int compress_zstd(
+    const void *src,
+    size_t src_size,
+    void **dst,
+    size_t *dst_size,
+    int level)
+{
+    size_t bound = ZSTD_compressBound(src_size);
+
+    void *out = malloc(bound);
+    if (!out)
+        return -1;
+
+    size_t res = ZSTD_compress(
+        out,
+        bound,
+        src,
+        src_size,
+        level);
+
+    if (ZSTD_isError(res)) {
+        free(out);
+        return -2;
+    }
+
+    *dst = out;
+    *dst_size = res;
+
+    return 0;
+}
+
+static int compress_gzip(
+    const void *src,
+    size_t src_size,
+    void **dst,
+    size_t *dst_size,
+    int level)
+{
+    uLong bound = compressBound(src_size);
+
+    void *out = malloc(bound);
+    if (!out)
+        return -1;
+
+    z_stream zs;
+    memset(&zs, 0, sizeof(zs));
+
+    if (deflateInit2(
+            &zs,
+            level,
+            Z_DEFLATED,
+            15 + 16,
+            8,
+            Z_DEFAULT_STRATEGY) != Z_OK)
+    {
+        free(out);
+        return -2;
+    }
+
+    zs.next_in = (Bytef *)src;
+    zs.avail_in = src_size;
+
+    zs.next_out = out;
+    zs.avail_out = bound;
+
+    int ret = deflate(&zs, Z_FINISH);
+
+    if (ret != Z_STREAM_END) {
+        deflateEnd(&zs);
+        free(out);
+        return -3;
+    }
+
+    *dst = out;
+    *dst_size = zs.total_out;
+
+    deflateEnd(&zs);
+
+    return 0;
+}
+
+static int compress_lz4(
+    const void *src,
+    size_t src_size,
+    void **dst,
+    size_t *dst_size,
+    int level)
+{
+    int bound = LZ4_compressBound((int)src_size);
+
+    void *out = malloc(bound);
+    if (!out)
+        return -1;
+
+    int written = LZ4_compress_HC(
+        (const char *)src,
+        (char *)out,
+        (int)src_size,
+        bound,
+        level);
+
+    if (written <= 0) {
+        free(out);
+        return -2;
+    }
+
+    *dst = out;
+    *dst_size = written;
+
+    return 0;
+}
+
+static int compress_xz(
+    const void *src,
+    size_t src_size,
+    void **dst,
+    size_t *dst_size,
+    int level)
+{
+    size_t out_cap = src_size + (src_size / 3) + 1024;
+
+    void *out = malloc(out_cap);
+    if (!out)
+        return -1;
+
+    size_t out_pos = 0;
+
+    lzma_ret ret = lzma_easy_buffer_encode(
+        level,
+        LZMA_CHECK_CRC64,
+        NULL,
+        src,
+        src_size,
+        out,
+        &out_pos,
+        out_cap);
+
+    if (ret != LZMA_OK) {
+        free(out);
+        return -2;
+    }
+
+    *dst = out;
+    *dst_size = out_pos;
+
+    return 0;
+}
+
+//
+// ------------------------------------------------------------
+// DECOMPRESSION
+// ------------------------------------------------------------
+//
+
+static int decompress_zstd(
+    const void *src,
+    size_t src_size,
+    void **dst,
+    size_t *dst_size)
+{
+    unsigned long long original_size =
+        ZSTD_getFrameContentSize(src, src_size);
+
+    if (original_size == ZSTD_CONTENTSIZE_ERROR)
+        return -1;
+
+    if (original_size == ZSTD_CONTENTSIZE_UNKNOWN)
+        return -2;
+
+    void *out = malloc((size_t)original_size);
+    if (!out)
+        return -3;
+
+    size_t res = ZSTD_decompress(
+        out,
+        (size_t)original_size,
+        src,
+        src_size);
+
+    if (ZSTD_isError(res)) {
+        free(out);
+        return -4;
+    }
+
+    *dst = out;
+    *dst_size = res;
+
+    return 0;
+}
+
+static int decompress_gzip(
+    const void *src,
+    size_t src_size,
+    void **dst,
+    size_t *dst_size)
+{
+    size_t out_cap = src_size * 4;
+
+    if (out_cap < 1024)
+        out_cap = 1024;
+
+    void *out = malloc(out_cap);
+    if (!out)
+        return -1;
+
+    z_stream zs;
+    memset(&zs, 0, sizeof(zs));
+
+    if (inflateInit2(&zs, 15 + 16) != Z_OK) {
+        free(out);
+        return -2;
+    }
+
+    zs.next_in = (Bytef *)src;
+    zs.avail_in = src_size;
+
+    zs.next_out = out;
+    zs.avail_out = out_cap;
+
+    while (1) {
+
+        int ret = inflate(&zs, Z_NO_FLUSH);
+
+        if (ret == Z_STREAM_END)
+            break;
+
+        if (ret != Z_OK) {
+            inflateEnd(&zs);
+            free(out);
+            return -3;
+        }
+
+        if (zs.avail_out == 0) {
+
+            out_cap *= 2;
+
+            void *tmp = realloc(out, out_cap);
+            if (!tmp) {
+                inflateEnd(&zs);
+                free(out);
+                return -4;
+            }
+
+            out = tmp;
+
+            zs.next_out =
+                (Bytef *)out + zs.total_out;
+
+            zs.avail_out =
+                out_cap - zs.total_out;
+        }
+    }
+
+    *dst = out;
+    *dst_size = zs.total_out;
+
+    inflateEnd(&zs);
+
+    return 0;
+}
+
+static int decompress_lz4(
+    const void *src,
+    size_t src_size,
+    void **dst,
+    size_t *dst_size)
+{
+    //
+    // LZ4 raw NON salva la size originale.
+    // Devi conoscerla esternamente.
+    //
+    // Qui assumiamo che *dst_size
+    // contenga la dimensione attesa.
+    //
+
+    void *out = malloc(*dst_size);
+    if (!out)
+        return -1;
+
+    int ret = LZ4_decompress_safe(
+        (const char *)src,
+        (char *)out,
+        (int)src_size,
+        (int)*dst_size);
+
+    if (ret < 0) {
+        free(out);
+        return -2;
+    }
+
+    *dst = out;
+    *dst_size = ret;
+
+    return 0;
+}
+
+static int decompress_xz(
+    const void *src,
+    size_t src_size,
+    void **dst,
+    size_t *dst_size)
+{
+    size_t out_cap = src_size * 8;
+
+    if (out_cap < 4096)
+        out_cap = 4096;
+
+    void *out = malloc(out_cap);
+    if (!out)
+        return -1;
+
+    size_t in_pos = 0;
+    size_t out_pos = 0;
+
+    uint64_t memlimit = UINT64_MAX;
+
+    lzma_ret ret;
+
+    while (1) {
+
+        ret = lzma_stream_buffer_decode(
+            &memlimit,
+            0,
+            NULL,
+            src,
+            &in_pos,
+            src_size,
+            out,
+            &out_pos,
+            out_cap);
+
+        if (ret == LZMA_OK)
+            break;
+
+        if (ret != LZMA_BUF_ERROR) {
+            free(out);
+            return -2;
+        }
+
+        out_cap *= 2;
+
+        void *tmp = realloc(out, out_cap);
+        if (!tmp) {
+            free(out);
+            return -3;
+        }
+
+        out = tmp;
+    }
+
+    *dst = out;
+    *dst_size = out_pos;
+
+    return 0;
+}
+
+//
+// ------------------------------------------------------------
+// PUBLIC API
+// ------------------------------------------------------------
+//
+
+int compress_buffer(
+    CompressFormat fmt,
+    const void *src,
+    size_t src_size,
+    void **dst,
+    size_t *dst_size,
+    int level)
+{
+    switch (fmt) {
+
+    case COMPRESS_ZSTD:
+        return compress_zstd(
+            src,
+            src_size,
+            dst,
+            dst_size,
+            level);
+
+    case COMPRESS_GZIP:
+        return compress_gzip(
+            src,
+            src_size,
+            dst,
+            dst_size,
+            level);
+
+    case COMPRESS_LZ4:
+        return compress_lz4(
+            src,
+            src_size,
+            dst,
+            dst_size,
+            level);
+
+    case COMPRESS_XZ:
+        return compress_xz(
+            src,
+            src_size,
+            dst,
+            dst_size,
+            level);
+
+    default:
+        return -999;
+    }
+}
+
+int decompress_buffer(
+    CompressFormat fmt,
+    const void *src,
+    size_t src_size,
+    void **dst,
+    size_t *dst_size)
+{
+    switch (fmt) {
+
+    case COMPRESS_ZSTD:
+        return decompress_zstd(
+            src,
+            src_size,
+            dst,
+            dst_size);
+
+    case COMPRESS_GZIP:
+        return decompress_gzip(
+            src,
+            src_size,
+            dst,
+            dst_size);
+
+    case COMPRESS_LZ4:
+        return decompress_lz4(
+            src,
+            src_size,
+            dst,
+            dst_size);
+
+    case COMPRESS_XZ:
+        return decompress_xz(
+            src,
+            src_size,
+            dst,
+            dst_size);
+
+    default:
+        return -999;
+    }
+}

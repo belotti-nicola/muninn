@@ -1,4 +1,14 @@
 before compiling you need to:
 
+
+sudo apt update
+
 sudo apt-get install pkg-config
-sudo apt install libzstd-dev
+
+sudo apt install \
+    build-essential \
+    cmake \
+    libzstd-dev \
+    zlib1g-dev \
+    liblz4-dev \
+    liblzma-dev
