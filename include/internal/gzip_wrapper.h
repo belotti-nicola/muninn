@@ -5,19 +5,27 @@
 
 
 int gzip_compress(
-    const void *src,
-    size_t src_size,
-    void **dst,
-    size_t *dst_size,
-    int level
+    const         void *src,
+    size_t        src_size,
+    void        **dst,
+    size_t       *dst_size,
+    int           level
 );
 
 int gzip_decompress(
-    const void *src,
-    size_t src_size,
-    void **dst,
-    size_t *dst_size,
-    int level
+    const void   *src,
+    size_t        src_size,
+    void        **dst,
+    size_t       *dst_size
 );
+
+int gzip_compress_file(
+    const char *path
+);
+
+int gzip_decompress_file(
+    const char *path
+);
+
 
 #endif

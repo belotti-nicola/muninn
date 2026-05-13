@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <zlib.h>
 
@@ -69,8 +70,7 @@ int gzip_decompress(
     const void *src,
     size_t src_size,
     void **dst,
-    size_t *dst_size,
-    int level)
+    size_t *dst_size)
 {
     if (!src || !dst || !dst_size)
         return -1;
@@ -167,6 +167,160 @@ int gzip_decompress(
     *dst_size = zs.total_out;
 
     inflateEnd(&zs);
+
+    return 0;
+}
+
+int gzip_compress_file(const char *input_path)
+{
+    if (!input_path)
+        return -1;
+
+    FILE *f = fopen(input_path, "rb");
+    if (!f)
+        return -2;
+
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    if (size <= 0)
+    {
+        fclose(f);
+        return -3;
+    }
+
+    void *buffer = malloc(size);
+    if (!buffer)
+    {
+        fclose(f);
+        return -4;
+    }
+
+    size_t tmp_read = fread(buffer, 1, size, f);
+    if (tmp_read != (size_t)size)
+    {
+        free(buffer);
+        fclose(f);
+        return -5;
+    }
+    fclose(f);
+
+    void *compressed = NULL;
+    size_t compressed_size = 0;
+
+    int rc = gzip_compress(
+        buffer,
+        size,
+        &compressed,
+        &compressed_size,
+        6
+    );
+
+    free(buffer);
+
+    if (rc != 0)
+        return -6;
+
+    char out_path[1024];
+    snprintf(out_path, sizeof(out_path), "%s.gz", input_path);
+
+    FILE *out = fopen(out_path, "wb");
+    if (!out)
+    {
+        free(compressed);
+        return -7;
+    }
+
+    fwrite(compressed, 1, compressed_size, out);
+
+    fclose(out);
+    free(compressed);
+
+    return 0;
+}
+
+int gzip_decompress_file(const char *input_path)
+{
+    if (!input_path)
+        return -1;
+
+    FILE *f = fopen(input_path, "rb");
+    if (!f)
+        return -2;
+
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    if (size <= 0)
+    {
+        fclose(f);
+        return -3;
+    }
+
+    void *compressed = malloc(size);
+    if (!compressed)
+    {
+        fclose(f);
+        return -4;
+    }
+
+    size_t tmp_read = fread(compressed, 1, size, f);
+    if (tmp_read != (size_t)size)
+    {
+        free(compressed);
+        fclose(f);
+        return -5;
+    }
+    fclose(f);
+
+    void *decompressed = NULL;
+    size_t decompressed_size = 0;
+
+    int rc = gzip_decompress(
+        compressed,
+        size,
+        &decompressed,
+        &decompressed_size
+    );
+
+    free(compressed);
+
+    if (rc != 0)
+        return -5;
+
+    /*
+     * output file: rimuove ".gz" se presente
+     */
+    char out_path[1024];
+
+    const char *dot = strrchr(input_path, '.');
+
+    if (dot && strcmp(dot, ".gz") == 0)
+    {
+        size_t len = dot - input_path;
+        if (len >= sizeof(out_path))
+            len = sizeof(out_path) - 1;
+
+        snprintf(out_path, len + 1, "%s", input_path);
+    }
+    else
+    {
+        snprintf(out_path, sizeof(out_path), "%s.out", input_path);
+    }
+
+    FILE *out = fopen(out_path, "wb");
+    if (!out)
+    {
+        free(decompressed);
+        return -6;
+    }
+
+    fwrite(decompressed, 1, decompressed_size, out);
+
+    fclose(out);
+    free(decompressed);
 
     return 0;
 }

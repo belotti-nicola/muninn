@@ -15,8 +15,8 @@ function(add_munin_test test_name source_file)
 endfunction()
 
 
-add_munin_test(TestInstantiatorGZIPCompressionIdempotency test_gzip_idempotency.c)
+add_munin_test(TestInstantiatorGZIPCompressionIdempotency test_gzip_bytes_idempotency.c)
 
-#add_munin_test(TestInstantiatorZSTDCompressionIdempotency test_zstd_idempotency.c)
-#add_munin_test(TestInstantiatorLZ4CompressionIdempotency  test_lz4_idempotency.c)
-#add_munin_test(TestInstantiatorXZCompressionIdempotency   test_xz_idempotency.c)
+#add_munin_test(TestInstantiatorZSTDCompressionBytesIdempotency test_zstd_bytes_idempotency.c)
+#add_munin_test(TestInstantiatorLZ4CompressionBytesIdempotency  test_lz4_bytes_idempotency.c)
+#add_munin_test(TestInstantiatorXZCompressionBytesIdempotency   test_xz_bytes_idempotency.c)

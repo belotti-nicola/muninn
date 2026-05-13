@@ -39,8 +39,7 @@ int lz4_decompress(
     const void *src,
     size_t src_size,
     void **dst,
-    size_t *dst_size,
-    int level
+    size_t *dst_size
 )
 {
     void *out = malloc(*dst_size);

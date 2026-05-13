@@ -25,8 +25,7 @@ int main()
     size_t decompressed_size;
     rc = gzip_decompress(
         compressed,compressed_size,
-        &decompressed,&decompressed_size,
-        9);
+        &decompressed,&decompressed_size);
     if (rc != 0)
     {
         printf("Error: gzip decompression failed at line %d with code %d.",__LINE__,rc);
