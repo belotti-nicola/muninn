@@ -4,7 +4,9 @@ project(muninn VERSION 1.0.0 DESCRIPTION "Logger for C" LANGUAGES C)
 
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
+find_package(ZLIB REQUIRED)
 pkg_check_modules(ZSTD REQUIRED libzstd)
+
 
 include(CTest)
 include(CMakePackageConfigHelpers)
@@ -24,6 +26,7 @@ set(MUNINN_SOURCES
 
 add_subdirectory(test)
 
+
 add_library(muninn STATIC ${MUNINN_SOURCES})
 
 target_include_directories(muninn
@@ -39,7 +42,9 @@ target_link_libraries(muninn
     PRIVATE
         Threads::Threads
         ${ZSTD_LIBRARIES}
+        ZLIB::ZLIB
 )
+
 
 #
 # package version
