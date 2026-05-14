@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <dirent.h>
 
-#define RERUN_TIMES 1
+#define RERUN_TIMES 5
 #define TEST_LOG "test_compression.log"
 
 
@@ -41,7 +41,7 @@ int main(void)
     memset(message,a_ascii,M_SIZE-1);
     message[M_SIZE-1]='\0';
 
-    int times = F_MAX_SIZE / (M_SIZE-1) + 100;
+    int times = F_MAX_SIZE / (M_SIZE-1) + 1;
     for(int i=0;i<RERUN_TIMES;i++)
     {
         // overflow the F_MAX_SIZE limit!
@@ -54,7 +54,7 @@ int main(void)
     muninn_shutdown(&muninn);
 
     int file_counter = lz4_files_counter(".");
-    if ( file_counter != 1) 
+    if ( file_counter != RERUN_TIMES) 
     {
         printf("Error: lz4 files number differs from expected (found %d files instead of %d).\n",file_counter,1);
         return 1;

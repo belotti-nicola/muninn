@@ -2,6 +2,7 @@
 
 #include <internal/logger_th.h>
 
+
 int logger_th_start(logger_th_data *lth_data)
 {
     pthread_t th;

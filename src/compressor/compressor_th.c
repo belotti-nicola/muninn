@@ -2,6 +2,31 @@
 
 #include <internal/compressor_th.h>
 #include <internal/lz4_wrapper.h>
+#include <time.h>
+
+
+#define LZ4_SUFFIX ".lz4"
+#define R_PATH_SIZE P_SIZE + strlen(LZ4_SUFFIX)
+
+void create_new_file_name(const char *in, char *out, size_t out_size) 
+{ 
+    char ts[32];
+    time_t now = time(NULL);
+    strftime(ts, sizeof(ts), "_%Y%m%d_%H%M%S", localtime(&now));
+
+    const char *dot = strrchr(in, '.');
+
+    if(dot && dot != in)
+    {
+        size_t base_len = dot - in;
+        snprintf(out, out_size, "%.*s%s%s", (int)base_len, in, ts, LZ4_SUFFIX);
+    } 
+    else
+    {
+        snprintf(out, out_size, "%s%s%s", in, ts, LZ4_SUFFIX);
+    }
+}
+
 
 int compressor_th_start(compressor_th_data *cth_data)
 {
@@ -44,7 +69,9 @@ static void *compressor_th_function(void *arg)
     {
         if(ts_queue_pop(cth_data->tasks,&qm))
         {
-            int rc = lz4_compress_file(qm.message,"tmp.lz4",3);
+            char lz4_file_name[R_PATH_SIZE]; memset(lz4_file_name,0,R_PATH_SIZE);
+            create_new_file_name(qm.message,lz4_file_name,R_PATH_SIZE);
+            int rc = lz4_compress_file(qm.message,lz4_file_name,3);
         }
         else 
         {

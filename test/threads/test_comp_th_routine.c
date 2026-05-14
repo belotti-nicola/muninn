@@ -4,7 +4,7 @@
 #include <string.h>
 
 
-#define TESTPATH "test.txt"
+#define TESTPATH "test.log"
 
 int lz4_files_counter()
 {
