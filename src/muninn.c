@@ -1,6 +1,5 @@
 #include "internal/munin_int.h"
 #include <string.h>
-#include <internal/zstd_wrapper.h>
 
 #include <internal/compressor_th.h>
 #include <internal/logger_th.h>

@@ -1,5 +1,3 @@
-#include <internal/zstd_wrapper.h>
-
 #include <stdio.h>
 #include <time.h>
 

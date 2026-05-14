@@ -1,7 +1,7 @@
 #include <string.h>
-#include <internal/zstd_wrapper.h>
 
 #include <internal/compressor_th.h>
+#include <internal/lz4_wrapper.h>
 
 int compressor_th_start(compressor_th_data *cth_data)
 {
@@ -44,8 +44,7 @@ static void *compressor_th_function(void *arg)
     {
         if(ts_queue_pop(cth_data->tasks,&qm))
         {
-            int rc = zstd_compress_file(qm.message);
-            printf("zstd_compress_file %d\n",rc);
+            int rc = lz4_compress_file(qm.message,"tmp.lz4",3);
         }
         else 
         {

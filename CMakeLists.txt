@@ -3,9 +3,6 @@ cmake_minimum_required(VERSION 3.20)
 project(muninn VERSION 1.0.0 DESCRIPTION "Logger for C" LANGUAGES C)
 
 find_package(Threads REQUIRED)
-find_package(PkgConfig REQUIRED)
-find_package(ZLIB REQUIRED)
-pkg_check_modules(ZSTD REQUIRED libzstd)
 
 
 include(CTest)
@@ -15,10 +12,7 @@ set(MUNINN_SOURCES
     src/queue/queue_message.c
     src/queue/queue_rb.c
     src/thread_safe_queue/ts_queue.c
-    src/compressor/format/zstd/zstd_wrapper.c
-    src/compressor/format/xz/xz_wrapper.c
     src/compressor/format/lz4/lz4_wrapper.c
-    src/compressor/format/gzip/gzip_wrapper.c
     src/compressor/compressor_th.c
     src/logger/logger_th.c
     src/muninn.c
@@ -35,14 +29,12 @@ target_include_directories(muninn
         $<INSTALL_INTERFACE:include>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include/internal
-        ${ZSTD_INCLUDE_DIRS}
 )
 
 target_link_libraries(muninn
     PRIVATE
         Threads::Threads
-        ${ZSTD_LIBRARIES}
-        ZLIB::ZLIB
+        lz4
 )
 
 

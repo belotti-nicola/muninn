@@ -6,7 +6,7 @@
 
 #define TESTPATH "test.txt"
 
-int zst_files_counter()
+int lz4_files_counter()
 {
     DIR* dir = opendir(".");
     if (!dir) return -1;
@@ -18,7 +18,7 @@ int zst_files_counter()
         const char* name = entry->d_name;
         size_t len = strlen(name);
 
-        if (len > 4 && strcmp(name + len - 4, ".zst") == 0) {
+        if (len > 4 && strcmp(name + len - 4, ".lz4") == 0) {
             count++;
         }
     }
@@ -46,7 +46,7 @@ int main()
     compressor_th_stop(&data);
     compressor_th_join(&data);
 
-    int counter = zst_files_counter();
+    int counter = lz4_files_counter();
     if( counter != 1)
     {
         printf("Error: file counter(%d) differs from expected(%d)\n",counter,1);

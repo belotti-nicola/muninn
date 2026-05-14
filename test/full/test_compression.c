@@ -9,7 +9,7 @@
 #define TEST_LOG "test_compression.log"
 
 
-int zst_files_counter(const char* path)
+int lz4_files_counter(const char* path)
 {
     DIR* dir = opendir(path);
     if (!dir) return -1;
@@ -21,7 +21,7 @@ int zst_files_counter(const char* path)
         const char* name = entry->d_name;
         size_t len = strlen(name);
 
-        if (len > 4 && strcmp(name + len - 4, ".zst") == 0) {
+        if (len > 4 && strcmp(name + len - 4, ".lz4") == 0) {
             count++;
         }
     }
@@ -53,10 +53,10 @@ int main(void)
     }
     muninn_shutdown(&muninn);
 
-    int file_counter = zst_files_counter(".");
+    int file_counter = lz4_files_counter(".");
     if ( file_counter != 1) 
     {
-        printf("Error: zst files number differs from expected (found %d files instead of %d).\n",file_counter,1);
+        printf("Error: lz4 files number differs from expected (found %d files instead of %d).\n",file_counter,1);
         return 1;
     }
 
