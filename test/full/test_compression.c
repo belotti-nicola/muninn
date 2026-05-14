@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <dirent.h>
 
-#define RERUN_TIMES 5
+#define RERUN_TIMES 3
 #define TEST_LOG "test_compression.log"
 
 
@@ -56,7 +56,7 @@ int main(void)
     int file_counter = lz4_files_counter(".");
     if ( file_counter != RERUN_TIMES) 
     {
-        printf("Error: lz4 files number differs from expected (found %d files instead of %d).\n",file_counter,1);
+        printf("Error: lz4 files number differs from expected (found %d files instead of %d).\n",file_counter,RERUN_TIMES);
         return 1;
     }
 

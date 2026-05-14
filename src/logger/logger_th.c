@@ -2,6 +2,56 @@
 
 #include <internal/logger_th.h>
 
+#define TS_SIZE 16
+#define ROTATING_SUFFIX ".rotating"
+
+
+void create_rotate_file_name(const char *in, char *out, size_t out_size)
+{
+    char ts[TS_SIZE];
+
+    time_t now = time(NULL);
+    snprintf(ts, sizeof(ts), "%ld", (long)now);
+
+    const char *dot = strrchr(in, '.');
+
+    size_t suffix_len =
+        1 +                     // "_"
+        strlen(ts) +
+        strlen(ROTATING_SUFFIX);
+
+    // spazio disponibile per il nome base
+    size_t max_base_len;
+
+    if (out_size <= suffix_len + 1)
+    {
+        // buffer troppo piccolo
+        if (out_size > 0)
+            out[0] = '\0';
+        return;
+    }
+
+    max_base_len = out_size - suffix_len - 1;
+
+    size_t base_len;
+
+    if (dot && dot != in)
+        base_len = (size_t)(dot - in);
+    else
+        base_len = strlen(in);
+
+    if (base_len > max_base_len)
+        base_len = max_base_len;
+
+    snprintf(out,
+             out_size,
+             "%.*s_%s%s",
+             (int)base_len,
+             in,
+             ts,
+             ROTATING_SUFFIX);
+}
+
 
 int logger_th_start(logger_th_data *lth_data)
 {
@@ -71,21 +121,19 @@ static void *logger_th_function(void *arg)
         }
         fclose(lth->file);
         
-        char rotating_file[256];
-        snprintf(rotating_file, sizeof(rotating_file), "%s", lth->path);
-        char *dot = strrchr(rotating_file, '.');
-        if(dot)
+        char rotating_file[P_SIZE];memset(rotating_file,0,P_SIZE);
+        create_rotate_file_name(lth->path,rotating_file,P_SIZE);
+        int rc = rename(lth->path,rotating_file);
+        if( rc != 0)
         {
-            strcpy(dot, ".rotating");
+            fprintf(stderr,"Error: could not rename %s in %s.\n",lth->path,rotating_file);
+            return NULL;
         }
-        else
-        {
-            strcat(rotating_file, ".rotating");
-        }
-        strcpy(qm_compressor.message,rotating_file);
-        rename(lth->path,rotating_file);
 
-        ts_queue_push(lth->compress_q,&qm_compressor);
+        strncpy(qm_compressor.message,rotating_file,
+        sizeof(qm_compressor.message) - 1);
+        qm_compressor.message[sizeof(qm_compressor.message) - 1] = '\0';
+        ts_queue_push(lth->compress_q, &qm_compressor);
         lth->file = fopen(lth->path, "a");
         if (!lth->file)
         {

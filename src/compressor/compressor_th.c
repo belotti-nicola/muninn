@@ -3,28 +3,65 @@
 #include <internal/compressor_th.h>
 #include <internal/lz4_wrapper.h>
 #include <time.h>
+#include <unistd.h>
 
 
+#define ROTATING_SUFFIX ".rotating"
 #define LZ4_SUFFIX ".lz4"
-#define R_PATH_SIZE P_SIZE + strlen(LZ4_SUFFIX)
 
-void create_new_file_name(const char *in, char *out, size_t out_size) 
-{ 
-    char ts[32];
-    time_t now = time(NULL);
-    strftime(ts, sizeof(ts), "_%Y%m%d_%H%M%S", localtime(&now));
+void create_timestamp(char *buf, size_t size)
+{
+    struct timespec ts;
 
-    const char *dot = strrchr(in, '.');
+    clock_gettime(CLOCK_REALTIME, &ts);
 
-    if(dot && dot != in)
+    snprintf(buf,
+             size,
+             "%lld_%09ld",
+             (long long)ts.tv_sec,
+             ts.tv_nsec);
+}
+
+
+void create_compressed_file_name(const char *in,
+                                 char *out,
+                                 size_t out_size)
+{   
+    const char *rot = strstr(in, ROTATING_SUFFIX);
+    size_t base_len;
+
+    if (rot)
     {
-        size_t base_len = dot - in;
-        snprintf(out, out_size, "%.*s%s%s", (int)base_len, in, ts, LZ4_SUFFIX);
-    } 
+        base_len = (size_t)(rot - in);
+    }
     else
     {
-        snprintf(out, out_size, "%s%s%s", in, ts, LZ4_SUFFIX);
+        base_len = strlen(in);
     }
+
+    size_t suffix_len = strlen(LZ4_SUFFIX);
+
+    if (out_size <= suffix_len + 1)
+    {
+        if (out_size > 0)
+            out[0] = '\0';
+        return;
+    }
+
+    size_t max_base_len = out_size - suffix_len - 1;
+
+    if (base_len > max_base_len)
+        base_len = max_base_len;
+
+    
+    char ts[32];create_timestamp(ts,32);
+    snprintf(out,
+             out_size,
+             "%.*s_%s%s",
+             (int)base_len,
+             in,
+             ts,
+             LZ4_SUFFIX);
 }
 
 
@@ -69,9 +106,17 @@ static void *compressor_th_function(void *arg)
     {
         if(ts_queue_pop(cth_data->tasks,&qm))
         {
-            char lz4_file_name[R_PATH_SIZE]; memset(lz4_file_name,0,R_PATH_SIZE);
-            create_new_file_name(qm.message,lz4_file_name,R_PATH_SIZE);
+            char lz4_file_name[P_SIZE]; memset(lz4_file_name,0,P_SIZE);
+            create_compressed_file_name(qm.message,lz4_file_name,P_SIZE);
             int rc = lz4_compress_file(qm.message,lz4_file_name,3);
+            if (rc != 0)
+            {
+                fprintf(stderr,"Error: lz4_compress_file returned %d.\n",rc);
+            }
+            else 
+            {
+                printf("Compressed: %s->%s\n",qm.message,lz4_file_name);
+            }
         }
         else 
         {
