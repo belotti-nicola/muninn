@@ -1,0 +1,8 @@
+MACRO
+    - macro needs namings: who uses this codes need to name it (annoying for nested structures but feasible)
+    - what is very critical: if you implement PUSH/POP, you will need to implement it for EACH structure or 
+        use another macro to define Q operations. Works but tedious since you have to implement in a macro 
+        what you typically implement in C code. Debug sucks.
+
+POINTERS
+    - u define structures then use it. possibly bad behaviour with pointers
