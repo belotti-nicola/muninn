@@ -12,17 +12,29 @@
 
 int main()
 {
-    message m1;
-    char m1_buffer[M1_SIZE];
-    setup_message(&m1,m1_buffer,M1_SIZE);
-    queue q1;
-    setup_queue(&q1,&m1,M1_SIZE);
+    int offset = 0;
+    char m1_buffer[M1_SIZE * Q1_SIZE];
+    char m2_buffer[M2_SIZE * Q2_SIZE];
 
-    message m2;
-    char m2_buffer[M2_SIZE];
-    setup_message(&m2,m2_buffer,M2_SIZE); 
+    message m1[Q1_SIZE];
+    offset = 0;    
+    for(int i=0;i<Q1_SIZE;i++)
+    {
+        setup_message(&m1[i],m1_buffer+offset,M1_SIZE);
+        offset += M1_SIZE;
+    }
+    queue q1;
+    setup_queue(&q1,m1,Q1_SIZE);
+
+    message m2[Q2_SIZE];
+    offset = 0;
+    for(int i=0;i<Q2_SIZE;i++)
+    {
+        setup_message(&m2[i],m2_buffer+offset,M2_SIZE);
+        offset += M2_SIZE;
+    }
     queue q2;
-    setup_queue(&q2,&m2,M2_SIZE);
+    setup_queue(&q2,m2,Q2_SIZE);
 
 
     return 0;

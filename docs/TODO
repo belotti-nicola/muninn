@@ -2,3 +2,4 @@
 - gzip
 - arena allocator instead of a Q. 
 - cicli vita file
+- buffer too lungo

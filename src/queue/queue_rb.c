@@ -1,17 +1,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "internal/queue_message.h"
+#include <string.h>
 
 #include "internal/queue_rb.h"
 
-queue_t queue_setup()
+void queue_setup(queue_t *q,queue_message_t *buffer, size_t max_dim)
 {
-  queue_t q;
-  q.last_index  = 0;
-  q.first_index = 0;
-  q.size        = 0;
+  q->last_index  = 0;
+  q->first_index = 0;
+  q->size        = 0;
+  q->max_size    = max_dim;
 
-  return q;
+  q->messages    = buffer;
 }
 
 bool queue_pop(queue_t *q,queue_message_t *out)
@@ -22,29 +23,31 @@ bool queue_pop(queue_t *q,queue_message_t *out)
     return false;
   }
 
-  int target_index  = q->first_index;
-  *out              = q->buffer[target_index];
+  int offset  = q->first_index;
+  out->size = strlen(out->data);
+  queue_message(out,(q->messages+offset)->data);
 
-  target_index = (target_index + 1) % Q_SIZE;
+  offset = (offset + 1) % q->max_size;
 
-  q->first_index = target_index;
+  q->first_index = offset;
 
   q->size--;
 
   return true;
 }
 
-bool queue_push(queue_t *q, queue_message_t *e)
+bool queue_push(queue_t *q, queue_message_t e)
 {
-  if(q->size >= Q_SIZE)
+  if(q->size >= q->max_size)
   {
-    fprintf(stderr, "Limit reached. Size is:%d.\n", Q_SIZE);
+    fprintf(stderr, "Limit reached. Size is:%ld.\n", q->max_size);
     return false;
   }
 
-  q->buffer[q->last_index] = *e;
+  int offset = q->last_index;
+  queue_message(q->messages+offset,e.data);
 
-  q->last_index = (q->last_index + 1) % Q_SIZE;
+  q->last_index = (offset + 1) % q->max_size;
 
   q->size++;
 

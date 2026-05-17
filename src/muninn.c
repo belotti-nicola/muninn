@@ -9,12 +9,24 @@
 void muninn_init(const char *path, muninn_t *muninn)
 {
     strncpy(muninn->path, path, P_SIZE - 1);
-    
-    ts_queue_setup(&muninn->logger_q);
-    ts_queue_setup(&muninn->compressor_q);
 
-    memset(&muninn->logger_th, 0, sizeof(logger_th_data));
-    memset(&muninn->compressor_th, 0, sizeof(compressor_th_data));
+    setup_queue_message(
+        muninn->logger_q.queue.messages,
+        muninn->buffer_logger,
+        M_SIZE);   
+    ts_queue_setup(
+        &muninn->logger_q,
+        muninn->logger_q.queue.messages,
+        Q_SIZE);
+
+    setup_queue_message(
+        muninn->compressor_q.queue.messages,
+        muninn->buffer_logger,
+        M_SIZE);   
+    ts_queue_setup(
+        &muninn->compressor_q,
+        muninn->compressor_q.queue.messages,
+        Q_SIZE);
 
     strncpy(muninn->logger_th.path, path, P_SIZE - 1);
     muninn->logger_th.queue = &muninn->logger_q;
@@ -25,7 +37,6 @@ void muninn_init(const char *path, muninn_t *muninn)
     logger_th_start(&muninn->logger_th);
     compressor_th_start(&muninn->compressor_th);
     atomic_init(&muninn->running, true);
-
 }
 
 void muninn_log(muninn_t *muninn, const char *msg)

@@ -3,8 +3,8 @@
 #define GENERATE_QUEUE_PUSH(Q_Name, Q_Size, M_Name, M_Size)        \
     void push_##Q_Name(Q_Name *q, const char *s) {               \
         if (q->head < Q_Size) {                                  \
-            strncpy(q->items[q->head].message, s, M_Size - 1);   \
-            q->items[q->head].message[M_Size - 1] = '\0';        \
+            strncpy(q->items[q->head].data, s, M_Size - 1);   \
+            q->items[q->head].data[M_Size - 1] = '\0';        \
             q->head++;                                           \
         }                                                        \
     }

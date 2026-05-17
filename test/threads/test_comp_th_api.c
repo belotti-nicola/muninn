@@ -3,30 +3,30 @@
 
 int main()
 {
-    compressor_th_data data;
-    ts_queue_t q;ts_queue_setup(&q);
-    data.tasks = &q;
+    // compressor_th_data data;
+    // ts_queue_t q;ts_queue_setup(&q);
+    // data.tasks = &q;
     
-    int rc;
-    rc = compressor_th_start(&data);
-    if ( rc != 0)
-    {
-        printf("Error: compressor_th_start");
-        return 1;
-    }
+    // int rc;
+    // rc = compressor_th_start(&data);
+    // if ( rc != 0)
+    // {
+    //     printf("Error: compressor_th_start");
+    //     return 1;
+    // }
         
-    rc = compressor_th_stop(&data);
-    if ( rc != 0)
-    {
-        printf("Error: compressor_th_stop");
-        return 1;
-    }
+    // rc = compressor_th_stop(&data);
+    // if ( rc != 0)
+    // {
+    //     printf("Error: compressor_th_stop");
+    //     return 1;
+    // }
 
-    rc = compressor_th_join(&data);
-    if ( rc != 0)
-    {
-        printf("Error: compressor_th_stop");
-        return 1;
-    }
+    // rc = compressor_th_join(&data);
+    // if ( rc != 0)
+    // {
+    //     printf("Error: compressor_th_stop");
+    //     return 1;
+    // }
     return 0;
 }

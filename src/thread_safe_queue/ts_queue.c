@@ -1,9 +1,9 @@
 
 #include "ts_queue.h"
 
-void ts_queue_setup(ts_queue_t *tsq)
-{
-    tsq->queue = queue_setup();
+void ts_queue_setup(ts_queue_t *tsq,queue_message_t *buffer, size_t buffer_dim)
+{ 
+    queue_setup(&tsq->queue,buffer,buffer_dim);
     tsq->stop = false;
 
     pthread_mutex_init(&tsq->mutex, NULL);
@@ -31,7 +31,7 @@ bool ts_queue_pop(ts_queue_t* q, queue_message_t *out)
     return retVal;
 }
 
-bool ts_queue_push(ts_queue_t* q, queue_message_t *msg)
+bool ts_queue_push(ts_queue_t* q, queue_message_t msg)
 {
     pthread_mutex_lock(&q->mutex);
 

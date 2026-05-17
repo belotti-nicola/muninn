@@ -12,15 +12,15 @@ typedef struct queue
     size_t first_index;
     size_t last_index;
     size_t size;
+    size_t max_size;
 
-    queue_message_t buffer[Q_SIZE];
-    
+    queue_message_t *messages;
 
 } queue_t;
 
-queue_t queue_setup();
+void    queue_setup(queue_t *q,queue_message_t *buffer, size_t max_dim);
 bool    queue_pop(queue_t* q,queue_message_t *e);
-bool    queue_push(queue_t* q,queue_message_t *e);
+bool    queue_push(queue_t* q,queue_message_t e);
 
 
 #endif

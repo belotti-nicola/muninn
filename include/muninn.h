@@ -17,11 +17,17 @@ typedef struct {
     atomic_bool running;
     char path[P_SIZE];
 
-    compressor_th_data compressor_th;
+    char               buffer_logger[M_SIZE];
+    queue_message_t    queue_logger[Q_SIZE];
     ts_queue_t         compressor_q;
 
-    logger_th_data     logger_th;
+    char               buffer_compressor[M_SIZE];
+    queue_message_t    queue_compressor[Q_SIZE];
     ts_queue_t         logger_q;
+
+    logger_th_data     logger_th;
+    compressor_th_data compressor_th;
+
 
 
 } muninn_t;
