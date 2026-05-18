@@ -1,5 +1,6 @@
 
 #include "ts_queue.h"
+#include <string.h>
 
 void ts_queue_setup(ts_queue_t *tsq,queue_message_t *buffer, size_t buffer_dim)
 { 
@@ -25,7 +26,8 @@ bool ts_queue_pop(ts_queue_t* q, queue_message_t *out)
         return false;
     }
 
-    bool retVal = queue_pop(&q->queue, out);
+    bool retVal = queue_pop(&q->queue, out->data);
+    out->size = strlen(out->data);
 
     pthread_mutex_unlock(&q->mutex);
     return retVal;
@@ -41,7 +43,7 @@ bool ts_queue_push(ts_queue_t* q, queue_message_t msg)
         return false;
     }
 
-    bool retVal = queue_push(&q->queue, msg);
+    bool retVal = queue_push(&q->queue, msg.data);
     if (retVal)
     {
         pthread_cond_signal(&q->empty);

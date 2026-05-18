@@ -15,7 +15,7 @@ void queue_setup(queue_t *q,queue_message_t *buffer, size_t max_dim)
   q->messages    = buffer;
 }
 
-bool queue_pop(queue_t *q,queue_message_t *out)
+bool queue_pop(queue_t *q,char *out)
 {
   if(q->size == 0)
   {
@@ -24,8 +24,9 @@ bool queue_pop(queue_t *q,queue_message_t *out)
   }
 
   int offset  = q->first_index;
-  out->size = strlen(out->data);
-  queue_message(out,(q->messages+offset)->data);
+  queue_message_t *target = q->messages + offset;
+  memcpy(out,target->data,target->size);
+  target->data[target->size] = '\0';
 
   offset = (offset + 1) % q->max_size;
 
@@ -36,7 +37,7 @@ bool queue_pop(queue_t *q,queue_message_t *out)
   return true;
 }
 
-bool queue_push(queue_t *q, queue_message_t e)
+bool queue_push(queue_t *q, const char *s)
 {
   if(q->size >= q->max_size)
   {
@@ -45,8 +46,10 @@ bool queue_push(queue_t *q, queue_message_t e)
   }
 
   int offset = q->last_index;
-  queue_message(q->messages+offset,e.data);
-
+  queue_message_t *target = q->messages + offset;
+  memcpy(target->data,s,strlen(s));
+  target->data[strlen(s)] = '\0';
+  
   q->last_index = (offset + 1) % q->max_size;
 
   q->size++;
