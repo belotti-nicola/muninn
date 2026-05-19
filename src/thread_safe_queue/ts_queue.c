@@ -11,7 +11,7 @@ void ts_queue_setup(ts_queue_t *tsq,queue_message_t *buffer, size_t buffer_dim)
     pthread_cond_init(&tsq->empty, NULL);
 }
 
-bool ts_queue_pop(ts_queue_t* q, queue_message_t *out)
+bool ts_queue_pop(ts_queue_t* q, char *out)
 {
     pthread_mutex_lock(&q->mutex);
 
@@ -26,14 +26,13 @@ bool ts_queue_pop(ts_queue_t* q, queue_message_t *out)
         return false;
     }
 
-    bool retVal = queue_pop(&q->queue, out->data);
-    out->size = strlen(out->data);
+    bool retVal = queue_pop(&q->queue, out);
 
     pthread_mutex_unlock(&q->mutex);
     return retVal;
 }
 
-bool ts_queue_push(ts_queue_t* q, queue_message_t msg)
+bool ts_queue_push(ts_queue_t* q, const char *msg)
 {
     pthread_mutex_lock(&q->mutex);
 
@@ -43,8 +42,8 @@ bool ts_queue_push(ts_queue_t* q, queue_message_t msg)
         return false;
     }
 
-    bool retVal = queue_push(&q->queue, msg.data);
-    if (retVal)
+    bool retVal = queue_push(&q->queue, msg);
+    if  (retVal)
     {
         pthread_cond_signal(&q->empty);
     }

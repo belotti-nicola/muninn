@@ -87,11 +87,7 @@ int logger_th_join(logger_th_data *lth_data)
 
 void logger_th_perform(logger_th_data *lth_data,const char *message)
 {
-    queue_message_t qm;
-    strncpy(qm.data, message, sizeof(qm.data) - 1);
-    qm.data[sizeof(qm.data) - 1] = '\0';
-
-    ts_queue_push(lth_data->queue, qm);
+    ts_queue_push(lth_data->queue, message);
 }
 
 static void *logger_th_function(void *arg)
@@ -106,15 +102,14 @@ static void *logger_th_function(void *arg)
     }
 
     atomic_store(&lth->running, true);
-    queue_message_t qm;
-    queue_message_t qm_compressor;
-    strcpy(qm.data,lth->path);
+    char qm[1024] = {0};
+    char qm_compressor[1024] = {0};
 
-    while (ts_queue_pop(lth->queue, &qm))
+    while (ts_queue_pop(lth->queue, qm))
     {
-        fprintf(lth->file, "%s\n", qm.data);
+        fprintf(lth->file, "%s\n", qm);
         fflush(lth->file);
-        lth->written_bytes += strlen(qm.data)+1;
+        lth->written_bytes += strlen(qm)+1;
         if(lth->written_bytes < F_MAX_SIZE)
         {
             continue;
@@ -130,9 +125,9 @@ static void *logger_th_function(void *arg)
             return NULL;
         }
 
-        strncpy(qm_compressor.data,rotating_file,
-        sizeof(qm_compressor.data) - 1);
-        qm_compressor.data[sizeof(qm_compressor.data) - 1] = '\0';
+        strncpy(qm_compressor,rotating_file,
+        sizeof(qm_compressor) - 1);
+        qm_compressor[sizeof(qm_compressor) - 1] = '\0';
         ts_queue_push(lth->compress_q, qm_compressor);
         lth->file = fopen(lth->path, "a");
         if (!lth->file)

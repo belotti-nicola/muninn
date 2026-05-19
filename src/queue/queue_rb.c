@@ -26,7 +26,7 @@ bool queue_pop(queue_t *q,char *out)
   int offset  = q->first_index;
   queue_message_t *target = q->messages + offset;
   memcpy(out,target->data,target->size);
-  target->data[target->size] = '\0';
+  out[target->size] = '\0';
 
   offset = (offset + 1) % q->max_size;
 
@@ -49,6 +49,7 @@ bool queue_push(queue_t *q, const char *s)
   queue_message_t *target = q->messages + offset;
   memcpy(target->data,s,strlen(s));
   target->data[strlen(s)] = '\0';
+  target->size = strlen(s);
   
   q->last_index = (offset + 1) % q->max_size;
 

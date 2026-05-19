@@ -3,3 +3,4 @@
 - arena allocator instead of a Q. 
 - cicli vita file
 - buffer too lungo
+- stack smashing seg faul when bounds in Q are not met
