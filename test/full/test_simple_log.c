@@ -9,9 +9,9 @@
 int main(void)
 {
     
-    muninn_t muninn;
+    muninn_t muninn = {0};
 
-    muninn_init(LOG, &muninn);
+    muninn_init(&muninn,LOG);
 
     muninn_log(&muninn, "hello");
     muninn_log(&muninn, "world");

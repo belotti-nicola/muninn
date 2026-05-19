@@ -6,29 +6,33 @@
 
 #include "muninn.h"
 
-void muninn_init(const char *path, muninn_t *muninn)
+void muninn_init(muninn_t *muninn,const char *path)
 {
     strncpy(muninn->path, path, P_SIZE - 1);
-
-    setup_queue_message(
-        muninn->logger_q.queue.messages,
-        muninn->buffer_logger,
-        M_SIZE);   
-    ts_queue_setup(
-        &muninn->logger_q,
-        muninn->logger_q.queue.messages,
-        Q_SIZE);
-
-    setup_queue_message(
-        muninn->compressor_q.queue.messages,
-        muninn->buffer_logger,
-        M_SIZE);   
-    ts_queue_setup(
-        &muninn->compressor_q,
-        muninn->compressor_q.queue.messages,
-        Q_SIZE);
-
+    muninn->path[P_SIZE - 1] = '\0';
     strncpy(muninn->logger_th.path, path, P_SIZE - 1);
+    muninn->logger_th.path[P_SIZE - 1] = '\0';
+
+    size_t offset = 0;
+    for(int i=0;i<Q_SIZE;i++)
+    {
+        char *buffer_i = muninn->buffer_logger + offset;
+        queue_message_t *message_i = &muninn->queue_logger[0]+i;
+        setup_queue_message(message_i,buffer_i,M_SIZE);
+        offset += M_SIZE;
+    }
+    ts_queue_setup(&muninn->logger_q,muninn->queue_logger,Q_SIZE);
+
+    offset = 0;
+    for(int i=0;i<Q_SIZE;i++)
+    {
+        char *tmp = muninn->buffer_compressor + offset;
+        setup_queue_message(muninn->queue_compressor+i,tmp,M_SIZE);
+        offset += M_SIZE;
+    }
+    ts_queue_setup(&muninn->compressor_q,muninn->queue_compressor,Q_SIZE);
+
+
     muninn->logger_th.queue = &muninn->logger_q;
     muninn->logger_th.compress_q = &muninn->compressor_q;
        

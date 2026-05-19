@@ -66,7 +66,7 @@ void create_compressed_file_name(const char *in,
 
 
 int compressor_th_start(compressor_th_data *cth_data)
-{
+{   
     pthread_t th;
     int rc = pthread_create(&th,NULL,compressor_th_function,cth_data);
     if(rc != 0)

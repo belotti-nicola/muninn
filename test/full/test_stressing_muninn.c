@@ -10,8 +10,8 @@
 
 #include "muninn.h"
 
-#define THREAD_COUNT           10
-#define MSG_PER_THREAD         45
+#define THREAD_COUNT           20
+#define MSG_PER_THREAD         50
 #define MAX_LINE_SIZE          M_SIZE
 #define TEST_LOG_FILE          "stress_test.log"
 
@@ -101,8 +101,8 @@ int main(void)
 {
     remove(TEST_LOG_FILE);
 
-    muninn_t logger;
-    muninn_init(TEST_LOG_FILE, &logger);
+    muninn_t logger = {0};
+    muninn_init(&logger,TEST_LOG_FILE);
     
     pthread_t threads[THREAD_COUNT];
     worker_arg_t args[THREAD_COUNT];
@@ -241,7 +241,7 @@ int main(void)
     for (int i = 0; i < 100; ++i)
     {
         muninn_t tmp;
-        muninn_init(TEST_LOG_FILE, &tmp);
+        muninn_init(&tmp,TEST_LOG_FILE);
 
         muninn_log(&tmp, "cycle");
 

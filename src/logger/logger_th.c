@@ -102,8 +102,8 @@ static void *logger_th_function(void *arg)
     }
 
     atomic_store(&lth->running, true);
-    char qm[1024] = {0};
-    char qm_compressor[1024] = {0};
+    char qm[P_SIZE] = {0};
+    char qm_compressor[P_SIZE] = {0};
 
     while (ts_queue_pop(lth->queue, qm))
     {

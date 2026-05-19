@@ -33,15 +33,15 @@ int lz4_files_counter(const char* path)
 int main(void)
 {
     muninn_t muninn;
-    muninn_init(TEST_LOG, &muninn);
+    muninn_init(&muninn,TEST_LOG);
 
 
-    char message[M_SIZE];
+    char message[M_SIZE-1];
     int a_ascii = 'a' - '0';
     memset(message,a_ascii,M_SIZE-1);
-    message[M_SIZE-1]='\0';
+    message[M_SIZE-2]='\0';
 
-    int times = F_MAX_SIZE / (M_SIZE-1) + 1;
+    int times = F_MAX_SIZE / (M_SIZE-1);
     for(int i=0;i<RERUN_TIMES;i++)
     {
         // overflow the F_MAX_SIZE limit!

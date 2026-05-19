@@ -17,22 +17,20 @@ typedef struct {
     atomic_bool running;
     char path[P_SIZE];
 
-    char               buffer_logger[M_SIZE];
+    char               buffer_logger[M_SIZE * Q_SIZE];
     queue_message_t    queue_logger[Q_SIZE];
     ts_queue_t         compressor_q;
-
-    char               buffer_compressor[M_SIZE];
-    queue_message_t    queue_compressor[Q_SIZE];
-    ts_queue_t         logger_q;
-
-    logger_th_data     logger_th;
     compressor_th_data compressor_th;
 
 
+    char               buffer_compressor[M_SIZE * Q_SIZE];
+    queue_message_t    queue_compressor[Q_SIZE];
+    ts_queue_t         logger_q;
+    logger_th_data     logger_th;
 
 } muninn_t;
 
-void     muninn_init(const char *path, muninn_t *m);
+void     muninn_init(muninn_t *m,const char *path);
 void     muninn_log(muninn_t *muninn,const char *msg);
 void     muninn_shutdown(muninn_t *muninn);
 

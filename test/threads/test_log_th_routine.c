@@ -2,14 +2,27 @@
 #include <unistd.h>
 #include <string.h>
 
-
+#define MESSAGE_SIZE 100
+#define QUEUE_SIZE 5
 #define TESTPATH "test_log_th_routine.txt"
 
 int main()
 {
-    logger_th_data data;
-    ts_queue_t q;ts_queue_setup(&q);
-    data.queue = &q;
+    int offset = 0;
+    char buffer[MESSAGE_SIZE * QUEUE_SIZE]; 
+    queue_message_t messages[QUEUE_SIZE] = {0};
+    for(int i=0;i<QUEUE_SIZE;i++)
+    {
+        setup_queue_message(messages+i,buffer+offset,MESSAGE_SIZE);
+        offset += MESSAGE_SIZE;
+    }
+
+    ts_queue_t tsq  = {0};
+    ts_queue_setup(&tsq,messages,QUEUE_SIZE);
+
+
+    logger_th_data data = {0};
+    data.queue = &tsq;
     strcpy(data.path,TESTPATH);
     
     logger_th_start(&data);
@@ -26,19 +39,19 @@ int main()
     }
 
 
-    char buffer[128];
-    if (fgets(buffer, sizeof(buffer), file) == NULL)
+    char tmp[128];
+    if (fgets(tmp, sizeof(tmp), file) == NULL)
     {
         printf("Error: fgets failed at line %d.\n", __LINE__);
         return 1;
     }
-    if(strncmp(buffer, "hello", 5) != 0)
+    if(strncmp(tmp, "hello", 5) != 0)
     {
-        printf("Error: string log(%s) differs from expected(%s) at line %d.\n",buffer,"hello",__LINE__);
+        printf("Error: string log(%s) differs from expected(%s) at line %d.\n",tmp,"hello",__LINE__);
         return 1;
     }
 
-    if (fgets(buffer, sizeof(buffer), file) == NULL)
+    if (fgets(tmp, sizeof(tmp), file) == NULL)
     {
         printf("Error: fgets failed at line %d.\n", __LINE__);
         return 1;
@@ -48,13 +61,13 @@ int main()
         printf("Error: char pointer is null at line %d.\n",__LINE__);
         return 1;
     }
-    if(strncmp(buffer, "world", 5) != 0)
+    if(strncmp(tmp, "world", 5) != 0)
     {
        printf("Error: string log(%s) differs from expected(%s) at line %d.\n",buffer,"world",__LINE__);
         return 1;
     }
 
-    if (fgets(buffer, sizeof(buffer), file) == NULL)
+    if (fgets(tmp, sizeof(tmp), file) == NULL)
     {
         if (feof(file))
         {

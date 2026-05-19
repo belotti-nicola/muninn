@@ -1,32 +1,45 @@
 #include <internal/compressor_th.h>
 #include <unistd.h>
 
+#define MESSAGE_SIZE 100
+#define QUEUE_SIZE 5
+
 int main()
 {
-    // compressor_th_data data;
-    // ts_queue_t q;ts_queue_setup(&q);
-    // data.tasks = &q;
-    
-    // int rc;
-    // rc = compressor_th_start(&data);
-    // if ( rc != 0)
-    // {
-    //     printf("Error: compressor_th_start");
-    //     return 1;
-    // }
-        
-    // rc = compressor_th_stop(&data);
-    // if ( rc != 0)
-    // {
-    //     printf("Error: compressor_th_stop");
-    //     return 1;
-    // }
+    int offset = 0;
+    char buffer[MESSAGE_SIZE * QUEUE_SIZE]; 
+    queue_message_t messages[QUEUE_SIZE] = {0};
+    for(int i=0;i<QUEUE_SIZE;i++)
+    {
+        setup_queue_message(messages+i,buffer+offset,MESSAGE_SIZE);
+        offset += MESSAGE_SIZE;
+    }
 
-    // rc = compressor_th_join(&data);
-    // if ( rc != 0)
-    // {
-    //     printf("Error: compressor_th_stop");
-    //     return 1;
-    // }
+    ts_queue_t tsq;
+    ts_queue_setup(&tsq,messages,QUEUE_SIZE);
+
+    compressor_th_data data;data.tasks = &tsq;
+    
+    int rc;
+    rc = compressor_th_start(&data);
+    if ( rc != 0)
+    {
+        printf("Error: compressor_th_start");
+        return 1;
+    }
+        
+    rc = compressor_th_stop(&data);
+    if ( rc != 0)
+    {
+        printf("Error: compressor_th_stop");
+        return 1;
+    }
+
+    rc = compressor_th_join(&data);
+    if ( rc != 0)
+    {
+        printf("Error: compressor_th_stop");
+        return 1;
+    }
     return 0;
 }

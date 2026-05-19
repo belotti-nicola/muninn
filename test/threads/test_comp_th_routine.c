@@ -3,7 +3,8 @@
 #include <dirent.h>
 #include <string.h>
 
-
+#define MESSAGE_SIZE 100
+#define QUEUE_SIZE 5
 #define TESTPATH "test.log"
 
 int lz4_files_counter()
@@ -29,29 +30,39 @@ int lz4_files_counter()
 
 int main()
 {
-    // ts_queue_t q;ts_queue_setup(&q);
-    // compressor_th_data data;data.tasks = &q;
-    
+    int offset = 0;
+    char buffer[MESSAGE_SIZE * QUEUE_SIZE]; 
+    queue_message_t messages[QUEUE_SIZE] = {0};
+    for(int i=0;i<QUEUE_SIZE;i++)
+    {
+        setup_queue_message(messages+i,buffer+offset,MESSAGE_SIZE);
+        offset += MESSAGE_SIZE;
+    }
 
-    // FILE* f = fopen(TESTPATH,"w");
-    // if(f == NULL)
-    // {
-    //     printf("Error: cannot open file %s\n",TESTPATH);
-    //     return 1;
-    // }
-    // fclose(f);
-    
-    // compressor_th_start(&data);
-    // compressor_th_perform(&data,TESTPATH);
-    // compressor_th_stop(&data);
-    // compressor_th_join(&data);
+    ts_queue_t tsq;
+    ts_queue_setup(&tsq,messages,QUEUE_SIZE);
 
-    // int counter = lz4_files_counter();
-    // if( counter != 1)
-    // {
-    //     printf("Error: file counter(%d) differs from expected(%d)\n",counter,1);
-    //     return 1;
-    // }
+    compressor_th_data data;data.tasks = &tsq;
+
+    FILE* f = fopen(TESTPATH,"w");
+    if(f == NULL)
+    {
+        printf("Error: cannot open file %s\n",TESTPATH);
+        return 1;
+    }
+    fclose(f);
+    
+    compressor_th_start(&data);
+    compressor_th_perform(&data,TESTPATH);
+    compressor_th_stop(&data);
+    compressor_th_join(&data);
+
+    int counter = lz4_files_counter();
+    if( counter != 1)
+    {
+        printf("Error: file counter(%d) differs from expected(%d)\n",counter,1);
+        return 1;
+    }
     
     return 0;
 }
