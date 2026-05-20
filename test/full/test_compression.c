@@ -39,9 +39,9 @@ int main(void)
     char message[M_SIZE-1];
     int a_ascii = 'a' - '0';
     memset(message,a_ascii,M_SIZE-1);
-    message[M_SIZE-2]='\0';
+    message[M_SIZE-1]='\0';
 
-    int times = F_MAX_SIZE / (M_SIZE-1);
+    int times = F_MAX_SIZE / M_SIZE;
     for(int i=0;i<RERUN_TIMES;i++)
     {
         // overflow the F_MAX_SIZE limit!

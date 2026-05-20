@@ -47,7 +47,7 @@ bool queue_push(queue_t *q, const char *s)
 
   if (s == NULL) return false;
 
-  size_t offset = q->last_index; // Meglio size_t invece di int
+  size_t offset = q->last_index; 
   queue_message_t *target = q->messages + offset;
   
   size_t len = strlen(s);
