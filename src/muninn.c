@@ -14,23 +14,23 @@ void muninn_init(muninn_t *muninn,const char *path)
     muninn->logger_th.path[P_SIZE - 1] = '\0';
 
     size_t offset = 0;
-    for(int i=0;i<Q_SIZE;i++)
+    for(int i=0;i<LOG_QUEUE_SIZE;i++)
     {
         char *buffer_i = muninn->buffer_logger + offset;
         queue_message_t *message_i = &muninn->queue_logger[0]+i;
-        setup_queue_message(message_i,buffer_i,M_SIZE);
-        offset += M_SIZE;
+        setup_queue_message(message_i,buffer_i,LOG_MESSAGE_SIZE);
+        offset += LOG_MESSAGE_SIZE;
     }
-    ts_queue_setup(&muninn->logger_q,muninn->queue_logger,Q_SIZE);
+    ts_queue_setup(&muninn->logger_q,muninn->queue_logger,LOG_QUEUE_SIZE);
 
     offset = 0;
-    for(int i=0;i<Q_SIZE;i++)
+    for(int i=0;i<COMP_QUEUE_SIZE;i++)
     {
         char *tmp = muninn->buffer_compressor + offset;
-        setup_queue_message(muninn->queue_compressor+i,tmp,M_SIZE);
-        offset += M_SIZE;
+        setup_queue_message(muninn->queue_compressor+i,tmp,COMP_MESSAGE_SIZE);
+        offset += COMP_MESSAGE_SIZE;
     }
-    ts_queue_setup(&muninn->compressor_q,muninn->queue_compressor,Q_SIZE);
+    ts_queue_setup(&muninn->compressor_q,muninn->queue_compressor,COMP_QUEUE_SIZE);
 
 
     muninn->logger_th.queue = &muninn->logger_q;

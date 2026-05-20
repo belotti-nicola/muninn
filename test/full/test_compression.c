@@ -8,6 +8,7 @@
 #define RERUN_TIMES 3
 #define TEST_LOG "test_compression.log"
 
+#include <libgen.h>
 
 int lz4_files_counter(const char* path)
 {
@@ -21,7 +22,8 @@ int lz4_files_counter(const char* path)
         const char* name = entry->d_name;
         size_t len = strlen(name);
 
-        if (len > 4 && strcmp(name + len - 4, ".lz4") == 0) {
+        if (len > 4 && strcmp(name + len - 4, ".lz4") == 0)
+        {
             count++;
         }
     }
@@ -36,12 +38,12 @@ int main(void)
     muninn_init(&muninn,TEST_LOG);
 
 
-    char message[M_SIZE-1];
+    char message[LOG_MESSAGE_SIZE];
     int a_ascii = 'a' - '0';
-    memset(message,a_ascii,M_SIZE-1);
-    message[M_SIZE-1]='\0';
+    memset(message,a_ascii,LOG_MESSAGE_SIZE-1);
+    message[LOG_MESSAGE_SIZE-1]='\0';
 
-    int times = F_MAX_SIZE / M_SIZE;
+    int times = F_MAX_SIZE / LOG_MESSAGE_SIZE;
     for(int i=0;i<RERUN_TIMES;i++)
     {
         // overflow the F_MAX_SIZE limit!

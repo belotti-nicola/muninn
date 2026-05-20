@@ -4,6 +4,11 @@ project(muninn VERSION 2.0.0 DESCRIPTION "Logger for C" LANGUAGES C)
 
 find_package(Threads REQUIRED)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
+    add_link_options(-fsanitize=address)
+endif()
+
 
 include(CTest)
 include(CMakePackageConfigHelpers)

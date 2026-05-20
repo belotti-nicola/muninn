@@ -4,3 +4,7 @@
 - cicli vita file
 - buffer too lungo
 - stack smashing seg faul when bounds in Q are not met
+- 
+  logger.info(...);   // batch
+  logger.debug(...);  // batch
+  logger.fatal(...);  // flush + fsync

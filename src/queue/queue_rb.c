@@ -41,13 +41,13 @@ bool queue_push(queue_t *q, const char *s)
 {
   if(q->size >= q->max_size)
   {
-    fprintf(stderr, "Limit reached. Size is:%zu.\n", q->max_size); // %zu per size_t
+    fprintf(stderr, "Limit reached. Size is:%zu.\n", q->max_size);
     return false;
   }
 
   if (s == NULL) return false;
 
-  size_t offset = q->last_index; 
+  size_t offset = q->last_index;
   queue_message_t *target = q->messages + offset;
   
   size_t len = strlen(s);

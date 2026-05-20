@@ -102,7 +102,7 @@ static void *logger_th_function(void *arg)
     }
 
     atomic_store(&lth->running, true);
-    char qm[P_SIZE] = {0};
+    char qm[LOG_MESSAGE_SIZE] = {0};
     char qm_compressor[P_SIZE] = {0};
 
     while (ts_queue_pop(lth->queue, qm))
@@ -125,8 +125,7 @@ static void *logger_th_function(void *arg)
             return NULL;
         }
 
-        strncpy(qm_compressor,rotating_file,
-        sizeof(qm_compressor) - 1);
+        strncpy(qm_compressor,rotating_file,sizeof(qm_compressor) - 1);
         qm_compressor[sizeof(qm_compressor) - 1] = '\0';
         ts_queue_push(lth->compress_q, qm_compressor);
         lth->file = fopen(lth->path, "a");

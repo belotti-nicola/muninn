@@ -12,7 +12,7 @@
 
 #define THREAD_COUNT           20
 #define MSG_PER_THREAD         50
-#define MAX_LINE_SIZE          M_SIZE
+#define MAX_LINE_SIZE          LOG_MESSAGE_SIZE
 #define TEST_LOG_FILE          "stress_test.log"
 
 typedef struct
