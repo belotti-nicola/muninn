@@ -43,11 +43,11 @@ int main(void)
     memset(message,a_ascii,LOG_MESSAGE_SIZE-1);
     message[LOG_MESSAGE_SIZE-1]='\0';
 
-    int times = F_MAX_SIZE / LOG_MESSAGE_SIZE;
+    int times = F_MAX_SIZE / LOG_MESSAGE_SIZE + 1;
     for(int i=0;i<RERUN_TIMES;i++)
     {
         // overflow the F_MAX_SIZE limit!
-        for(int i=0;i<times;i++)
+        for(int j=0;j<times;j++)
         {
             muninn_log(&muninn,message);
             usleep(10);
