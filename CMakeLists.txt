@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(muninn VERSION 2.0.0 DESCRIPTION "Logger for C" LANGUAGES C)
+project(muninn VERSION 2.0.1 DESCRIPTION "Logger for C" LANGUAGES C)
 
 find_package(Threads REQUIRED)
 
