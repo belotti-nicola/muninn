@@ -43,9 +43,25 @@ void muninn_init(muninn_t *muninn,const char *path)
     atomic_init(&muninn->running, true);
 }
 
-void muninn_log(muninn_t *muninn, const char *msg)
+void muninn_log_dbg(muninn_t *muninn,const char *msg)
 {
-    logger_th_perform(&muninn->logger_th,msg);
+    logger_th_perform(&muninn->logger_th,LOG_DEBUG,msg);
+}
+void muninn_log_info(muninn_t *muninn,const char *msg)
+{
+    logger_th_perform(&muninn->logger_th,LOG_INFO,msg);
+}
+void muninn_log_warn(muninn_t *muninn,const char *msg)
+{
+    logger_th_perform(&muninn->logger_th,LOG_WARN,msg);
+}
+void muninn_log_error(muninn_t *muninn,const char *msg)
+{
+    logger_th_perform(&muninn->logger_th,LOG_ERROR,msg);
+}
+void muninn_log_fatal(muninn_t *muninn,const char *msg)
+{
+    logger_th_perform(&muninn->logger_th,LOG_FATAL,msg);
 }
 
 void muninn_shutdown(muninn_t *muninn)

@@ -31,7 +31,13 @@ typedef struct {
 } muninn_t;
 
 void     muninn_init(muninn_t *m,const char *path);
-void     muninn_log(muninn_t *muninn,const char *msg);
+
+void     muninn_log_dbg(muninn_t *muninn,const char *msg);
+void     muninn_log_info(muninn_t *muninn,const char *msg);
+void     muninn_log_warn(muninn_t *muninn,const char *msg);
+void     muninn_log_error(muninn_t *muninn,const char *msg);
+void     muninn_log_fatal(muninn_t *muninn,const char *msg);
+
 void     muninn_shutdown(muninn_t *muninn);
 
 #endif 

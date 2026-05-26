@@ -21,7 +21,7 @@ int main()
 
     
     const char *test_case = "Hello World";
-    bool push_rc = ts_queue_push(&tsq,test_case);
+    bool push_rc = ts_queue_push(&tsq,LOG_NONE,test_case);
     if ( push_rc == false )
     {
         printf("Error at line %d: push returned false!\n",__LINE__);
@@ -34,7 +34,8 @@ int main()
     }
     
     char popped[MESSAGE_SIZE] = {0};
-    bool pop_rc = ts_queue_pop(&tsq,popped);
+    log_severity_t severity;
+    bool pop_rc = ts_queue_pop(&tsq,&severity, popped);
     if ( pop_rc == false )
     {
         printf("Error at line %d: pop returned false!\n",__LINE__);

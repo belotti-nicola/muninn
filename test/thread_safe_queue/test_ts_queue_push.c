@@ -21,7 +21,7 @@ int main()
 
     
     const char *test_case = "Hello World";
-    bool push_rc = ts_queue_push(&tsq,test_case);
+    bool push_rc = ts_queue_push(&tsq,LOG_NONE,test_case);
     if ( push_rc == false )
     {
         printf("Error at line %d: push returned false!\n",__LINE__);

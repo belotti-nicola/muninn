@@ -37,7 +37,7 @@ static void* worker_fn(void *arg)
             i
         );
 
-        muninn_log(w->logger, msg);
+        muninn_log_info(w->logger, msg);
 
         /*
          * Introduce scheduler noise
@@ -243,7 +243,7 @@ int main(void)
         muninn_t tmp;
         muninn_init(&tmp,TEST_LOG_FILE);
 
-        muninn_log(&tmp, "cycle");
+        muninn_log_info(&tmp, "cycle");
 
         muninn_shutdown(&tmp);
     }

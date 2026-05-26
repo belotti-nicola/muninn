@@ -85,9 +85,9 @@ int logger_th_join(logger_th_data *lth_data)
     return 0;
 }
 
-void logger_th_perform(logger_th_data *lth_data,const char *message)
+void logger_th_perform(logger_th_data *lth_data,log_severity_t severity, const char *message)
 {
-    ts_queue_push(lth_data->queue, message);
+    ts_queue_push(lth_data->queue,severity, message);
 }
 
 static void *logger_th_function(void *arg)
@@ -104,8 +104,10 @@ static void *logger_th_function(void *arg)
     atomic_store(&lth->running, true);
     char qm[LOG_MESSAGE_SIZE] = {0};
     char qm_compressor[P_SIZE] = {0};
+    log_severity_t severity;
 
-    while (ts_queue_pop(lth->queue, qm))
+
+    while (ts_queue_pop(lth->queue,&severity, qm))
     {
         fprintf(lth->file, "%s\n", qm);
         fflush(lth->file);
@@ -127,7 +129,7 @@ static void *logger_th_function(void *arg)
 
         strncpy(qm_compressor,rotating_file,sizeof(qm_compressor) - 1);
         qm_compressor[sizeof(qm_compressor) - 1] = '\0';
-        ts_queue_push(lth->compress_q, qm_compressor);
+        ts_queue_push(lth->compress_q, LOG_NONE,qm_compressor);
         lth->file = fopen(lth->path, "a");
         if (!lth->file)
         {

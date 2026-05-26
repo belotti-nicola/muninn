@@ -26,8 +26,8 @@ int main()
     strcpy(data.path,TESTPATH);
     
     logger_th_start(&data);
-    logger_th_perform(&data,"hello");
-    logger_th_perform(&data,"world");
+    logger_th_perform(&data,LOG_INFO,"hello");
+    logger_th_perform(&data,LOG_INFO,"world");
     logger_th_stop(&data);
     logger_th_join(&data);
 

@@ -3,15 +3,18 @@
 
 #include <stddef.h>
 
+#include <internal/log_types.h>
+
 typedef struct queue_message_t 
 {
-    char   *data;
-    size_t  size;
-    size_t  max_size;
+    char           *data;
+    size_t          size;
+    size_t          max_size;
+    log_severity_t  severity;
 
 } queue_message_t;
 
 void setup_queue_message(queue_message_t *message,char *buffer, size_t max_size);
-void       queue_message(queue_message_t *message,char *buffer);
+void       queue_message(queue_message_t *message,char *buffer, log_severity_t  severity);
 
 #endif

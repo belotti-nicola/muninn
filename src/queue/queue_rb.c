@@ -15,7 +15,7 @@ void queue_setup(queue_t *q,queue_message_t *buffer, size_t max_dim)
   q->messages    = buffer;
 }
 
-bool queue_pop(queue_t *q,char *out)
+bool queue_pop(queue_t *q,log_severity_t *severity, char *out)
 {
   if(q->size == 0)
   {
@@ -37,7 +37,7 @@ bool queue_pop(queue_t *q,char *out)
   return true;
 }
 
-bool queue_push(queue_t *q, const char *s)
+bool queue_push(queue_t *q, log_severity_t severity, const char *s)
 {
   if(q->size >= q->max_size)
   {
@@ -54,7 +54,8 @@ bool queue_push(queue_t *q, const char *s)
 
   memcpy(target->data, s, len);
   target->data[len] = '\0';
-  target->size = len; 
+  target->size      = len;
+  target->severity  = severity;
   
   q->last_index = (offset + 1) % q->max_size;
   q->size++;

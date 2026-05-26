@@ -24,7 +24,7 @@ int main()
     }
     
     char *test_case = "Hello World";
-    bool push_rc = queue_push(&q,test_case);
+    bool push_rc = queue_push(&q,LOG_INFO,test_case);
     if ( push_rc == false )
     {
         printf("Error at line %d: push returned false!\n",__LINE__);

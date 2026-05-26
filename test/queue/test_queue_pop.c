@@ -24,7 +24,7 @@ int offset = 0;
     }
     
     char *test_case = "Hello World";
-    bool rc = queue_push(&q,test_case);
+    bool rc = queue_push(&q,LOG_INFO,test_case);
     if ( q.size != 1)
     {
         printf("Error at line %d: q size is %ld instead of the expected 0!\n",__LINE__,q.size);
@@ -37,7 +37,8 @@ int offset = 0;
     }
 
     char popped_buffer[MESSAGE_SIZE] = {0};
-    rc = queue_pop(&q,popped_buffer);
+    log_severity_t severity;
+    rc = queue_pop(&q,&severity,popped_buffer);
     if ( rc == false )
     {
         printf("Error at line %d: pop returned false!\n",__LINE__);

@@ -101,10 +101,12 @@ static void *compressor_th_function(void *arg)
     
     atomic_store(&cth_data->running,true);
 
+    log_severity_t severity;
+
     char qm[1024];
     while(true)
     {
-        if(ts_queue_pop(cth_data->tasks,qm))
+        if(ts_queue_pop(cth_data->tasks,&severity,qm))
         {
             char lz4_file_name[P_SIZE]; memset(lz4_file_name,0,P_SIZE);
             create_compressed_file_name(qm,lz4_file_name,P_SIZE);
@@ -131,5 +133,5 @@ static void *compressor_th_function(void *arg)
 
 void compressor_th_perform(compressor_th_data *cth_data,const char *filepath)
 {   
-    ts_queue_push(cth_data->tasks,filepath);
+    ts_queue_push(cth_data->tasks,LOG_NONE, filepath);
 }
