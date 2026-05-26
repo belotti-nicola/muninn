@@ -19,7 +19,7 @@ typedef struct queue
 } queue_t;
 
 void    queue_setup(queue_t *q,queue_message_t *buffer, size_t max_dim);
-bool    queue_pop(queue_t* q,log_severity_t *severity, char *s);
+bool    queue_pop(queue_t* q,queue_message_t *out);
 bool    queue_push(queue_t* q,log_severity_t severity, const char *s);
 
 

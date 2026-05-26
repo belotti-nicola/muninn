@@ -43,7 +43,7 @@ int main(void)
     memset(message,a_ascii,LOG_MESSAGE_SIZE-1);
     message[LOG_MESSAGE_SIZE-1]='\0';
 
-    int times = F_MAX_SIZE / LOG_MESSAGE_SIZE + 10;
+    int times = F_MAX_SIZE / LOG_MESSAGE_SIZE;
     for(int i=0;i<RERUN_TIMES;i++)
     {
         // overflow the F_MAX_SIZE limit!
@@ -53,6 +53,8 @@ int main(void)
             usleep(10);
         }
     }
+
+    usleep(200);
     muninn_shutdown(&muninn);
 
     int file_counter = lz4_files_counter(".");

@@ -37,8 +37,9 @@ int offset = 0;
     }
 
     char popped_buffer[MESSAGE_SIZE] = {0};
-    log_severity_t severity;
-    rc = queue_pop(&q,&severity,popped_buffer);
+    queue_message_t popped_message = {0};
+    setup_queue_message(&popped_message,popped_buffer,MESSAGE_SIZE);
+    rc = queue_pop(&q,&popped_message);
     if ( rc == false )
     {
         printf("Error at line %d: pop returned false!\n",__LINE__);

@@ -1,4 +1,5 @@
 #include <string.h>
+#include <unistd.h>
 
 #include <internal/logger_th.h>
 
@@ -104,14 +105,37 @@ static void *logger_th_function(void *arg)
     atomic_store(&lth->running, true);
     char qm[LOG_MESSAGE_SIZE] = {0};
     char qm_compressor[P_SIZE] = {0};
-    log_severity_t severity;
 
-
-    while (ts_queue_pop(lth->queue,&severity, qm))
+    queue_message_t message = {0};
+    setup_queue_message(&message,qm,LOG_MESSAGE_SIZE);
+    while (ts_queue_pop(lth->queue,&message))
     {
-        fprintf(lth->file, "%s\n", qm);
+        const char *sev_str = "UNKN";
+        switch (message.severity) {
+            case LOG_DEBUG: sev_str = "DEBUG"; break;
+            case LOG_INFO:  sev_str = "INFO "; break;
+            case LOG_WARN:  sev_str = "WARN "; break;
+            case LOG_ERROR: sev_str = "ERROR"; break;
+            case LOG_FATAL: sev_str = "FATAL"; break;
+            case LOG_NONE:  sev_str = "     "; break; 
+        }
+        
+        int written = fprintf(lth->file, "[%s] %s\n", sev_str, message.data);
+        if (written > 0)
+        {
+            lth->written_bytes += written;
+        }
+        if (message.severity >= LOG_ERROR) 
+        {
+            fdatasync(fileno(lth->file)); 
+        }
+        if(lth->written_bytes < F_MAX_SIZE && message.severity <=LOG_WARN)
+        {
+            continue;
+        }    
+        
         fflush(lth->file);
-        lth->written_bytes += strlen(qm)+1;
+        
         if(lth->written_bytes < F_MAX_SIZE)
         {
             continue;

@@ -34,7 +34,7 @@ int main(void)
         printf("Error: char pointer is null at line %d.\n",__LINE__);
         return 1;
     }
-    if(strncmp(buffer, "hello", 5) != 0)
+    if(strstr(buffer, "hello") == NULL)
     {
         printf("Error: buffer(%s) differs from expected(%s) at line %d.\n",buffer,"hello",__LINE__);
         return 1;
@@ -46,7 +46,7 @@ int main(void)
         printf("Error: char pointer is null at line %d.\n",__LINE__);
         return 1;
     }
-    if(strncmp(buffer, "world", 5) != 0)
+    if(strstr(buffer, "world") == NULL)
     {
         printf("Error: buffer(%s) differs from expected(%s) at line %d.\n",buffer,"world",__LINE__);
         return 1;

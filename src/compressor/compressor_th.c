@@ -101,23 +101,23 @@ static void *compressor_th_function(void *arg)
     
     atomic_store(&cth_data->running,true);
 
-    log_severity_t severity;
-
-    char qm[1024];
+    char buffer[P_SIZE] = {0};
+    queue_message_t qm = {0};
+    setup_queue_message(&qm,buffer,P_SIZE);
     while(true)
     {
-        if(ts_queue_pop(cth_data->tasks,&severity,qm))
+        if(ts_queue_pop(cth_data->tasks,&qm))
         {
             char lz4_file_name[P_SIZE]; memset(lz4_file_name,0,P_SIZE);
-            create_compressed_file_name(qm,lz4_file_name,P_SIZE);
-            int rc = lz4_compress_file(qm,lz4_file_name,3);
+            create_compressed_file_name(qm.data,lz4_file_name,P_SIZE);
+            int rc = lz4_compress_file(qm.data,lz4_file_name,3);
             if (rc != 0)
             {
                 fprintf(stderr,"Error: lz4_compress_file returned %d.\n",rc);
             }
             else 
             {
-                printf("Compressed: %s->%s\n",qm,lz4_file_name);
+                printf("Compressed: %s->%s\n",qm.data,lz4_file_name);
             }
         }
         else 

@@ -33,18 +33,19 @@ int main()
         return 1;
     }
     
-    char popped[MESSAGE_SIZE] = {0};
-    log_severity_t severity;
-    bool pop_rc = ts_queue_pop(&tsq,&severity, popped);
+    char popped_buffer[MESSAGE_SIZE] = {0};
+    queue_message_t popped = {0};
+    setup_queue_message(&popped,popped_buffer,MESSAGE_SIZE);
+    bool pop_rc = ts_queue_pop(&tsq,&popped);
     if ( pop_rc == false )
     {
         printf("Error at line %d: pop returned false!\n",__LINE__);
         return 1;
     }
 
-    if ( strcmp(popped,test_case) != 0 )
+    if ( strcmp(popped.data,test_case) != 0 )
     {
-        printf("Error at line %d: popped expected to be '%s' but instead '%s' was found!\n",__LINE__,test_case,popped);
+        printf("Error at line %d: popped expected to be '%s' but instead '%s' was found!\n",__LINE__,test_case,popped.data);
         return 1;
     }
 

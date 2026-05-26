@@ -45,7 +45,7 @@ int main()
         printf("Error: fgets failed at line %d.\n", __LINE__);
         return 1;
     }
-    if(strncmp(tmp, "hello", 5) != 0)
+    if(strstr(tmp, "hello") == NULL )
     {
         printf("Error: string log(%s) differs from expected(%s) at line %d.\n",tmp,"hello",__LINE__);
         return 1;
@@ -61,7 +61,7 @@ int main()
         printf("Error: char pointer is null at line %d.\n",__LINE__);
         return 1;
     }
-    if(strncmp(tmp, "world", 5) != 0)
+    if(strstr(tmp, "world") == NULL )
     {
        printf("Error: string log(%s) differs from expected(%s) at line %d.\n",buffer,"world",__LINE__);
         return 1;
