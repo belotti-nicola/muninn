@@ -30,6 +30,7 @@ bool queue_pop(queue_t *q,queue_message_t *out)
   out->data[target->size] = '\0';
   out->max_size = target->max_size;
   out->severity = target->severity;
+  out->size = target->size;
 
   offset = (offset + 1) % q->max_size;
 

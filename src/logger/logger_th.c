@@ -120,7 +120,7 @@ static void *logger_th_function(void *arg)
             case LOG_NONE:  sev_str = "     "; break; 
         }
         
-        int written = fprintf(lth->file, "[%s] %s\n", sev_str, message.data);
+        int written = fprintf(lth->file, "[%s] %.*s\n", sev_str, (int)message.size, message.data);
         if (written > 0)
         {
             lth->written_bytes += written;

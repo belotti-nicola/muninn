@@ -45,6 +45,12 @@ int offset = 0;
         printf("Error at line %d: pop returned false!\n",__LINE__);
         return 1;
     }
+    if(strlen(buffer) != popped_message.size )
+    {
+        printf("Error at line %d: strlen fail since '%ld'(expected) is different from '%ld'(computed value)!\n",__LINE__,strlen(buffer),popped_message.size);
+        return 1;
+    }
+
     if(strcmp(buffer,popped_buffer) != 0)
     {
         printf("Error at line %d: strcmp failed between '%s'(expected) and '%s'(computed value)!\n",__LINE__,buffer,popped_buffer);

@@ -1,0 +1,9 @@
+1.0.0
+    just a file logger
+2.0.0
+    compression when 1MB file is reached
+2.0.1
+    redesigned Qs sizes
+2.1.0
+    severity level + flush policy 
+    enable/disable compression

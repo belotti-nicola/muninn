@@ -1,10 +1,6 @@
-- aggiungere len ai messaggi può aiutare.
-- gzip
-- arena allocator instead of a Q. 
-- cicli vita file
-- buffer too lungo
-- stack smashing seg faul when bounds in Q are not met
-- 
-  logger.info(...);   // batch
-  logger.debug(...);  // batch
-  logger.fatal(...);  // flush + fsync
+- gestire meglio LEN 
+- buffer too lungo -> RING BUFFER
+- timestamp
+- id avvio
+- running / enable compression
+- RAM (more data available)
