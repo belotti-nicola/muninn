@@ -1,4 +1,5 @@
 add_subdirectory(queue)
+add_subdirectory(ring_buffer)
 add_subdirectory(compression)
 add_subdirectory(thread_safe_queue)
 add_subdirectory(threads)

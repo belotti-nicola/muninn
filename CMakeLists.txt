@@ -20,6 +20,7 @@ set(MUNINN_SOURCES
     src/compressor/format/lz4/lz4_wrapper.c
     src/compressor/compressor_th.c
     src/logger/logger_th.c
+    src/ring_buffer/ring_buffer.c
     src/muninn.c
 )
 

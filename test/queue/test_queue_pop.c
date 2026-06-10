@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MESSAGE_SIZE 100
-#define QUEUE_SIZE 5
+#define MESSAGE_SIZE LOG_MESSAGE_SIZE
+#define QUEUE_SIZE LOG_QUEUE_SIZE
 
 int main()
 {   
