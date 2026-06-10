@@ -1,0 +1,1 @@
+gcc main.c ring_buffer.c ring_buffer.h timestamp.c -o main --debug
