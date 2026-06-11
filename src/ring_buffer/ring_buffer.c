@@ -16,7 +16,7 @@ bool rb_setup(ring_buffer *rb, uint8_t *data, size_t data_size)
     return true;
 }
 
-size_t rb_available_data(ring_buffer *rb)
+size_t rb_peek(ring_buffer *rb)
 {
     if(rb == NULL)
     {
@@ -28,10 +28,10 @@ size_t rb_available_data(ring_buffer *rb)
 
 size_t rb_push(ring_buffer *rb, const uint8_t *buff, size_t buff_size)
 {
-    if (rb == NULL || buff == NULL || buff_size == 0) return false;
+    if (rb == NULL || buff == NULL || buff_size == 0) return 0;
     const size_t MAX_INDEX = rb->data_size - 1;
 
-    size_t available_data = rb_available_data(rb);
+    size_t available_data = rb_peek(rb);
     if(available_data < buff_size)
     {
         //drop policy!

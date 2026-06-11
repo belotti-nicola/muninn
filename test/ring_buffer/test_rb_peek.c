@@ -16,34 +16,34 @@ int  main()
     char *test3 = "World";
 
     rb_push(&rb,test1,strlen(test1));
-    if(rb_available_data(&rb) != BUFFER_SIZE - strlen(test1))
+    if(rb_peek(&rb) != BUFFER_SIZE - strlen(test1))
     {
         printf("Error at line %d: computed available data(%ld) differs from expected one (%ld)!\n",__LINE__,
-            rb_available_data(&rb),
+            rb_peek(&rb),
             BUFFER_SIZE - strlen(test1));
         return 1;
     }
     rb_push(&rb,test2,strlen(test2));
-    if(rb_available_data(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2))
+    if(rb_peek(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2))
     {
         printf("Error at line %d: computed available data(%ld) differs from expected one (%ld)!\n",__LINE__,
-            rb_available_data(&rb),
+            rb_peek(&rb),
             BUFFER_SIZE - strlen(test1) - strlen(test2));
         return 1;
     }
     
     rb_push(&rb,test3, strlen(test3));
-    if(rb_available_data(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3))
+    if(rb_peek(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3))
     {
         printf("Error at line %d: computed available data(%ld) differs from expected one (%ld)!\n",__LINE__,
-            rb_available_data(&rb),
+            rb_peek(&rb),
             BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3));
         return 1;
     }
 
     char unused[BUFFER_SIZE] = {0};
     rb_pop(&rb,unused,10);
-    if(rb_available_data(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3) + 10)
+    if(rb_peek(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3) + 10)
     {
         printf("Error at line %d: computed available data(%ld) differs from expected one (%ld)!\n",__LINE__,
             rb.end,
@@ -52,7 +52,7 @@ int  main()
     }
 
     rb_pop(&rb,unused,2);
-    if(rb_available_data(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3) + 12)
+    if(rb_peek(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3) + 12)
     {
         printf("Error at line %d: computed available data(%ld) differs from expected one (%ld)!\n",__LINE__,
             rb.end,
