@@ -10,6 +10,7 @@ typedef struct decoder_t
     uint8_t *buffer;
     size_t   buffer_size;
     size_t   offset;
+    size_t   current_size;
 
 } decoder_t;
 

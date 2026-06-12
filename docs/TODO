@@ -1,6 +1,5 @@
-- gestire meglio LEN 
-- buffer too lungo -> RING BUFFER
-- timestamp
 - id avvio
 - running / enable compression
-- RAM (more data available)
+- big endian / little endian encoding
+- test with file name
+- buffer initialization: test environment or deploy?

@@ -14,7 +14,7 @@ bool encode_u8(encoder_t *encoder,uint8_t value)
     if (encoder == NULL)
         return false;
 
-    if (encoder->offset + sizeof(uint32_t) > encoder->buffer_size)
+    if (encoder->current_size + sizeof(uint32_t) > encoder->buffer_size)
         return false;
 
     size_t    index = encoder->offset;
@@ -31,7 +31,7 @@ bool encode_u16(encoder_t *encoder,uint16_t value)
     if (encoder == NULL)
         return false;
 
-    if (encoder->offset + sizeof(uint32_t) > encoder->buffer_size)
+    if (encoder->current_size + sizeof(uint32_t) > encoder->buffer_size)
         return false;
 
     size_t    index = encoder->offset;
@@ -48,7 +48,7 @@ bool encode_u32(encoder_t *encoder,uint32_t value)
     if (encoder == NULL)
         return false;
 
-    if (encoder->offset + sizeof(uint32_t) > encoder->buffer_size)
+    if (encoder->current_size + sizeof(uint32_t) > encoder->buffer_size)
         return false;
 
     size_t    index = encoder->offset;
@@ -65,7 +65,7 @@ bool encode_u64(encoder_t *encoder,uint64_t value)
     if (encoder == NULL)
         return false;
 
-    if (encoder->offset + sizeof(uint32_t) > encoder->buffer_size)
+    if (encoder->current_size + sizeof(uint32_t) > encoder->buffer_size)
         return false;
 
     size_t    index = encoder->offset;
@@ -83,7 +83,7 @@ bool encode_bytes(encoder_t *encoder,uint8_t *values,size_t values_size)
     if (encoder == NULL)
         return false;
 
-    if (encoder->offset + sizeof(uint32_t) > encoder->buffer_size)
+    if (encoder->current_size + sizeof(uint32_t) > encoder->buffer_size)
         return false;
 
     size_t    index = encoder->offset;

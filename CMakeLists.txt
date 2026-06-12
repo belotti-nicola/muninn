@@ -24,6 +24,7 @@ set(MUNINN_SOURCES
     src/threadsafe_ring_buffer/ts_ring_buffer.c
     src/threadsafe_ring_buffer/ts_rb_encoder.c
     src/threadsafe_ring_buffer/ts_rb_decoder.c
+    src/threadsafe_ring_buffer/ts_rb_message.c
     src/timestamp/timestamp_gen.c
     src/muninn.c
 )
