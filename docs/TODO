@@ -9,5 +9,13 @@
 - writes sizes
 
 
-- double buffering architecture
+- thread_id
+- Dual-Output: File + Console (colors!)
 - critical section in mutexes can be optimized (compute packet before taking mutex + atomic_size_t free_bytes before taking mutex)
+- telemetrying
+- panic_flushing (empty buffers)
+- level setting void muninn_set_level(muninn_t *muninn, log_severity_t level);
+
+
+Architecture changes:
+- double buffering architecture

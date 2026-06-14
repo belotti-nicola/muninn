@@ -88,15 +88,17 @@ int logger_th_join(logger_th_data *lth_data)
     return 0;
 }
 
-void logger_th_perform(logger_th_data *lth_data,log_severity_t severity, const char *message_content)
+bool logger_th_perform(logger_th_data *lth_data,log_severity_t severity, const char *message_content)
 {
+    if(lth_data == NULL || message_content == NULL) return false;
+
     ts_rb_message_t message = {0};
     size_t full_len = strlen(message_content) + sizeof(ts_rb_header_t);
     uint64_t ts = timestamp_u64();
     uint8_t sev = (uint8_t)severity;
     ts_rb_message_set(&message,full_len,ts,sev,(uint8_t *)message_content);
 
-    ts_rb_push(lth_data->ringbuffer,&message);
+    return ts_rb_push(lth_data->ringbuffer,&message);
 }
 
 static void *logger_th_function(void *arg)

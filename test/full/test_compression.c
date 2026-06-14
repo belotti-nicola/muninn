@@ -150,11 +150,11 @@ int main(void)
         for(int j=0;j<TIMES;j++)
         {
             muninn_log_info(&muninn,message);
-            usleep(10);
+            usleep(5);
         }
     }
 
-    sleep(1);
+    usleep(200);
     muninn_shutdown(&muninn);
 
     char cwd[PATH_LEN];

@@ -1,10 +1,11 @@
 #include <internal/lz4_wrapper.h>
 
-#include <lz4.h>
+#include <lz4frame.h>
 #include <lz4hc.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include <limits.h>
 
@@ -19,34 +20,28 @@ int lz4_compress(
     if (!src || !dst || !written)
         return -1;
 
-    if (src_size > INT_MAX)
-        return -2;
+    size_t bound = LZ4F_compressFrameBound(src_size, NULL);
 
-    if (dst_capacity > INT_MAX)
-        return -3;
-
-    int bound = LZ4_compressBound((int)src_size);
-
-    if ((int)dst_capacity < bound)
+    if (dst_capacity < bound)
         return -4;
 
-    if (level < LZ4HC_CLEVEL_MIN)
-        level = LZ4HC_CLEVEL_MIN;
+    LZ4F_preferences_t prefs = {0};
+    
+    if (level < 1) level = 1;
+    if (level > LZ4HC_CLEVEL_MAX) level = LZ4HC_CLEVEL_MAX;
+    
+    prefs.compressionLevel = level;
 
-    if (level > LZ4HC_CLEVEL_MAX)
-        level = LZ4HC_CLEVEL_MAX;
+    size_t ret = LZ4F_compressFrame(
+        dst, dst_capacity,
+        src, src_size,
+        &prefs
+    );
 
-    int ret = LZ4_compress_HC(
-        (const char *)src,
-        (char *)dst,
-        (int)src_size,
-        (int)dst_capacity,
-        level);
-
-    if (ret <= 0)
+    if (LZ4F_isError(ret))
         return -5;
 
-    *written = (size_t)ret;
+    *written = ret;
 
     return 0;
 }
@@ -54,31 +49,31 @@ int lz4_compress(
 int lz4_decompress(
     const void *src,
     size_t src_size,
-
     void *dst,
     size_t dst_capacity,
-
     size_t *written)
 {
     if (!src || !dst || !written)
         return -1;
 
-    if (src_size > INT_MAX)
+    LZ4F_dctx* dctx;
+    LZ4F_errorCode_t err = LZ4F_createDecompressionContext(&dctx, LZ4F_VERSION);
+    if (LZ4F_isError(err)) {
         return -2;
+    }
 
-    if (dst_capacity > INT_MAX)
+    size_t dst_size = dst_capacity;
+    size_t src_sz = src_size;
+
+    size_t ret = LZ4F_decompress(dctx, dst, &dst_size, src, &src_sz, NULL);
+
+    LZ4F_freeDecompressionContext(dctx);
+
+    if (LZ4F_isError(ret)) {
         return -3;
+    }
 
-    int ret = LZ4_decompress_safe(
-        (const char *)src,
-        (char *)dst,
-        (int)src_size,
-        (int)dst_capacity);
-
-    if (ret < 0)
-        return -4;
-
-    *written = (size_t)ret;
+    *written = dst_size;
 
     return 0;
 }
@@ -100,10 +95,6 @@ int lz4_compress_file(
 
     static uint8_t input[1024 * 1024];
 
-    static uint8_t compressed[
-        LZ4_COMPRESSBOUND(1024 * 1024)
-    ];
-
     size_t read = fread(input, 1, sizeof(input), in);
 
     if (ferror(in)) {
@@ -114,15 +105,14 @@ int lz4_compress_file(
 
     size_t written;
 
+    static uint8_t compressed[LZ4_COMPRESSBOUND(1024 * 1024) + 256];
+    
     int rc = lz4_compress(
         input,
         read,
-
         compressed,
         sizeof(compressed),
-
         &written,
-
         level);
 
     if (rc != 0) {
@@ -131,18 +121,9 @@ int lz4_compress_file(
         return -4;
     }
 
-    typedef struct {
-        uint32_t original_size;
-        uint32_t compressed_size;
-    } Header;
-
-    Header hdr = {
-        .original_size   = (uint32_t)read,
-        .compressed_size = (uint32_t)written
-    };
-
-    fwrite(&hdr, sizeof(hdr), 1, out);
-    fwrite(compressed, written, 1, out);
+    // Scriviamo DIRETTAMENTE il buffer compresso, senza aggiungere null'altro.
+    // L'header standard è già dentro "compressed".
+    fwrite(compressed, 1, written, out);
 
     fclose(in);
     fclose(out);

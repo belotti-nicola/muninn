@@ -14,8 +14,9 @@
 #include <internal/logger_th.h>
 
 typedef struct {
-    atomic_bool running;
-    char path[P_SIZE];
+    uint64_t           start_ts;
+    atomic_bool        running;
+    char               path[P_SIZE];
 
     char               buffer_logger[LOG_RB_SIZE];
     char               buffer_compressor[COMP_MESSAGE_SIZE * COMP_QUEUE_SIZE];
@@ -31,13 +32,13 @@ typedef struct {
     
 } muninn_t;
 
-void     muninn_init(muninn_t *m,const char *path);
+bool     muninn_init(muninn_t *m,const char *path);
 
-void     muninn_log_dbg(muninn_t *muninn,const char *msg);
-void     muninn_log_info(muninn_t *muninn,const char *msg);
-void     muninn_log_warn(muninn_t *muninn,const char *msg);
-void     muninn_log_error(muninn_t *muninn,const char *msg);
-void     muninn_log_fatal(muninn_t *muninn,const char *msg);
+bool     muninn_log_dbg(muninn_t *muninn,const char *msg);
+bool     muninn_log_info(muninn_t *muninn,const char *msg);
+bool     muninn_log_warn(muninn_t *muninn,const char *msg);
+bool     muninn_log_error(muninn_t *muninn,const char *msg);
+bool     muninn_log_fatal(muninn_t *muninn,const char *msg);
 
 void     muninn_shutdown(muninn_t *muninn);
 

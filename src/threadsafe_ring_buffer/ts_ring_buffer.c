@@ -9,6 +9,8 @@
 
 void ts_rb_setup(ts_ring_buffer_t *tsrb,uint8_t *buffer, size_t buffer_dim)
 {
+    if(tsrb == NULL || buffer == NULL) return;
+
     rb_setup(&tsrb->ring_buffer,buffer,buffer_dim);
     tsrb->stop = false;
 
@@ -18,6 +20,8 @@ void ts_rb_setup(ts_ring_buffer_t *tsrb,uint8_t *buffer, size_t buffer_dim)
 
 bool ts_rb_pop(ts_ring_buffer_t *tsrb,ts_rb_message_t *out)
 {
+    if(tsrb == NULL || out == NULL) return false;
+
     pthread_mutex_lock(&tsrb->mutex);
 
     while (tsrb->ring_buffer.current_size == 0 && !tsrb->stop)
@@ -146,6 +150,8 @@ bool ts_rb_push(ts_ring_buffer_t* tsrb, const ts_rb_message_t *message)
 }
 void ts_rb_stop(ts_ring_buffer_t *tsrb)
 {
+    if(tsrb == NULL) return;
+
     pthread_mutex_lock(&tsrb->mutex);
 
     tsrb->stop = true;
@@ -156,6 +162,8 @@ void ts_rb_stop(ts_ring_buffer_t *tsrb)
 
 void ts_rb_release(ts_ring_buffer_t *tsrb)
 {
+    if(tsrb == NULL) return;
+    
     pthread_mutex_destroy(
         &(tsrb->mutex)
     );
