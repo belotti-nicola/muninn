@@ -2,6 +2,9 @@
 #include <unistd.h>
 
 #include <internal/logger_th.h>
+#include <internal/ts_rb_message.h>
+#include <internal/timestamp_gen.h>
+#include <stdlib.h>
 
 #define TS_SIZE 16
 #define ROTATING_SUFFIX ".rotating"
@@ -53,7 +56,6 @@ void create_rotate_file_name(const char *in, char *out, size_t out_size)
              ROTATING_SUFFIX);
 }
 
-
 int logger_th_start(logger_th_data *lth_data)
 {
     pthread_t th;
@@ -69,7 +71,7 @@ int logger_th_start(logger_th_data *lth_data)
 
 int logger_th_stop(logger_th_data *lth_data)
 {
-    ts_queue_stop(lth_data->queue);
+    ts_rb_stop(lth_data->ringbuffer);
     return 0;
 }
 
@@ -81,14 +83,20 @@ int logger_th_join(logger_th_data *lth_data)
         fprintf(stderr,"Error joining logger thread.\n");
         return 1;
     }
-    ts_queue_release(lth_data->queue);
+    ts_rb_release(lth_data->ringbuffer);
     
     return 0;
 }
 
-void logger_th_perform(logger_th_data *lth_data,log_severity_t severity, const char *message)
+void logger_th_perform(logger_th_data *lth_data,log_severity_t severity, const char *message_content)
 {
-    ts_queue_push(lth_data->queue,severity, message);
+    ts_rb_message_t message = {0};
+    size_t full_len = strlen(message_content) + sizeof(ts_rb_header_t);
+    uint64_t ts = timestamp_u64();
+    uint8_t sev = (uint8_t)severity;
+    ts_rb_message_set(&message,full_len,ts,sev,(uint8_t *)message_content);
+
+    ts_rb_push(lth_data->ringbuffer,&message);
 }
 
 static void *logger_th_function(void *arg)
@@ -103,15 +111,18 @@ static void *logger_th_function(void *arg)
     }
 
     atomic_store(&lth->running, true);
-    char qm[LOG_MESSAGE_SIZE] = {0};
+    char qm[1024] = {0};//TODO
     char qm_compressor[P_SIZE] = {0};
 
-    queue_message_t message = {0};
-    setup_queue_message(&message,qm,LOG_MESSAGE_SIZE);
-    while (ts_queue_pop(lth->queue,&message))
+    ts_rb_message_t message = {0};
+    ts_rb_message_setup(&message,qm,1024);//TODO
+    while (ts_rb_pop(lth->ringbuffer,&message))
     {
+        size_t log_len = message.header.msg_len - sizeof(ts_rb_header_t);
+        const char *msg = message.payload.payload_bytes;
+        
         const char *sev_str = "UNKN";
-        switch (message.severity) {
+        switch (message.header.severity) {
             case LOG_DEBUG: sev_str = "DEBUG"; break;
             case LOG_INFO:  sev_str = "INFO "; break;
             case LOG_WARN:  sev_str = "WARN "; break;
@@ -120,46 +131,61 @@ static void *logger_th_function(void *arg)
             case LOG_NONE:  sev_str = "     "; break; 
         }
         
-        int written = fprintf(lth->file, "[%s] %.*s\n", sev_str, (int)message.size, message.data);
+        int written = fprintf(lth->file, "[%s] %.*s\n", sev_str, (int)log_len, msg);
         if (written > 0)
         {
             lth->written_bytes += written;
         }
-        if (message.severity >= LOG_ERROR) 
+
+        if (message.header.severity >= LOG_ERROR) 
         {
-            fdatasync(fileno(lth->file)); 
-        }
-        if(lth->written_bytes < F_MAX_SIZE && message.severity <=LOG_WARN)
-        {
-            continue;
-        }    
-        
-        fflush(lth->file);
-        
-        if(lth->written_bytes < F_MAX_SIZE)
-        {
-            continue;
-        }
-        fclose(lth->file);
-        
-        char rotating_file[P_SIZE];memset(rotating_file,0,P_SIZE);
-        create_rotate_file_name(lth->path,rotating_file,P_SIZE);
-        int rc = rename(lth->path,rotating_file);
-        if( rc != 0)
-        {
-            fprintf(stderr,"Error: could not rename %s in %s.\n",lth->path,rotating_file);
-            return NULL;
+            fflush(lth->file); // Prima svuota la libc
+            fdatasync(fileno(lth->file)); // Poi forza il disco
         }
 
-        strncpy(qm_compressor,rotating_file,sizeof(qm_compressor) - 1);
-        qm_compressor[sizeof(qm_compressor) - 1] = '\0';
-        ts_queue_push(lth->compress_q, LOG_NONE,qm_compressor);
+        if (lth->written_bytes < F_MAX_SIZE)
+        {
+            continue;
+        }
+
+        if (lth->compress_q == NULL)
+        {
+            // Se non c'è il compressore, azzeriamo solo i byte? 
+            // ATTENZIONE: Questo lascerebbe crescere il file all'infinito!
+            // Di solito, se non c'è compressione, si svuota il file o si ruota e basta.
+            continue; 
+        }
+
+        fflush(lth->file);
+        fclose(lth->file);
+        
+        char rotating_file[P_SIZE] = {0};
+        create_rotate_file_name(lth->path, rotating_file, P_SIZE);
+        
+        if (rename(lth->path, rotating_file) != 0)
+        {
+            fprintf(stderr, "Error: could not rename %s to %s.\n", lth->path, rotating_file);
+            // Non fare return NULL! Se fallisce, riapri almeno il vecchio e prova a continuare
+            lth->file = fopen(lth->path, "a");
+            lth->written_bytes = 0;
+            continue;
+        }
+
+        char *file_to_compress = strdup(rotating_file);
+        if (file_to_compress) {
+            ts_queue_push(lth->compress_q, LOG_NONE, file_to_compress);
+            
+        }
+
         lth->file = fopen(lth->path, "a");
         if (!lth->file)
         {
+            fprintf(stderr, "Fatal Error: Logger thread cannot reopen %s\n", lth->path);
             return NULL;
         }
+        
         lth->written_bytes = 0;
+        free(file_to_compress);
     }
     
     atomic_store(&lth->running, false);

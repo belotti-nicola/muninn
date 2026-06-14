@@ -29,55 +29,58 @@ size_t rb_peek(ring_buffer *rb)
 size_t rb_push(ring_buffer *rb, const uint8_t *buff, size_t buff_size)
 {
     if (rb == NULL || buff == NULL || buff_size == 0) return 0;
-    const size_t MAX_INDEX = rb->data_size - 1;
 
-    size_t available_data = rb_peek(rb);
-    if(available_data < buff_size)
+    size_t available_space = rb_peek(rb);
+    if (available_space < buff_size)
     {
-        //drop policy!
-        return 0;
+        return 0; // Drop policy
     }
 
-    size_t offset = rb->start;
+    size_t offset = rb->end;
     size_t bytes_to_copy = buff_size;
-    if(offset + bytes_to_copy > MAX_INDEX - 1)
+
+    if (offset + bytes_to_copy > rb->data_size)
     {
-        size_t tmp = MAX_INDEX - offset;
-        memcpy(rb->data + offset,buff,tmp);
-        buff          += tmp;
-        bytes_to_copy -= tmp;
-        offset         = 0;
-        rb->end        = 0;
+        size_t bytes_to_right = rb->data_size - offset;      
+        memcpy(rb->data + offset, buff, bytes_to_right);
+        buff          += bytes_to_right;
+        bytes_to_copy -= bytes_to_right;
+        offset         = 0; 
     }
-    memcpy(rb->data + offset,buff,bytes_to_copy);
-
+    
+    memcpy(rb->data + offset, buff, bytes_to_copy);
     rb->current_size += buff_size;
-    rb->end          += offset + bytes_to_copy;
-
-    return bytes_to_copy;
+    rb->end = (offset + bytes_to_copy) % rb->data_size;
+    return buff_size; 
 }
 
 size_t rb_pop(ring_buffer *rb, uint8_t *out, size_t out_size)
 {
-    if (rb == NULL || out == NULL || out_size == 0 || out_size > rb->data_size || rb->current_size == 0) return 0;
-    const size_t MAX_INDEX = rb->data_size - 1;
+    if (rb == NULL || out == NULL || out_size == 0 ) 
+    {
+        return 0;
+    }
+    
+    if( out_size > rb->current_size)
+    {
+        return 0; //for sake of simplicity
+    }
 
-    uint8_t *ptr  = rb->data;
+    uint8_t *ptr = rb->data;
     size_t offset = rb->start;
     size_t bytes_to_read = out_size;
-    if(offset + bytes_to_read > MAX_INDEX - 1 )
-    {
-        size_t available_bytes_to_right = MAX_INDEX - offset;
-        memcpy(out,ptr + offset, available_bytes_to_right);
-        bytes_to_read -= available_bytes_to_right;
-        out           += available_bytes_to_right;
-        offset         = 0;
-        rb->start      = 0;
-    }
-    memcpy(out,ptr + offset, bytes_to_read);
-    
-    rb->current_size -= out_size;
-    rb->start         = offset + bytes_to_read;
 
-    return bytes_to_read;
+    if (offset + bytes_to_read > rb->data_size)
+    {
+        size_t available_bytes_to_right = rb->data_size - offset;
+        memcpy(out, ptr + offset, available_bytes_to_right);
+        out           += available_bytes_to_right;
+        bytes_to_read -= available_bytes_to_right;
+        offset         = 0;
+    }
+    
+    memcpy(out, ptr + offset, bytes_to_read);
+    rb->current_size -= out_size;
+    rb->start = (offset + bytes_to_read) % rb->data_size;
+    return out_size; 
 }

@@ -14,14 +14,14 @@ bool encode_u8(encoder_t *encoder,uint8_t value)
     if (encoder == NULL)
         return false;
 
-    if (encoder->current_size + sizeof(uint32_t) > encoder->buffer_size)
+    if (encoder->current_size + sizeof(uint8_t) > encoder->buffer_size)
         return false;
 
     size_t    index = encoder->offset;
     uint8_t *target = encoder->buffer + index;
 
     memcpy(target,&value,sizeof(uint8_t));
-    encoder->offset      += sizeof(uint8_t);
+    encoder->offset       += sizeof(uint8_t);
     encoder->current_size += sizeof(uint8_t);
     return true;
 }
@@ -31,7 +31,7 @@ bool encode_u16(encoder_t *encoder,uint16_t value)
     if (encoder == NULL)
         return false;
 
-    if (encoder->current_size + sizeof(uint32_t) > encoder->buffer_size)
+    if (encoder->current_size + sizeof(uint16_t) > encoder->buffer_size)
         return false;
 
     size_t    index = encoder->offset;

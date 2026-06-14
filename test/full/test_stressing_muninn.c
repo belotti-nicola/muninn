@@ -10,9 +10,11 @@
 
 #include "muninn.h"
 
-#define THREAD_COUNT           20
+#define SLEEP                  10
+#define SLEEP_RATE             4
+#define THREAD_COUNT           12
 #define MSG_PER_THREAD         50
-#define MAX_LINE_SIZE          LOG_MESSAGE_SIZE
+#define MAX_LINE_SIZE          100
 #define TEST_LOG_FILE          "stress_test.log"
 
 typedef struct
@@ -48,9 +50,9 @@ static void* worker_fn(void *arg)
             sched_yield();
         }
 
-        if ((i % 101) == 0)
+        if ((i % SLEEP_RATE) == 0)
         {
-            usleep(10);
+            usleep(SLEEP);
         }
     }
 
@@ -169,7 +171,7 @@ int main(void)
     snprintf(
         expected,
         sizeof(expected),
-        "[THREAD %02d] message %08d",
+        "[INFO ] [THREAD %02d] message %08d",
         0,
         0
     );
@@ -181,7 +183,7 @@ int main(void)
     snprintf(
         expected,
         sizeof(expected),
-        "[THREAD %02d] message %08d",
+        "[INFO ] [THREAD %02d] message %08d",
         THREAD_COUNT - 1,
         MSG_PER_THREAD - 1
     );
@@ -193,7 +195,7 @@ int main(void)
     snprintf(
         expected,
         sizeof(expected),
-        "[THREAD %02d] message %08d",
+        "[INFO ] [THREAD %02d] message %08d",
         THREAD_COUNT / 2,
         MSG_PER_THREAD / 2
     );

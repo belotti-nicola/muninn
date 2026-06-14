@@ -1,5 +1,13 @@
 - id avvio
 - running / enable compression
 - big endian / little endian encoding
-- test with file name
+- test with file name -> test compression to others
 - buffer initialization: test environment or deploy?
+- QUEUE SIZE
+- remove(TESTPATH) initials
+- computing packets outside mutexes
+- writes sizes
+
+
+- double buffering architecture
+- critical section in mutexes can be optimized (compute packet before taking mutex + atomic_size_t free_bytes before taking mutex)

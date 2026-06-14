@@ -26,10 +26,10 @@ bool queue_pop(queue_t *q,queue_message_t *out)
   size_t offset  = q->first_index;
   queue_message_t *target = q->messages + offset;
   size_t len = target->size;
-  if( len > LOG_MESSAGE_SIZE )
+  if( len > COMP_MESSAGE_SIZE )//TODO
   {
-    fprintf(stderr, "Message size overflow in pop. Trucanting to %d bytes.\n", LOG_MESSAGE_SIZE);
-    len = LOG_MESSAGE_SIZE;
+    fprintf(stderr, "Message size overflow in pop. Trucanting to %d bytes.\n", COMP_MESSAGE_SIZE);//TODO
+    len = COMP_MESSAGE_SIZE;
   }
 
   memcpy(out->data,target->data,len);
@@ -59,10 +59,10 @@ bool queue_push(queue_t *q, log_severity_t severity, const char *s)
   queue_message_t *target = q->messages + offset;
   
   size_t len = strlen(s);
-  if( len > LOG_MESSAGE_SIZE )
+  if( len > COMP_MESSAGE_SIZE ) //TODO
   {
-    fprintf(stderr, "Message size overflow in push. Trucanting to %d bytes.\n", LOG_MESSAGE_SIZE);
-    len = LOG_MESSAGE_SIZE - 1;
+    fprintf(stderr, "Message size overflow in push. Trucanting to %d bytes.\n", COMP_MESSAGE_SIZE);//TODO
+    len = COMP_MESSAGE_SIZE - 1;//TODO
   }
 
   memcpy(target->data, s, len);

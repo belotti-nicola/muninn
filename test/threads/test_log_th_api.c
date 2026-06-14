@@ -3,27 +3,18 @@
 
 #include <string.h>
 
-#define MESSAGE_SIZE 100
-#define QUEUE_SIZE 5
+#define RB_SIZE 1000
 #define TESTPATH "test_log_th_api.log"
 
 int main()
 {
-    int offset = 0;
-    char buffer[MESSAGE_SIZE * QUEUE_SIZE]; 
-    queue_message_t messages[QUEUE_SIZE] = {0};
-    for(int i=0;i<QUEUE_SIZE;i++)
-    {
-        setup_queue_message(messages+i,buffer+offset,MESSAGE_SIZE);
-        offset += MESSAGE_SIZE;
-    }
-
-    ts_queue_t tsq;
-    ts_queue_setup(&tsq,messages,QUEUE_SIZE);
+    char buffer[RB_SIZE]; 
+    ts_ring_buffer_t rb = {0};
+    ts_rb_setup(&rb,buffer,RB_SIZE);
 
 
     logger_th_data data;
-    data.queue = &tsq;
+    data.ringbuffer = &rb;
     strcpy(data.path,TESTPATH);
     
     int rc;

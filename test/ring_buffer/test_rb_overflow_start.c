@@ -20,7 +20,7 @@ int  main()
     rb_push(&rb,test1,80);
     rb_pop(&rb,unused,80);
 
-    if(rb.start != 61)
+    if(rb.start != 60)
     {
         printf("Error at line %d: computed start(%ld) differs from expected one (%d)!\n",__LINE__,
             rb.start ,

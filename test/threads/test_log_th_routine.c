@@ -2,32 +2,28 @@
 #include <unistd.h>
 #include <string.h>
 
-#define MESSAGE_SIZE 100
-#define QUEUE_SIZE 5
+#define RB_SIZE 100
 #define TESTPATH "test_log_th_routine.txt"
 
 int main()
 {
-    int offset = 0;
-    char buffer[MESSAGE_SIZE * QUEUE_SIZE]; 
-    queue_message_t messages[QUEUE_SIZE] = {0};
-    for(int i=0;i<QUEUE_SIZE;i++)
-    {
-        setup_queue_message(messages+i,buffer+offset,MESSAGE_SIZE);
-        offset += MESSAGE_SIZE;
-    }
+    setbuf(stderr, NULL);
+    setbuf(stdout, NULL);
+    remove(TESTPATH);
 
-    ts_queue_t tsq  = {0};
-    ts_queue_setup(&tsq,messages,QUEUE_SIZE);
+    char buffer[RB_SIZE]; 
+    ts_ring_buffer_t rb = {0};
+    ts_rb_setup(&rb,(uint8_t *)buffer,RB_SIZE);
 
-
-    logger_th_data data = {0};
-    data.queue = &tsq;
+    logger_th_data data;
+    data.compress_q = NULL; //unused in this test
+    data.ringbuffer = &rb;
     strcpy(data.path,TESTPATH);
-    
+   
     logger_th_start(&data);
     logger_th_perform(&data,LOG_INFO,"hello");
     logger_th_perform(&data,LOG_INFO,"world");
+    
     logger_th_stop(&data);
     logger_th_join(&data);
 
@@ -37,12 +33,11 @@ int main()
         printf("Error: could not check test file %s,\n",TESTPATH);
         return 1;
     }
-
-
+    
     char tmp[128];
     if (fgets(tmp, sizeof(tmp), file) == NULL)
     {
-        printf("Error: fgets failed at line %d.\n", __LINE__);
+        printf("Error at %s:%d (fgets failed)\n",__FILE__,__LINE__);
         return 1;
     }
     if(strstr(tmp, "hello") == NULL )
@@ -56,14 +51,10 @@ int main()
         printf("Error: fgets failed at line %d.\n", __LINE__);
         return 1;
     }
-    if(buffer == NULL)
-    {
-        printf("Error: char pointer is null at line %d.\n",__LINE__);
-        return 1;
-    }
+
     if(strstr(tmp, "world") == NULL )
     {
-       printf("Error: string log(%s) differs from expected(%s) at line %d.\n",buffer,"world",__LINE__);
+        printf("Error: string log(%s) differs from expected(%s) at line %d.\n",tmp,"world",__LINE__);
         return 1;
     }
 
@@ -80,5 +71,6 @@ int main()
     }
 
     fclose(file);
+    
     return 0;
 }

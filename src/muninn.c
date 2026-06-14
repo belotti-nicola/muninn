@@ -13,17 +13,9 @@ void muninn_init(muninn_t *muninn,const char *path)
     strncpy(muninn->logger_th.path, path, P_SIZE - 1);
     muninn->logger_th.path[P_SIZE - 1] = '\0';
 
-    size_t offset = 0;
-    for(int i=0;i<LOG_QUEUE_SIZE;i++)
-    {
-        char *buffer_i = muninn->buffer_logger + offset;
-        queue_message_t *message_i = &muninn->queue_logger[0]+i;
-        setup_queue_message(message_i,buffer_i,LOG_MESSAGE_SIZE);
-        offset += LOG_MESSAGE_SIZE;
-    }
-    ts_queue_setup(&muninn->logger_q,muninn->queue_logger,LOG_QUEUE_SIZE);
+    ts_rb_setup(&muninn->logger_rb,(uint8_t *)muninn->buffer_logger,LOG_RB_SIZE);
 
-    offset = 0;
+    size_t offset = 0;
     for(int i=0;i<COMP_QUEUE_SIZE;i++)
     {
         char *tmp = muninn->buffer_compressor + offset;
@@ -33,7 +25,7 @@ void muninn_init(muninn_t *muninn,const char *path)
     ts_queue_setup(&muninn->compressor_q,muninn->queue_compressor,COMP_QUEUE_SIZE);
 
 
-    muninn->logger_th.queue = &muninn->logger_q;
+    muninn->logger_th.ringbuffer = &muninn->logger_rb;
     muninn->logger_th.compress_q = &muninn->compressor_q;
        
     muninn->compressor_th.tasks = &muninn->compressor_q;
@@ -66,9 +58,9 @@ void muninn_log_fatal(muninn_t *muninn,const char *msg)
 
 void muninn_shutdown(muninn_t *muninn)
 {
-    compressor_th_stop(&muninn->compressor_th);
-    compressor_th_join(&muninn->compressor_th);
-
     logger_th_stop(&muninn->logger_th);
     logger_th_join(&muninn->logger_th);
+
+    compressor_th_stop(&muninn->compressor_th);
+    compressor_th_join(&muninn->compressor_th);
 }

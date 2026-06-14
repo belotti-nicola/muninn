@@ -18,11 +18,11 @@ int  main()
     rb_pop(&rb,unused,55);
 
     rb_push(&rb,test1,55);
-    if(rb.end != 11)
+    if(rb.end != 10)
     {
         printf("Error at line %d: computed end(%ld) differs from expected one (%d)!\n",__LINE__,
             rb.end ,
-            11);
+            10);
         return 1;
     }
 

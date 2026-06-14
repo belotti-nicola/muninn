@@ -134,6 +134,7 @@ int main()
         {
             case RB_PUSH:
             {
+                size_t initial_offset = rb.end;
                 rb_push(&rb,tc[i].buffer,strlen(tc[i].buffer));
                 if(rb.start != tc[i].start)
                 {
@@ -159,7 +160,7 @@ int main()
                         i,rb_peek(&rb),tc[i].available_data);
                     return 1;
                 }
-                if(strncmp(rb.data + rb.start,tc[i].buffer,rb.end-rb.start-1) != 0)
+                if(strncmp(rb.data + initial_offset,tc[i].buffer,rb.end-rb.start-1) != 0)
                 {
                     printf("Error at line %d at iteration %d: strncmp fail",__LINE__,i);
                     return 1;

@@ -9,20 +9,6 @@
 #define ROTATING_SUFFIX ".rotating"
 #define LZ4_SUFFIX ".lz4"
 
-void create_timestamp(char *buf, size_t size)
-{
-    struct timespec ts;
-
-    clock_gettime(CLOCK_REALTIME, &ts);
-
-    snprintf(buf,
-             size,
-             "%lld_%09ld",
-             (long long)ts.tv_sec,
-             ts.tv_nsec);
-}
-
-
 void create_compressed_file_name(const char *in,
                                  char *out,
                                  size_t out_size)
@@ -54,13 +40,11 @@ void create_compressed_file_name(const char *in,
         base_len = max_base_len;
 
     
-    char ts[32];create_timestamp(ts,32);
     snprintf(out,
              out_size,
-             "%.*s_%s%s",
+             "%.*s%s",
              (int)base_len,
              in,
-             ts,
              LZ4_SUFFIX);
 }
 
@@ -118,6 +102,7 @@ static void *compressor_th_function(void *arg)
             else 
             {
                 printf("Compressed: %s->%s\n",qm.data,lz4_file_name);
+                remove(qm.data);
             }
         }
         else 

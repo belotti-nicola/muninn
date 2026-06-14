@@ -37,7 +37,7 @@ int  main()
 
     char unused[BUFFER_SIZE] = {0};
     rb_pop(&rb,unused,10);
-    if(rb.start != (size_t)10)
+    if(rb.start != 10)
     {
         printf("Error at line %d: computed start(%ld) differs from expected one (%d)!\n",__LINE__,
             rb.start,
@@ -45,10 +45,10 @@ int  main()
         return 1;
     }
 
-    rb_pop(&rb,unused,2);
-    if(rb.start != 12)
+    rb_pop(&rb,unused,1);
+    if(rb.start != 11)
     {
-        printf("Error at line %d: computed end(%ld) differs from expected one (%d)!\n",__LINE__,rb.start,0);
+        printf("Error at line %d: computed end(%ld) differs from expected one (%d)!\n",__LINE__,rb.start,12);
         return 1;
     }
 

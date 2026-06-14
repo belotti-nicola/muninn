@@ -6,6 +6,8 @@
 #include <stdint.h>
 
 #include <internal/ts_queue.h>
+#include <internal/ts_ring_buffer.h>
+
 
 typedef struct logger_th_data
 {
@@ -15,8 +17,8 @@ typedef struct logger_th_data
     FILE*        file;
     uint64_t     written_bytes;
 
-    ts_queue_t  *queue;
-    ts_queue_t  *compress_q;
+    ts_ring_buffer_t  *ringbuffer;
+    ts_queue_t        *compress_q;
 
 } logger_th_data;
 

@@ -43,20 +43,20 @@ int  main()
 
     char unused[BUFFER_SIZE] = {0};
     rb_pop(&rb,unused,10);
-    if(rb_peek(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3) + 10)
+    if(rb_peek(&rb) != 99)
     {
-        printf("Error at line %d: computed available data(%ld) differs from expected one (%ld)!\n",__LINE__,
-            rb.end,
-            strlen(test1)+strlen(test2)+strlen(test3));
+        printf("Error at line %d: computed available data(%ld) differs from expected one (%d)!\n",__LINE__,
+            rb_peek(&rb),
+            99);
         return 1;
     }
 
-    rb_pop(&rb,unused,2);
-    if(rb_peek(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3) + 12)
+    rb_pop(&rb,unused,1);
+    if(rb_peek(&rb) != 100)
     {
-        printf("Error at line %d: computed available data(%ld) differs from expected one (%ld)!\n",__LINE__,
-            rb.end,
-            strlen(test1)+strlen(test2)+strlen(test3));
+        printf("Error at line %d: computed available data(%ld) differs from expected one (%d)!\n",__LINE__,
+            rb_peek(&rb),
+            100);
         return 1;
     }
 

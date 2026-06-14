@@ -35,6 +35,11 @@ bool ts_queue_pop(ts_queue_t* q,queue_message_t *out)
 
 bool ts_queue_push(ts_queue_t* q, log_severity_t severity, const char *msg)
 {
+    if(q == NULL)
+    {
+        return false;
+    }
+    
     pthread_mutex_lock(&q->mutex);
 
     if (q->stop)
