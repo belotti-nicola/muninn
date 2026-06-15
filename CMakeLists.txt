@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(muninn VERSION 2.1.0 DESCRIPTION "Logger for C" LANGUAGES C)
+project(muninn VERSION 2.2.2 DESCRIPTION "Logger for C" LANGUAGES C)
 
 find_package(Threads REQUIRED)
 
@@ -14,6 +14,8 @@ include(CTest)
 include(CMakePackageConfigHelpers)
 
 set(MUNINN_SOURCES
+    src/internal/panic_flusher.c
+    src/internal/console_handler.c
     src/queue/queue_message.c
     src/queue/queue_rb.c
     src/thread_safe_queue/ts_queue.c

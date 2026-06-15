@@ -1,3 +1,6 @@
+add_library(muninn_test_utils STATIC utils/test_utils.c)
+target_include_directories(muninn_test_utils PUBLIC utils)
+
 add_subdirectory(queue)
 add_subdirectory(threadsafe_queue)
 add_subdirectory(ring_buffer)

@@ -8,6 +8,7 @@
 
 #include <internal/ts_queue.h>
 #include <internal/ts_ring_buffer.h>
+#include <internal/console_handler.h>
 
 
 typedef struct logger_th_data
@@ -20,6 +21,8 @@ typedef struct logger_th_data
 
     ts_ring_buffer_t  *ringbuffer;
     ts_queue_t        *compress_q;
+
+    console_handler_t  *console_handler;
 
 } logger_th_data;
 

@@ -11,5 +11,8 @@ sudo apt install \
     liblz4-dev 
 
 
-to open lz4 files:
+to decompress lz4 files:
 sudo apt install lz4
+to use lz4:
+lz4 -d <FILE>.lz4 <FILE>.log
+

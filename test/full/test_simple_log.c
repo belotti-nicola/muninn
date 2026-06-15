@@ -13,8 +13,8 @@ int main(void)
 
     muninn_init(&muninn,LOG);
 
-    muninn_log_info(&muninn, "hello");
-    muninn_log_info(&muninn, "world");
+    muninn_log_fatal(&muninn, "hello");
+    muninn_log_fatal(&muninn, "world");
 
     muninn_shutdown(&muninn);
 

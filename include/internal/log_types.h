@@ -5,7 +5,7 @@
 
 typedef enum log_severity_t
 {
-    LOG_NONE = 0,
+    LOG_NONE,
 
     LOG_DEBUG,
     LOG_INFO,

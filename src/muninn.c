@@ -1,21 +1,28 @@
 #include "internal/munin_int.h"
 #include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <internal/timestamp_gen.h>
 #include <internal/compressor_th.h>
 #include <internal/logger_th.h>
+#include <internal/panic_flusher.h>
 
 #include "muninn.h"
 
 bool muninn_init(muninn_t *muninn,const char *path)
 {
     if(muninn == NULL || path == NULL ) return false;
-    memset(muninn,0,sizeof(muninn));
+    memset(muninn,0,sizeof(muninn_t));
 
     strncpy(muninn->path, path, P_SIZE - 1);
     muninn->path[P_SIZE - 1] = '\0';
     strncpy(muninn->logger_th.path, path, P_SIZE - 1);
     muninn->logger_th.path[P_SIZE - 1] = '\0';
+    muninn->start_ts = timestamp_u64();
+
+    console_handler_setup(&muninn->console_handler);
 
     ts_rb_setup(&muninn->logger_rb,(uint8_t *)muninn->buffer_logger,LOG_RB_SIZE);
 
@@ -29,49 +36,63 @@ bool muninn_init(muninn_t *muninn,const char *path)
     ts_queue_setup(&muninn->compressor_q,muninn->queue_compressor,COMP_QUEUE_SIZE);
 
 
-    muninn->logger_th.ringbuffer = &muninn->logger_rb;
-    muninn->logger_th.compress_q = &muninn->compressor_q;
+    muninn->logger_th.ringbuffer     = &muninn->logger_rb;
+    muninn->logger_th.compress_q     = &muninn->compressor_q;
+    muninn->logger_th.console_handler = &muninn->console_handler;
        
     muninn->compressor_th.tasks = &muninn->compressor_q;
     
     logger_th_start(&muninn->logger_th);
     compressor_th_start(&muninn->compressor_th);
+    
+    atomic_init(&muninn->threshold, (char)0);
     atomic_init(&muninn->running, true);
 
-    muninn->start_ts = timestamp_u64();
-
     return true;
 }
 
-bool muninn_log_dbg(muninn_t *muninn,const char *msg)
+void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file, int line, const char *fmt, ...)
 {
-    if ( muninn == NULL || msg == NULL ) return false;
-    logger_th_perform(&muninn->logger_th,LOG_DEBUG,msg);
-    return true;
-}
-bool muninn_log_info(muninn_t *muninn,const char *msg)
-{
-    if ( muninn == NULL || msg == NULL ) return false;
-    logger_th_perform(&muninn->logger_th,LOG_INFO,msg);
-    return true;
-}
-bool muninn_log_warn(muninn_t *muninn,const char *msg)
-{
-    if ( muninn == NULL || msg == NULL ) return false;
-    logger_th_perform(&muninn->logger_th,LOG_WARN,msg);
-    return true;
-}
-bool muninn_log_error(muninn_t *muninn,const char *msg)
-{
-    if ( muninn == NULL || msg == NULL ) return false;
-    logger_th_perform(&muninn->logger_th,LOG_ERROR,msg);
-    return true;
-}
-bool muninn_log_fatal(muninn_t *muninn,const char *msg)
-{
-    if ( muninn == NULL || msg == NULL ) return false;
-    logger_th_perform(&muninn->logger_th,LOG_FATAL,msg);
-    return true;
+    if (!atomic_load(&m->running)) return;
+
+    if ( severity < atomic_load(&m->threshold) ) return;
+
+    va_list args, args_copy;
+    va_start(args, fmt);
+    
+    va_copy(args_copy, args);
+
+    char stack_buffer[1024];
+    int req_len = vsnprintf(stack_buffer, sizeof(stack_buffer), fmt, args);
+    va_end(args);
+
+    if (req_len < 0) {
+        va_end(args_copy);
+        return; 
+    }
+
+    if ((size_t)req_len < sizeof(stack_buffer)) 
+    {
+        // stack buffer was enough. 
+        // send it to the logger thread
+        logger_th_perform(&m->logger_th, severity, stack_buffer);
+    } 
+    else 
+    {
+        //using malloc for bigger lines
+        char *heap_buffer = malloc(req_len + 1);
+        
+        if (heap_buffer != NULL) 
+        {
+            vsnprintf(heap_buffer, req_len + 1, fmt, args_copy);
+            
+            logger_th_perform(&m->logger_th, severity, heap_buffer);
+            
+            free(heap_buffer);
+        }
+    }
+
+    va_end(args_copy);
 }
 
 void muninn_shutdown(muninn_t *muninn)
@@ -82,4 +103,19 @@ void muninn_shutdown(muninn_t *muninn)
 
     compressor_th_stop(&muninn->compressor_th);
     compressor_th_join(&muninn->compressor_th);
+}
+
+void muninn_set_dynamic_level(muninn_t *muninn, log_severity_t level)
+{
+    if(muninn == NULL) return;
+    atomic_store(&muninn->threshold,(char)level);
+}
+
+void muninn_panic_flush(muninn_t *muninn)
+{
+    if (!atomic_load(&muninn->running)) {
+        return; 
+    }
+    
+    execute_panic_flush(muninn);
 }

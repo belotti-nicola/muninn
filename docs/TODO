@@ -1,4 +1,3 @@
-- id avvio
 - running / enable compression
 - big endian / little endian encoding
 - test with file name -> test compression to others
@@ -6,16 +5,17 @@
 - QUEUE SIZE
 - remove(TESTPATH) initials
 - computing packets outside mutexes
-- writes sizes
 
+- more compressed formats
+- more tests
 
-- thread_id
+- thread_id / __FILE__:__LINE__
 - Dual-Output: File + Console (colors!)
-- critical section in mutexes can be optimized (compute packet before taking mutex + atomic_size_t free_bytes before taking mutex)
 - telemetrying
-- panic_flushing (empty buffers)
-- level setting void muninn_set_level(muninn_t *muninn, log_severity_t level);
+- 
 
 
 Architecture changes:
+- sem_wait for pushes with full buffer! 
 - double buffering architecture
+- lock free

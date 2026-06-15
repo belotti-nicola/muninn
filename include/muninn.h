@@ -8,14 +8,17 @@
 #include <stdatomic.h>
 #include <stdint.h>
 
+#include <internal/log_types.h>
 #include <internal/munin_int.h>
-
 #include <internal/compressor_th.h>
 #include <internal/logger_th.h>
+#include <internal/console_handler.h>
 
-typedef struct {
+typedef struct muninn_t 
+{
     uint64_t           start_ts;
     atomic_bool        running;
+    atomic_char        threshold;//log level
     char               path[P_SIZE];
 
     char               buffer_logger[LOG_RB_SIZE];
@@ -29,17 +32,27 @@ typedef struct {
 
     logger_th_data     logger_th;
     compressor_th_data compressor_th;
+
+    console_handler_t   console_handler;
     
 } muninn_t;
 
 bool     muninn_init(muninn_t *m,const char *path);
 
-bool     muninn_log_dbg(muninn_t *muninn,const char *msg);
-bool     muninn_log_info(muninn_t *muninn,const char *msg);
-bool     muninn_log_warn(muninn_t *muninn,const char *msg);
-bool     muninn_log_error(muninn_t *muninn,const char *msg);
-bool     muninn_log_fatal(muninn_t *muninn,const char *msg);
+         //DO NOT USE THIS
+void     muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file, int line, const char *fmt, ...);
+
+         //USE THESE INSTEAD:
+#define  muninn_log_info(m, fmt, ...)    muninn_log_internal(m, LOG_INFO,  __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define  muninn_log_debug(m, fmt, ...)   muninn_log_internal(m, LOG_DEBUG, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define  muninn_log_warning(m, fmt, ...) muninn_log_internal(m, LOG_WARN, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define  muninn_log_error(m, fmt, ...)   muninn_log_internal(m, LOG_ERROR, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define  muninn_log_fatal(m, fmt, ...)   muninn_log_internal(m, LOG_FATAL, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+
 
 void     muninn_shutdown(muninn_t *muninn);
+
+void     muninn_set_dynamic_level(muninn_t *muninn, log_severity_t level);
+void     muninn_panic_flush(muninn_t *muninn);
 
 #endif 

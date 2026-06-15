@@ -6,7 +6,6 @@
 #include <string.h>
 
 
-
 void ts_rb_setup(ts_ring_buffer_t *tsrb,uint8_t *buffer, size_t buffer_dim)
 {
     if(tsrb == NULL || buffer == NULL) return;
@@ -97,6 +96,21 @@ bool ts_rb_push(ts_ring_buffer_t* tsrb, const ts_rb_message_t *message)
     {
         return false;
     }
+
+    //COMPUTE HEADERS THEN PUSH
+    uint32_t full_len = message->header.msg_len;
+    uint64_t ts = message->header.ts;
+    uint8_t  sev = message->header.severity;
+    size_t   payload_length = full_len - sizeof(ts_rb_header_t);
+
+    uint8_t header_encoded[sizeof(ts_rb_header_t)] = {0}; // ENCODING ONLY HEADERS
+    memset(header_encoded,0,sizeof(ts_rb_header_t));      // SINCE DATA IS MEMCPIED AS-IS 
+    
+    encoder_t encoder = {0}; 
+    encoder_setup(&encoder,header_encoded,sizeof(ts_rb_header_t));
+    encode_u32(&encoder,full_len);
+    encode_u64(&encoder,ts);
+    encode_u8(&encoder,sev);
     
     pthread_mutex_lock(&tsrb->mutex);
 
@@ -112,22 +126,7 @@ bool ts_rb_push(ts_ring_buffer_t* tsrb, const ts_rb_message_t *message)
         pthread_mutex_unlock(&tsrb->mutex);
         return false;
     }
-    
-    uint32_t full_len = message->header.msg_len;
-    uint64_t ts = message->header.ts;
-    uint8_t  sev = message->header.severity;
-    size_t   payload_length = full_len - sizeof(ts_rb_header_t);
-
-    //we encode headers only
-    uint8_t header_encoded[sizeof(ts_rb_header_t)] = {0};
-    memset(header_encoded,0,sizeof(ts_rb_header_t));
-    
-    encoder_t encoder = {0}; 
-    encoder_setup(&encoder,header_encoded,sizeof(ts_rb_header_t));
-    encode_u32(&encoder,full_len);
-    encode_u64(&encoder,ts);
-    encode_u8(&encoder,sev);
-    
+        
     bool push_rc;
     push_rc = rb_push(&tsrb->ring_buffer,encoder.buffer,encoder.current_size);
     if(push_rc == false)

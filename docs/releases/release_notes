@@ -1,9 +1,7 @@
-1.0.0
-    just a file logger
-2.0.0
-    compression when 1MB file is reached
-2.0.1
-    redesigned Qs sizes
-2.1.0
-    severity level + flush policy 
-    enable/disable compression
+1.0.0 :: C a file logger
+2.0.0 :: Compressing file when 1MB is reached
+2.0.1 :: Better sizing of the two used Qs
+2.1.0 :: severity level + flush policy 
+2.2.0 :: Ring buffer in logger
+2.2.1 :: fix to lz4 compression
+    

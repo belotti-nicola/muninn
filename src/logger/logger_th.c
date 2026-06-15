@@ -132,6 +132,8 @@ static void *logger_th_function(void *arg)
             case LOG_FATAL: sev_str = "FATAL"; break;
             case LOG_NONE:  sev_str = "     "; break; 
         }
+
+        console_handler(lth->console_handler,message.header.severity,msg,log_len);
         
         int written = fprintf(lth->file, "[%s] %.*s\n", sev_str, (int)log_len, msg);
         if (written > 0)
