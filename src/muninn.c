@@ -22,11 +22,10 @@ bool muninn_init(muninn_t *muninn,const char *path)
     muninn->logger_th.path[P_SIZE - 1] = '\0';
     muninn->start_ts = timestamp_u64();
 
-    console_handler_setup(&muninn->console_handler);
-
     ts_rb_setup(&muninn->logger_rb,(uint8_t *)muninn->buffer_logger,LOG_RB_SIZE);
 
-    size_t offset = 0;
+    size_t offset;
+    offset = 0;
     for(int i=0;i<COMP_QUEUE_SIZE;i++)
     {
         char *tmp = muninn->buffer_compressor + offset;
@@ -35,14 +34,25 @@ bool muninn_init(muninn_t *muninn,const char *path)
     }
     ts_queue_setup(&muninn->compressor_q,muninn->queue_compressor,COMP_QUEUE_SIZE);
 
+    offset = 0;
+    for(int i=0;i<CONS_QUEUE_SIZE;i++)
+    {
+        char *tmp = muninn->buffer_console + offset;
+        setup_queue_message(muninn->queue_console+i,tmp,CONS_MESSAGE_SIZE);
+        offset += COMP_MESSAGE_SIZE;
+    }
+    ts_queue_setup(&muninn->console_q,muninn->queue_console,COMP_QUEUE_SIZE);
 
-    muninn->logger_th.ringbuffer     = &muninn->logger_rb;
-    muninn->logger_th.compress_q     = &muninn->compressor_q;
-    muninn->logger_th.console_handler = &muninn->console_handler;
+
+    muninn->logger_th.ringbuffer  = &muninn->logger_rb;
+    muninn->logger_th.compress_q  = &muninn->compressor_q;
+
+    muninn->console_th.tasks      = &muninn->console_q;
        
-    muninn->compressor_th.tasks = &muninn->compressor_q;
+    muninn->compressor_th.tasks   = &muninn->compressor_q;
     
     logger_th_start(&muninn->logger_th);
+    console_th_start(&muninn->console_th);
     compressor_th_start(&muninn->compressor_th);
     
     atomic_init(&muninn->threshold, (char)0);
@@ -98,6 +108,10 @@ void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file,
 void muninn_shutdown(muninn_t *muninn)
 {
     if ( muninn == NULL ) return;
+
+    console_th_stop(&muninn->console_th);
+    console_th_join(&muninn->console_th);
+
     logger_th_stop(&muninn->logger_th);
     logger_th_join(&muninn->logger_th);
 

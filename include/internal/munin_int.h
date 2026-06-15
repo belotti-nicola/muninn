@@ -7,9 +7,12 @@
 #define COMP_MESSAGE_SIZE      256                  // MAXIMUM MESSAGE LENGTH (EACH ELEMENT IS LONG AT MOST)
 #define P_SIZE                 COMP_MESSAGE_SIZE    // MAXIMUM LOG PATH SIZE
 
+#define CONS_QUEUE_SIZE        128                   // MAXIMUM CONSOLE QUEUE SIZE (ELEMENTS IN THE Q)
+#define CONS_MESSAGE_SIZE      4096                  // MAXIMUM CONSOLE MESSAGE LENGTH (EACH ELEMENT IS LONG AT MOST)
+
 #define F_MAX_SIZE             1024*1024            // MAXIMUM FILE SIZE BEFORE COMPRESSION
 
-#define MUNINN_DUMP  "muninn_panic.dump"
+#define MUNINN_DUMP            "muninn_panic.dump"
 
 
 typedef enum MUNINN_COLORS

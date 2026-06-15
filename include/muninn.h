@@ -13,6 +13,7 @@
 #include <internal/compressor_th.h>
 #include <internal/logger_th.h>
 #include <internal/console_handler.h>
+#include <internal/console_th.h>
 
 typedef struct muninn_t 
 {
@@ -23,17 +24,19 @@ typedef struct muninn_t
 
     char               buffer_logger[LOG_RB_SIZE];
     char               buffer_compressor[COMP_MESSAGE_SIZE * COMP_QUEUE_SIZE];
+    char               buffer_console[CONS_MESSAGE_SIZE * CONS_QUEUE_SIZE];
 
     ts_rb_message_t    ringbuffer_logger;
+    queue_message_t    queue_console[CONS_QUEUE_SIZE];
     queue_message_t    queue_compressor[COMP_QUEUE_SIZE];
     
     ts_ring_buffer_t   logger_rb;
+    ts_queue_t         console_q;
     ts_queue_t         compressor_q;
 
     logger_th_data     logger_th;
+    console_th_data    console_th;
     compressor_th_data compressor_th;
-
-    console_handler_t   console_handler;
     
 } muninn_t;
 

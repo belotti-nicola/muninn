@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(muninn VERSION 2.2.2 DESCRIPTION "Logger for C" LANGUAGES C)
+project(muninn VERSION 3.0.0 DESCRIPTION "Logger for C" LANGUAGES C)
 
 find_package(Threads REQUIRED)
 
@@ -27,6 +27,7 @@ set(MUNINN_SOURCES
     src/threadsafe_ring_buffer/ts_rb_encoder.c
     src/threadsafe_ring_buffer/ts_rb_decoder.c
     src/threadsafe_ring_buffer/ts_rb_message.c
+    src/console/console_th.c
     src/timestamp/timestamp_gen.c
     src/muninn.c
 )

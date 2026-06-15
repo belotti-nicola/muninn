@@ -3,5 +3,21 @@
 2.0.1 :: Better sizing of the two used Qs
 2.1.0 :: severity level + flush policy 
 2.2.0 :: Ring buffer in logger
-2.2.1 :: fix to lz4 compression
+2.2.1 :: fix to lz4 compression / panic dump support
+
+2.2.2 :: Missed an opportunity :(
+
+Currently doing:
+3.0.0 :: Console logger
+
+Further developments
+3.1.0 :: Configurable threads working
+3.2.0 :: Double buffering architecture
+3.2.1 :: A FIX
+3.3.0 :: Configure messages dump / log
+
+
+VERY GOOD:
+Lock Free Qs 
+
     

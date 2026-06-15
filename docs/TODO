@@ -4,7 +4,6 @@
 - buffer initialization: test environment or deploy?
 - QUEUE SIZE
 - remove(TESTPATH) initials
-- computing packets outside mutexes
 
 - more compressed formats
 - more tests
@@ -12,7 +11,8 @@
 - thread_id / __FILE__:__LINE__
 - Dual-Output: File + Console (colors!)
 - telemetrying
-- 
+- init threads + dispatcher
+- rc start
 
 
 Architecture changes:
