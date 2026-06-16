@@ -1,4 +1,4 @@
-#include <internal/munin_int.h>
+#include <internal/muninn_int.h>
 #include <internal/panic_flusher.h>
 
 #include <unistd.h>  // write(), close()

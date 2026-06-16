@@ -1,4 +1,6 @@
-#include "internal/munin_int.h"
+#include <muninn.h>
+
+#include "internal/muninn_int.h"
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -9,7 +11,9 @@
 #include <internal/logger_th.h>
 #include <internal/panic_flusher.h>
 
-#include "muninn.h"
+#include <internal/gateway_th.h>
+
+
 
 bool muninn_init(muninn_t *muninn,const char *path)
 {
@@ -57,6 +61,8 @@ bool muninn_init(muninn_t *muninn,const char *path)
     
     atomic_init(&muninn->threshold, (char)0);
     atomic_init(&muninn->running, true);
+
+    mw_init(&muninn->gateway,"muninn_gateway",gateway_loop_fn,gateway_stop_fn,&muninn);
 
     return true;
 }
@@ -117,6 +123,9 @@ void muninn_shutdown(muninn_t *muninn)
 
     compressor_th_stop(&muninn->compressor_th);
     compressor_th_join(&muninn->compressor_th);
+
+    mw_stop(&muninn->gateway);
+    mw_join(&muninn->gateway);
 }
 
 void muninn_set_dynamic_level(muninn_t *muninn, log_severity_t level)
@@ -127,9 +136,7 @@ void muninn_set_dynamic_level(muninn_t *muninn, log_severity_t level)
 
 void muninn_panic_flush(muninn_t *muninn)
 {
-    if (!atomic_load(&muninn->running)) {
-        return; 
-    }
+    if (!atomic_load(&muninn->running)) return; 
     
     execute_panic_flush(muninn);
 }

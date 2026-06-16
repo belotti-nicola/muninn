@@ -13,7 +13,11 @@ endif()
 include(CTest)
 include(CMakePackageConfigHelpers)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(MUNINN_SOURCES
+    src/workers/muninn_worker.c
+    src/workers/gateway/gateway_th.c
     src/internal/panic_flusher.c
     src/internal/console_handler.c
     src/queue/queue_message.c

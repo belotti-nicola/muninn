@@ -16,3 +16,4 @@ sudo apt install lz4
 to use lz4:
 lz4 -d <FILE>.lz4 <FILE>.log
 
+if you use VS Code -> "compileCommands": "${workspaceFolder}/build/compile_commands.json"

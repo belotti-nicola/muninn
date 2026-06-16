@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "queue_message.h"
 
-#include <internal/munin_int.h>
+#include <internal/muninn_int.h>
 
 typedef struct queue 
 {

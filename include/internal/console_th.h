@@ -3,7 +3,7 @@
 
 #include <stdatomic.h>
 #include <pthread.h>
-#include <internal/munin_int.h>
+#include <internal/muninn_int.h>
 #include <internal/log_types.h>
 #include <internal/ts_queue.h>
 #include <internal/console_handler.h>

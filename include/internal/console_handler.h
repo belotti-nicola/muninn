@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <internal/log_types.h>
-#include <internal/munin_int.h>
+#include <internal/muninn_int.h>
 
 // you can not modify nor pointers nor values 
 extern const char * const MUNINN_COLOR_STRINGS[__COLOR_MAX__];

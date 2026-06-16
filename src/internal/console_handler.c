@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include <internal/munin_int.h>
+#include <internal/muninn_int.h>
 
 const char * const MUNINN_COLOR_STRINGS[__COLOR_MAX__] = {
     [COLOR_BLACK]   = "\x1b[30m",

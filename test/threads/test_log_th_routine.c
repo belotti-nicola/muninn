@@ -2,14 +2,24 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "test_utils.h"
+
 #define RB_SIZE 100
-#define TESTPATH "test_log_th_routine.txt"
+#define PATH_SIZE 512
 
 int main()
 {
+    char filePath[PATH_SIZE] = {0};
+    if(compute_test_file_name(filePath,PATH_SIZE) == NULL)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Could not compute test file name with %d bytes!",PATH_SIZE);
+        return 1;
+    }
+
     setbuf(stderr, NULL);
     setbuf(stdout, NULL);
-    remove(TESTPATH);
+    remove(filePath);
 
     char buffer[RB_SIZE]; 
     ts_ring_buffer_t rb = {0};
@@ -18,7 +28,7 @@ int main()
     logger_th_data data;
     data.compress_q = NULL; //unused in this test
     data.ringbuffer = &rb;
-    strcpy(data.path,TESTPATH);
+    strcpy(data.path,filePath);
    
     logger_th_start(&data);
     logger_th_perform(&data,LOG_INFO,"hello");
@@ -27,10 +37,10 @@ int main()
     logger_th_stop(&data);
     logger_th_join(&data);
 
-    FILE *file = fopen(TESTPATH,"r");
+    FILE *file = fopen(filePath,"r");
     if(file == NULL)
     {
-        printf("Error: could not check test file %s,\n",TESTPATH);
+        printf("Error: could not check test file %s,\n",filePath);
         return 1;
     }
     

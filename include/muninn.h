@@ -9,11 +9,12 @@
 #include <stdint.h>
 
 #include <internal/log_types.h>
-#include <internal/munin_int.h>
+#include <internal/muninn_int.h>
 #include <internal/compressor_th.h>
 #include <internal/logger_th.h>
 #include <internal/console_handler.h>
 #include <internal/console_th.h>
+#include <internal/muninn_worker_th.h>
 
 typedef struct muninn_t 
 {
@@ -37,6 +38,12 @@ typedef struct muninn_t
     logger_th_data     logger_th;
     console_th_data    console_th;
     compressor_th_data compressor_th;
+
+    muninn_worker_t    gateway;
+    char               gateway_buff[LOG_RB_SIZE];
+    ts_rb_message_t    gateway_message;
+    ts_ring_buffer_t   gateway_rb;
+
     
 } muninn_t;
 

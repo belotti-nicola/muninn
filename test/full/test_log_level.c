@@ -27,16 +27,16 @@ int main(void)
     muninn_log_warning(&muninn,"Hello World");//LOGGED
     muninn_log_warning(&muninn,"Hello World");//LOGGED
 
-    sleep(1);
+    usleep(200);
     muninn_set_dynamic_level(&muninn,LOG_FATAL);
-    sleep(1);
+    usleep(200);
 
     muninn_log_warning(&muninn,"Hello World");//LOST
     muninn_log_warning(&muninn,"Hello World");//LOST
     muninn_log_warning(&muninn,"Hello World");//LOST
 
 
-    sleep(1);
+    usleep(200);
     muninn_shutdown(&muninn);
 
     FILE *ptr = fopen(file,"r");
