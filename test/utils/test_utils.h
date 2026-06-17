@@ -16,6 +16,7 @@
 #define file_exists(filepath)              file_exists_impl(filepath)
 #define test_file_exists(out)              test_file_exists_impl(out)
 #define compute_test_file_name(out, size)  compute_test_file_name_impl(out, size, __FILE__)
+#define compute_test_current_dir(out,size) compute_test_current_dir(out,size)
 #define files_counter(path)                files_counter_impl(path, __FILE__)
 
 bool  file_exists_impl(const char *fullpath);
@@ -23,6 +24,7 @@ bool *test_file_exists_impl(const char *test_name);
 char *get_executable_directory(char *out, size_t out_size);
 char *compute_test_file_name_impl(char *out, size_t out_size, const char *calling_file);
 int   files_counter_impl(const char* path, const char *calling_file);
+int   compute_test_current_dir_impl(char* out, size_t out_size);
 
 
 #endif // TEST_UTILS_H

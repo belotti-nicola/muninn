@@ -1,4 +1,4 @@
-#define TEST_FILE "/home/nicola/Projects/muninn/test/ring_buffer/full.txt"
+#define TEST_FILE_SIZE 100
 #define MAX_TESTS 100
 #define MAX_LINE 4096
 #define BUFFER_SIZE 1024
@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "test_utils.h"
 
 #define RB_OPERATIONS(X) \
     X(RB_PUSH)           \
@@ -116,7 +118,14 @@ int main()
     ring_buffer rb = {0}; rb_setup(&rb,buff,BUFFER_SIZE);
 
     TestCase tc[MAX_TESTS];
-    int test_number = load_tests(TEST_FILE,tc);
+    char test_file[TEST_FILE_SIZE] = {0};
+    get_executable_directory(test_file,TEST_FILE_SIZE);
+
+    //TODO COMPUTE PATH
+    strcat(test_file,"/data/full.txt");
+    printf("%s\n",test_file);
+
+    int test_number = load_tests(test_file,tc);
     if(test_number == -1)
     {
         printf("Error at line %d: parse error!",__LINE__);

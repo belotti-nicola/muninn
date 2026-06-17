@@ -6,13 +6,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <muninn.h>
-
 typedef struct gateway_th_data
 {
     pthread_t          th;
     atomic_bool        running;
-    muninn_t          *muninn;
+    void              *context;
 
 } gateway_th_data;
 

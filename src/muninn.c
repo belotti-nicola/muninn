@@ -62,7 +62,7 @@ bool muninn_init(muninn_t *muninn,const char *path)
     atomic_init(&muninn->threshold, (char)0);
     atomic_init(&muninn->running, true);
 
-    mw_init(&muninn->gateway,"muninn_gateway",gateway_loop_fn,gateway_stop_fn,&muninn);
+    mw_init(&muninn->gateway,"muninn_gateway",gateway_loop_fn,gateway_stop_fn,(void *)&muninn);
 
     return true;
 }

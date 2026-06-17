@@ -98,3 +98,8 @@ int files_counter_impl(const char* path, const char *calling_file)
     closedir(dir);
     return count;
 }
+
+int compute_test_current_dir_impl(char* out, size_t out_size)
+{
+    
+}

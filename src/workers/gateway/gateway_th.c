@@ -1,12 +1,12 @@
 #include <internal/gateway_th.h>
+#include <muninn.h>
 
 void *gateway_loop_fn(void *arg)
 {
     if(arg == NULL) return NULL;
-
     gateway_th_data *gw_data = (gateway_th_data *)arg;
 
-    muninn_t *m = gw_data->muninn;
+    muninn_t *m = (muninn_t *)gw_data->context;
     if(m == NULL) return NULL;
     
     ts_ring_buffer_t *rb     = &m->gateway_rb;
