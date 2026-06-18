@@ -8,10 +8,9 @@
 int main()
 {
     muninn_t muninn = {0};
-    
     atomic_store(&muninn.running,true);
     
-    ring_buffer *rb = &muninn.logger_rb.ring_buffer;
+    ring_buffer *rb = &muninn.gateway_rb.ring_buffer;
 
     const char tmp[] = "Hello World";
     rb_push(rb,tmp,strlen(tmp));

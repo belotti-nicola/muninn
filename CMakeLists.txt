@@ -18,6 +18,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(MUNINN_SOURCES
     src/workers/muninn_worker.c
     src/workers/gateway/gateway_th.c
+    src/workers/flogger/flogger_th.c
     src/internal/panic_flusher.c
     src/internal/console_handler.c
     src/queue/queue_message.c
@@ -25,7 +26,6 @@ set(MUNINN_SOURCES
     src/thread_safe_queue/ts_queue.c
     src/compressor/format/lz4/lz4_wrapper.c
     src/compressor/compressor_th.c
-    src/logger/logger_th.c
     src/ring_buffer/ring_buffer.c
     src/threadsafe_ring_buffer/ts_ring_buffer.c
     src/threadsafe_ring_buffer/ts_rb_encoder.c

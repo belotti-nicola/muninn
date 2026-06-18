@@ -4,24 +4,32 @@
 #include <string.h>
 #include <unistd.h>
 
-#define LOG "test_simple.log"
+#define SIZE 200
+
+#include "test_utils.h"
 
 int main(void)
 {
+    char log[SIZE];
+    if(compute_test_file_name(log,SIZE) == NULL)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Cannot compute test file");
+        return 1;
+    }
     
     muninn_t muninn = {0};
-
-    muninn_init(&muninn,LOG);
+    muninn_init(&muninn,log);
 
     muninn_log_fatal(&muninn, "hello");
     muninn_log_fatal(&muninn, "world");
 
     muninn_shutdown(&muninn);
 
-    FILE *test_file = fopen(LOG, "r");
+    FILE *test_file = fopen(log, "r");
     if(test_file == NULL)
     {
-        printf("Error: char pointer is null at line %d.\n",__LINE__);
+        printf("Error: char pointer is null at line %d (file %s).\n",__LINE__,log);
         return 1;
     }
 

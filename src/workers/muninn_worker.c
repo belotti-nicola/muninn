@@ -1,7 +1,11 @@
 #include <internal/muninn_worker_th.h>
 #include <stdio.h>
 
-int mw_init(muninn_worker_t *muninn_worker, const char *name, void* (*thread_loop)(void*),void* (*thread_stop)(void*), void *context)
+int mw_init(muninn_worker_t *muninn_worker, const char *name, 
+    void* (*thread_loop)(void*),
+    void* (*thread_stop)(void*),
+    void* (*thread_perform)(void *arg, void *data),
+    void *context)
 {
     if(muninn_worker == NULL || name == NULL ) return 1;
     
@@ -11,6 +15,7 @@ int mw_init(muninn_worker_t *muninn_worker, const char *name, void* (*thread_loo
     muninn_worker->context = context;
     muninn_worker->thread_loop = thread_loop;
     muninn_worker->thread_stop = thread_stop;
+    muninn_worker->thread_post = thread_perform;
 
     return 0;
 }
@@ -63,6 +68,15 @@ int mw_shutdown(muninn_worker_t *muninn_worker)
 
     mw_stop(muninn_worker);
     mw_join(muninn_worker);
+
+    return 0;
+}
+
+int mw_post(muninn_worker_t *muninn_worker, void *data)
+{
+    if(muninn_worker == NULL) return 1;
+
+    muninn_worker->thread_post(muninn_worker->context,data);
 
     return 0;
 }

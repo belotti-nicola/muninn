@@ -13,17 +13,23 @@ typedef struct muninn_worker_t
     atomic_bool        running;
     const char        *name;
 
-    void* (*thread_loop)(void *arg);
-    void* (*thread_stop)(void *arg);
-    void                      *context;
+    void* (*thread_loop)   (void *arg);
+    void* (*thread_stop)   (void *arg);
+    void* (*thread_post)(void *arg, void *data);
+    
+    void                          *context;
 
 } muninn_worker_t;
 
-int  mw_init(muninn_worker_t *muninn_worker, const char *name, void* (*thread_loop)(void*),void* (*thread_stop)(void*), void *context);
+int  mw_init(muninn_worker_t *muninn_worker, const char *name, 
+    void* (*thread_loop)(void*),
+    void* (*thread_stop)(void*),
+    void* (*thread_perform)(void *arg,void *data),
+    void *context);
 int  mw_start(muninn_worker_t *muninn_worker);
 int  mw_stop(muninn_worker_t *muninn_worker);
 int  mw_join(muninn_worker_t *muninn_worker);
 int  mw_shutdown(muninn_worker_t *muninn_worker);
-
+int  mw_post(muninn_worker_t *muninn_worker, void *data);
 
 #endif

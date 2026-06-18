@@ -3,8 +3,13 @@
 
 
 #define LOG_RB_SIZE            1024*1024            // DATA AVAILABLE IN LOGGER RINGBUFFEER
+
+#define LOG_QUEUE_SIZE        128
+#define LOG_MESSAGE_SIZE      4096
+
 #define COMP_QUEUE_SIZE        8                    // MAXIMUM QUEUE SIZE (ELEMENTS IN THE Q)
 #define COMP_MESSAGE_SIZE      256                  // MAXIMUM MESSAGE LENGTH (EACH ELEMENT IS LONG AT MOST)
+
 #define P_SIZE                 COMP_MESSAGE_SIZE    // MAXIMUM LOG PATH SIZE
 
 #define CONS_QUEUE_SIZE        128                   // MAXIMUM CONSOLE QUEUE SIZE (ELEMENTS IN THE Q)

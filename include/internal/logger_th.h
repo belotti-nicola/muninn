@@ -26,11 +26,9 @@ typedef struct logger_th_data
 
 } logger_th_data;
 
-int  logger_th_start(logger_th_data *cth_data);
-int  logger_th_stop(logger_th_data *cth_data);
-int  logger_th_join(logger_th_data *cth_data);
-bool logger_th_perform(logger_th_data *cth_data, log_severity_t severity, const char *filepath);
-
-static void *logger_th_function(void *arg);
+int  logger_th_start(void *arg);
+int  logger_th_stop(void *arg);
+int  logger_th_join(void *arg);
+bool logger_th_perform(void *context,void *arg);
 
 #endif

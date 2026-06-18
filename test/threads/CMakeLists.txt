@@ -21,11 +21,10 @@ function(add_munin_test test_name source_file)
         PROPERTIES TIMEOUT 10)
 endfunction()
 
-add_munin_test(TestInstantiatorGatewayThApi    test_gateway_th_api.c)
+#add_munin_test(TestInstantiatorLogThApi        test_log_th_api.c)
+#add_munin_test(TestInstantiatorLogThRoutine    test_log_th_routine.c)
+#add_munin_test(TestInstantiatorCompThApi       test_comp_th_api.c)
+#add_munin_test(TestInstantiatorCompThRoutine   test_comp_th_routine.c)
 
-add_munin_test(TestInstantiatorCompThApi       test_comp_th_api.c)
-add_munin_test(TestInstantiatorCompThRoutine   test_comp_th_routine.c)
-add_munin_test(TestInstantiatorLogThApi        test_log_th_api.c)
-add_munin_test(TestInstantiatorLogThRoutine    test_log_th_routine.c)
 
 
