@@ -11,12 +11,13 @@
 #include <internal/log_types.h>
 #include <internal/muninn_int.h>
 #include <internal/compressor_th.h>
-#include <internal/flogger_th.h>
-#include <internal/console_handler.h>
-#include <internal/console_th.h>
 #include <internal/muninn_worker_th.h>
-#include <internal/gateway_th.h>
 #include <internal/ts_ring_buffer.h>
+
+#include <internal/gateway_th.h>
+#include <internal/flogger_th.h>
+#include <internal/clogger_th.h>
+
 
 
 typedef struct muninn_t 
@@ -29,13 +30,13 @@ typedef struct muninn_t
     char               buffer_compressor[COMP_MESSAGE_SIZE * COMP_QUEUE_SIZE];
     char               buffer_console[CONS_MESSAGE_SIZE * CONS_QUEUE_SIZE];
 
-queue_message_t    queue_console[CONS_QUEUE_SIZE];
+    queue_message_t    queue_console[CONS_QUEUE_SIZE];
     queue_message_t    queue_compressor[COMP_QUEUE_SIZE];
     
     ts_queue_t         console_q;
     ts_queue_t         compressor_q;
 
-    console_th_data    console_th;
+    //console_th_data    console_th;
     compressor_th_data compressor_th;
     gateway_th_data    gateway_th;
     flogger_th_data    flogger_th;
@@ -49,6 +50,12 @@ queue_message_t    queue_console[CONS_QUEUE_SIZE];
     ts_queue_t         flogger_q;
     queue_message_t    flogger_m[LOG_MESSAGE_SIZE];
     muninn_worker_t    flogger;
+
+    char               clogger_buff[LOG_QUEUE_SIZE * LOG_MESSAGE_SIZE];
+    ts_queue_t         clogger_q;
+    queue_message_t    clogger_m[LOG_MESSAGE_SIZE];
+    muninn_worker_t    clogger;
+
     
 } muninn_t;
 

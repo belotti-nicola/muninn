@@ -81,6 +81,8 @@ bool muninn_init(muninn_t *muninn,const char *path)
     );
     mw_start(&muninn->gateway);
 
+
+    strcpy(muninn->flogger_th.path,path);
     muninn->flogger_th.muninn = muninn; 
     atomic_init(&muninn->flogger.running, false);
     mw_init(&muninn->flogger,"muninn_flogger",
@@ -88,6 +90,15 @@ bool muninn_init(muninn_t *muninn,const char *path)
         flogger_stop_fn,
         flogger_post_fn,
         (void *)&muninn->flogger_th
+    );
+    mw_start(&muninn->flogger);
+
+    atomic_init(&muninn->clogger.running, false);
+    mw_init(&muninn->clogger,"muninn_clogger",
+        clogger_loop_fn,
+        clogger_stop_fn,
+        clogger_post_fn,
+        (void *)&muninn->clogger_th
     );
     mw_start(&muninn->flogger);
 
@@ -152,8 +163,8 @@ void muninn_shutdown(muninn_t *muninn)
     mw_stop(&muninn->flogger);
     mw_join(&muninn->flogger);
 
-    console_th_stop(&muninn->console_th);
-    console_th_join(&muninn->console_th);
+    mw_stop(&muninn->clogger);
+    mw_join(&muninn->clogger);
 
     compressor_th_stop(&muninn->compressor_th);
     compressor_th_join(&muninn->compressor_th);

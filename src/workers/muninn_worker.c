@@ -34,8 +34,11 @@ int mw_start(muninn_worker_t *muninn_worker)
     if(rc != 0)
     {
         fprintf(stderr,"Error starting thread '%s'\n",muninn_worker->name);
+        return -1;
     }
-    return rc;
+
+    atomic_store(&muninn_worker->running,true);
+    return 0;
 }
 
 int mw_stop(muninn_worker_t *muninn_worker)

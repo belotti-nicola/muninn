@@ -64,7 +64,7 @@ void *flogger_loop_fn(void *arg)
 
     flogger_th_data *lth = (flogger_th_data *)arg;
 
-    if(lth->muninn == NULL || lth->file == NULL) return NULL;
+    if(lth->muninn == NULL || lth->path == NULL) return NULL;
 
     lth->file = fopen(lth->path, "a");
     if (!lth->file)

@@ -30,9 +30,11 @@ void *gateway_loop_fn(void *arg)
         strncat(with_terminator,message->payload.payload_bytes,message->header.msg_len);
         with_terminator[message->header.msg_len] = '\0';
 
-        flogger_post_fn(&m->flogger_th,with_terminator);//TODO
-        console_th_perform(&m->console_th,1,with_terminator);//TODO
+        mw_post(&m->flogger,with_terminator);
+        //console_th_perform(&m->console_th,1,with_terminator);//TODO
     }
+
+    printf("Gateway end\n");
     return NULL;
 }
 
@@ -41,6 +43,9 @@ void *gateway_stop_fn(void *arg)
     if(arg == NULL) return NULL;
 
     gateway_th_data *gw_data = (gateway_th_data *)arg;
+    if(&gw_data->muninn->gateway_rb == NULL) return NULL;
+
+    ts_rb_stop(&gw_data->muninn->gateway_rb);
 
     return NULL;
 }
