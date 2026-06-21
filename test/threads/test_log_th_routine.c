@@ -1,86 +1,102 @@
+#include <internal/muninn_worker.h>
 #include <internal/flogger_th.h>
-#include <unistd.h>
+#include <internal/ts_queue.h>
 #include <string.h>
 
 #include "test_utils.h"
 
-#define RB_SIZE 100
-#define PATH_SIZE 512
+#define PATH_SIZE   100
+#define BUFFER_SIZE 100
+#define QUEUE_SIZE  5
 
 int main()
 {
-    char filePath[PATH_SIZE] = {0};
-    if(compute_test_file_name(filePath,PATH_SIZE) == NULL)
+    int offset = 0;
+    ts_queue_t q;
+    char buffer[BUFFER_SIZE * QUEUE_SIZE]; 
+    queue_message_t message[QUEUE_SIZE] = {0};
+    for(int i=0;i<QUEUE_SIZE;i++)
+    {
+        setup_queue_message(message+i,buffer+offset,BUFFER_SIZE);
+        offset += BUFFER_SIZE;
+    }
+    ts_queue_setup(&q,message,QUEUE_SIZE);
+
+    char test_log[PATH_SIZE];
+    if(compute_test_file_name(test_log,PATH_SIZE) == NULL)
     {
         TRACE_ERROR_POSITION();
-        TEST_ERROR("Could not compute test file name with %d bytes!",PATH_SIZE);
+        TEST_ERROR("Could not compute test file name in %d bytes.",PATH_SIZE);
         return 1;
     }
 
-    setbuf(stderr, NULL);
-    setbuf(stdout, NULL);
-    remove(filePath);
+    flogger_th_data flogger_data = {0};
+    strcpy(flogger_data.path,test_log);
+    flogger_data.reading_queue = &q;
 
-    char buffer[RB_SIZE]; 
-    ts_ring_buffer_t rb = {0};
-    ts_rb_setup(&rb,(uint8_t *)buffer,RB_SIZE);
-
-    logger_th_data data;
-    data.compress_q = NULL; //unused in this test
-    data.ringbuffer = &rb;
-    strcpy(data.path,filePath);
-   
-    logger_th_start(&data);
-    logger_th_perform(&data,LOG_INFO,"hello");
-    logger_th_perform(&data,LOG_INFO,"world");
+    muninn_worker_t mw;
+    mw_init(&mw,
+        "test_function",
+        flogger_loop_fn,
+        flogger_stop_fn,
+        flogger_post_fn,
+        (void *)&flogger_data     
+    );
+    mw_start(&mw);
     
-    logger_th_stop(&data);
-    logger_th_join(&data);
+    mw_post(&mw,"TestLog");
+    mw_post(&mw,"ThRoutine");
 
-    FILE *file = fopen(filePath,"r");
-    if(file == NULL)
+    sleep_ms(10);   
+    mw_shutdown(&mw);
+
+    FILE *test_file = fopen(test_log, "r");
+    if(test_file == NULL)
     {
-        printf("Error: could not check test file %s,\n",filePath);
-        return 1;
-    }
-    
-    char tmp[128];
-    if (fgets(tmp, sizeof(tmp), file) == NULL)
-    {
-        printf("Error at %s:%d (fgets failed)\n",__FILE__,__LINE__);
-        return 1;
-    }
-    if(strstr(tmp, "hello") == NULL )
-    {
-        printf("Error: string log(%s) differs from expected(%s) at line %d.\n",tmp,"hello",__LINE__);
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Error: char pointer is null at line %d (file %s).\n",__LINE__,test_log);
         return 1;
     }
 
-    if (fgets(tmp, sizeof(tmp), file) == NULL)
+    char tmp[256];
+    if(fgets(tmp, 256, test_file) == NULL)
     {
-        printf("Error: fgets failed at line %d.\n", __LINE__);
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Error: char pointer is null.");
+        return 1;
+    }
+    if(strstr(tmp, "TestLog") == NULL)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Error: tmp(%s) is not substring of the expected(%s) at line %d.\n",tmp,"hello",__LINE__);
         return 1;
     }
 
-    if(strstr(tmp, "world") == NULL )
+    if(fgets(tmp, 256, test_file) == NULL)
     {
-        printf("Error: string log(%s) differs from expected(%s) at line %d.\n",tmp,"world",__LINE__);
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Error: char pointer is null at line %d.\n",__LINE__);
+        return 1;
+    }
+    if(strstr(tmp, "ThRoutine") == NULL)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Error: tmp(%s) is not substring of the expected(%s) at line %d.\n",tmp,"world",__LINE__);
         return 1;
     }
 
-    if (fgets(tmp, sizeof(tmp), file) == NULL)
+    if (fgets(tmp, 256, test_file) == NULL)
     {
-        if (feof(file))
+        if (feof(test_file))
         {
-            
+            //end of the file is fine!
         }
-        else if (ferror(file))
+        else if (ferror(test_file))
         {
-            return 1;
+            TRACE_ERROR_POSITION(); return 1;
         }
     }
 
-    fclose(file);
-    
+    fclose(test_file);
     return 0;
 }

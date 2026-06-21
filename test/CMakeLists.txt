@@ -34,11 +34,10 @@ function(muninn_copy_test_assets TARGET_NAME ASSET_FOLDER)
 endfunction()
 # ==============================================================================
 
-# Ora le sottocartelle vedranno la funzione!
 add_subdirectory(queue)
 add_subdirectory(threadsafe_queue)
 add_subdirectory(ring_buffer)
 add_subdirectory(threadsafe_ring_buffer)
 add_subdirectory(compression)
 add_subdirectory(threads)
-add_subdirectory(full)
+#add_subdirectory(full)

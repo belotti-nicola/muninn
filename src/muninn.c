@@ -13,6 +13,8 @@
 
 #include <internal/gateway_th.h>
 #include <internal/flogger_th.h>
+#include <internal/clogger_th.h>
+#include <internal/compressor_th.h>
 
 
 
@@ -40,50 +42,37 @@ bool muninn_init(muninn_t *muninn,const char *path)
     offset = 0;
     for(int i=0;i<COMP_QUEUE_SIZE;i++)
     {
-        char *tmp = muninn->buffer_compressor + offset;
-        setup_queue_message(muninn->queue_compressor+i,tmp,COMP_MESSAGE_SIZE);
+        char *tmp = muninn->fcompressor_buff + offset;
+        setup_queue_message(muninn->fcompressor_m+i,tmp,COMP_MESSAGE_SIZE);
         offset += COMP_MESSAGE_SIZE;
     }
-    ts_queue_setup(&muninn->compressor_q,muninn->queue_compressor,COMP_QUEUE_SIZE);
+    ts_queue_setup(&muninn->fcompressor_q,muninn->fcompressor_m,COMP_QUEUE_SIZE);
 
     offset = 0;
     for(int i=0;i<CONS_QUEUE_SIZE;i++)
     {
-        char *tmp = muninn->buffer_console + offset;
-        setup_queue_message(muninn->queue_console+i,tmp,CONS_MESSAGE_SIZE);
-        offset += COMP_MESSAGE_SIZE;
+        char *tmp = muninn->clogger_buff + offset;
+        setup_queue_message(muninn->clogger_m+i,tmp,CONS_MESSAGE_SIZE);
+        offset += CONS_MESSAGE_SIZE;
     }
-    ts_queue_setup(&muninn->console_q,muninn->queue_console,COMP_QUEUE_SIZE);
+    ts_queue_setup(&muninn->clogger_q,muninn->clogger_m,CONS_QUEUE_SIZE);
 
 
-    //muninn->flogger_th.ringbuffer  = &muninn->logger_rb;
-    //muninn->logger_th.compress_q  = &muninn->compressor_q;
-
-    muninn->console_th.tasks      = &muninn->console_q;
-       
-    muninn->compressor_th.tasks   = &muninn->compressor_q;
-    
-    console_th_start(&muninn->console_th);
-    compressor_th_start(&muninn->compressor_th);
-    
-
-
-
-    //TODO FIX THIS HELL
     ts_rb_setup(&muninn->gateway_rb,(uint8_t *)muninn->gateway_buff,LOG_RB_SIZE);
-    muninn->gateway_th.muninn = muninn; 
+    muninn->gateway_th.rb = &muninn->gateway_rb;
     atomic_init(&muninn->gateway.running, false);
     mw_init(&muninn->gateway,"muninn_gateway",
         gateway_loop_fn,
         gateway_stop_fn,
-        gateway_th_perform,
+        gateway_post_fn,
         (void *)&muninn->gateway_th
     );
     mw_start(&muninn->gateway);
 
 
     strcpy(muninn->flogger_th.path,path);
-    muninn->flogger_th.muninn = muninn; 
+    muninn->flogger_th.reading_queue = &muninn->flogger_q; 
+    muninn->flogger_th.output_queue  = &muninn->fcompressor_q; 
     atomic_init(&muninn->flogger.running, false);
     mw_init(&muninn->flogger,"muninn_flogger",
         flogger_loop_fn,
@@ -93,6 +82,7 @@ bool muninn_init(muninn_t *muninn,const char *path)
     );
     mw_start(&muninn->flogger);
 
+    muninn->clogger_th.muninn = muninn; 
     atomic_init(&muninn->clogger.running, false);
     mw_init(&muninn->clogger,"muninn_clogger",
         clogger_loop_fn,
@@ -100,8 +90,17 @@ bool muninn_init(muninn_t *muninn,const char *path)
         clogger_post_fn,
         (void *)&muninn->clogger_th
     );
-    mw_start(&muninn->flogger);
+    mw_start(&muninn->clogger);
 
+    muninn->compressor_th.q = &muninn->fcompressor_q ; 
+    atomic_init(&muninn->fcompressor.running, false);
+    mw_init(&muninn->fcompressor,"muninn_fcompressor",
+        fcompressor_loop_fn,
+        fcompressor_stop_fn,
+        fcompressor_post_fn,
+        (void *)&muninn->compressor_th
+    );
+    mw_start(&muninn->fcompressor);
 
     atomic_init(&muninn->threshold, (char)0);
     atomic_init(&muninn->running, true);
@@ -166,8 +165,8 @@ void muninn_shutdown(muninn_t *muninn)
     mw_stop(&muninn->clogger);
     mw_join(&muninn->clogger);
 
-    compressor_th_stop(&muninn->compressor_th);
-    compressor_th_join(&muninn->compressor_th);
+    mw_stop(&muninn->fcompressor);
+    mw_join(&muninn->fcompressor);
 }
 
 void muninn_set_dynamic_level(muninn_t *muninn, log_severity_t level)

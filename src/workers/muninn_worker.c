@@ -1,5 +1,18 @@
-#include <internal/muninn_worker_th.h>
+#include <internal/muninn_worker.h>
 #include <stdio.h>
+
+//this function takes care of the atomic_boolean
+static void* mw_internal_runner(void *arg)
+{
+    muninn_worker_t *w = (muninn_worker_t *)arg;
+
+    atomic_store(&w->running, true);
+    void *ret = w->thread_loop(w->context);
+    atomic_store(&w->running, false);
+
+    return ret;
+}
+
 
 int mw_init(muninn_worker_t *muninn_worker, const char *name, 
     void* (*thread_loop)(void*),
@@ -12,10 +25,10 @@ int mw_init(muninn_worker_t *muninn_worker, const char *name,
     atomic_init(&muninn_worker->running,false);
 
     muninn_worker->name = name;
-    muninn_worker->context = context;
     muninn_worker->thread_loop = thread_loop;
     muninn_worker->thread_stop = thread_stop;
     muninn_worker->thread_post = thread_perform;
+    muninn_worker->context = context;
 
     return 0;
 }
@@ -27,8 +40,8 @@ int mw_start(muninn_worker_t *muninn_worker)
     int rc = pthread_create(
         &muninn_worker->th,
         NULL,
-        muninn_worker->thread_loop,
-        muninn_worker->context
+        mw_internal_runner,
+        muninn_worker
     );
 
     if(rc != 0)
@@ -82,4 +95,10 @@ int mw_post(muninn_worker_t *muninn_worker, void *data)
     muninn_worker->thread_post(muninn_worker->context,data);
 
     return 0;
+}
+
+bool mw_running(muninn_worker_t *muninn_worker)
+{
+    if(muninn_worker == NULL) return false;
+    return atomic_load(&muninn_worker->running);
 }

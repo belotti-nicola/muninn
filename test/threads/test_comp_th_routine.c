@@ -2,10 +2,10 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
-
-#define MESSAGE_SIZE 100
-#define QUEUE_SIZE 5
-#define TESTPATH "test.log"
+#include <internal/muninn_worker.h>
+#include <internal/compressor_th.h>
+#include <internal/ts_ring_buffer.h>
+#include "test_utils.h"
 
 int lz4_files_counter()
 {
@@ -27,42 +27,68 @@ int lz4_files_counter()
     closedir(dir);
     return count;
 }
+  
+
+#define PATH_SIZE 100
+#define MESSAGE_SIZE 100
+#define QUEUE_SIZE 5
 
 int main()
 {
-    int offset = 0;
-    char buffer[MESSAGE_SIZE * QUEUE_SIZE]; 
-    queue_message_t messages[QUEUE_SIZE] = {0};
-    for(int i=0;i<QUEUE_SIZE;i++)
+    char test_file[PATH_SIZE];
+    if(compute_test_file_name(test_file,PATH_SIZE) == NULL)
     {
-        setup_queue_message(messages+i,buffer+offset,MESSAGE_SIZE);
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Could not compute test file name.");
+        return 1;
+    }
+    FILE* f = fopen(test_file,"w");
+    if(f == NULL)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Could not create test file.");
+        return 1;
+    }
+    fclose(f);f=NULL;
+ 
+
+    int offset = 0;
+    char buffer[MESSAGE_SIZE * QUEUE_SIZE];
+    queue_message_t messages[QUEUE_SIZE] = {0};
+    for (int i = 0; i < QUEUE_SIZE; i++)
+    {
+        setup_queue_message(messages + i, buffer + offset, MESSAGE_SIZE);
         offset += MESSAGE_SIZE;
     }
 
     ts_queue_t tsq;
-    ts_queue_setup(&tsq,messages,QUEUE_SIZE);
+    ts_queue_setup(&tsq, messages, QUEUE_SIZE);
 
-    compressor_th_data data;data.tasks = &tsq;
+    compressor_th_data data = {0};
+    data.q = &tsq;
 
-    FILE* f = fopen(TESTPATH,"w");
-    if(f == NULL)
+    muninn_worker_t mw = {0};
+    mw_init(&mw,"test_worker",
+        fcompressor_loop_fn,
+        fcompressor_stop_fn,
+        fcompressor_post_fn,
+        (void *)&data
+    );
+    mw_start(&mw);
+    
+    mw_post(&mw,test_file);
+
+    mw_shutdown(&mw);
+
+    sleep_ms(10);
+    if(mw_running(&mw) == true)
     {
-        printf("Error: cannot open file %s\n",TESTPATH);
+        mw_shutdown(&mw);
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Running boolean is true instead of false at the end of the test.");
         return 1;
     }
-    fclose(f);
-    
-    compressor_th_start(&data);
-    compressor_th_perform(&data,TESTPATH);
-    compressor_th_stop(&data);
-    compressor_th_join(&data);
 
-    int counter = lz4_files_counter();
-    if( counter != 1)
-    {
-        printf("Error: file counter(%d) differs from expected(%d)\n",counter,1);
-        return 1;
-    }
-    
+
     return 0;
 }

@@ -2,22 +2,23 @@
 #define MUNINN_INT_H
 
 
-#define LOG_RB_SIZE            1024*1024            // DATA AVAILABLE IN LOGGER RINGBUFFEER
+#define LOG_RB_SIZE           1024*1024            // DATA AVAILABLE IN LOGGER RINGBUFFEER
 
-#define LOG_QUEUE_SIZE        128
-#define LOG_MESSAGE_SIZE      4096
+#define LOG_QUEUE_SIZE        1024
+#define LOG_MESSAGE_SIZE      2048
 
 #define COMP_QUEUE_SIZE        8                    // MAXIMUM QUEUE SIZE (ELEMENTS IN THE Q)
 #define COMP_MESSAGE_SIZE      256                  // MAXIMUM MESSAGE LENGTH (EACH ELEMENT IS LONG AT MOST)
 
-#define P_SIZE                 COMP_MESSAGE_SIZE    // MAXIMUM LOG PATH SIZE
 
-#define CONS_QUEUE_SIZE        128                   // MAXIMUM CONSOLE QUEUE SIZE (ELEMENTS IN THE Q)
+#define CONS_QUEUE_SIZE        256                   // MAXIMUM CONSOLE QUEUE SIZE (ELEMENTS IN THE Q)
 #define CONS_MESSAGE_SIZE      4096                  // MAXIMUM CONSOLE MESSAGE LENGTH (EACH ELEMENT IS LONG AT MOST)
 
 #define F_MAX_SIZE             1024*1024            // MAXIMUM FILE SIZE BEFORE COMPRESSION
 
 #define MUNINN_DUMP            "muninn_panic.dump"
+
+#define P_SIZE                 COMP_MESSAGE_SIZE    // MAXIMUM LOG PATH SIZE
 
 
 typedef enum MUNINN_COLORS

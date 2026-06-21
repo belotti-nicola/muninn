@@ -5,6 +5,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <muninn.h> 
+
 
 #define ROTATING_SUFFIX ".rotating"
 #define LZ4_SUFFIX ".lz4"
@@ -49,48 +51,27 @@ void create_compressed_file_name(const char *in,
 }
 
 
-int compressor_th_start(compressor_th_data *cth_data)
-{   
-    pthread_t th;
-    int rc = pthread_create(&th,NULL,compressor_th_function,cth_data);
-    if(rc != 0)
-    {
-        fprintf(stderr,"Error starting thread.\n");
-        return 1;
-    }
-    cth_data->th = th;
-    return 0;
-}
-int compressor_th_stop(compressor_th_data *cth_data)
+
+void *fcompressor_stop_fn(void *arg)
 {
-    ts_queue_stop(cth_data->tasks);
-    return 0;
+    if( arg == NULL ) return NULL;
+    compressor_th_data *cth_data = (compressor_th_data *)arg;
+
+    ts_queue_stop(cth_data->q);
+    return NULL;
 }
 
-int compressor_th_join(compressor_th_data *cth_data)
+void *fcompressor_loop_fn(void *arg)
 {
-    int rc = pthread_join(cth_data->th,NULL);
-    if(rc != 0)
-    {
-        fprintf(stderr,"Error joining compressor thread.\n");
-        return 1;
-    }
-
-    return 0;
-}
-
-static void *compressor_th_function(void *arg)
-{
+    if( arg == NULL ) return NULL;
     compressor_th_data *cth_data = (compressor_th_data *)arg;
     
-    atomic_store(&cth_data->running,true);
-
     char buffer[P_SIZE] = {0};
     queue_message_t qm = {0};
     setup_queue_message(&qm,buffer,P_SIZE);
     while(true)
     {
-        if(ts_queue_pop(cth_data->tasks,&qm))
+        if(ts_queue_pop(cth_data->q,&qm))
         {
             char lz4_file_name[P_SIZE]; memset(lz4_file_name,0,P_SIZE);
             create_compressed_file_name(qm.data,lz4_file_name,P_SIZE);
@@ -112,11 +93,15 @@ static void *compressor_th_function(void *arg)
 
     }
     fprintf(stdout,"Compressor end.\n");
-    atomic_store(&cth_data->running,false);
     return NULL;
 }
 
-void compressor_th_perform(compressor_th_data *cth_data,const char *filepath)
+void *fcompressor_post_fn(void *context,void *arg)
 {   
-    ts_queue_push(cth_data->tasks,LOG_NONE, filepath);
+    if( arg == NULL || context == NULL ) return NULL;
+    compressor_th_data *cth_data = (compressor_th_data *)context;
+
+    ts_queue_push(cth_data->q,1,arg);
+
+    return NULL;
 }

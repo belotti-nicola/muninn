@@ -64,7 +64,7 @@ void *flogger_loop_fn(void *arg)
 
     flogger_th_data *lth = (flogger_th_data *)arg;
 
-    if(lth->muninn == NULL || lth->path == NULL) return NULL;
+    if(lth->path == NULL) return NULL;
 
     lth->file = fopen(lth->path, "a");
     if (!lth->file)
@@ -73,16 +73,26 @@ void *flogger_loop_fn(void *arg)
         return NULL;
     }
 
-    ts_queue_t      *q = &lth->muninn->flogger_q;
-    queue_message_t *m =  lth->muninn->flogger_m;
+    if(lth->reading_queue == NULL)
+    {
+        fprintf(stderr,"Error: reading Queue is null\n");
+        return NULL;
+    }
+    ts_queue_t *q   = lth->reading_queue;
+    
+    ts_queue_t *out = lth->output_queue;
 
     char qm[1024] = {0};//TODO
     char qm_compressor[P_SIZE] = {0};
 
+    char buffer[LOG_QUEUE_SIZE * LOG_MESSAGE_SIZE];
+    queue_message_t msg[LOG_QUEUE_SIZE];
+    setup_queue_message(msg,buffer,LOG_QUEUE_SIZE);
+
     int i=0;
-    while (ts_queue_pop(q,m))
+    while (ts_queue_pop(q,msg))
     {      
-        int written = fprintf(lth->file, "[INSERT] %s\n", m->data);
+        int written = fprintf(lth->file, "[INSERT] %.*s\n",(int)msg->size, msg->data);
         if (written > 0)
         {
             lth->written_bytes += written;
@@ -95,20 +105,12 @@ void *flogger_loop_fn(void *arg)
             fflush(lth->file); // Prima svuota la libc
             fdatasync(fileno(lth->file)); // Poi forza il disco
         }
-        i++;
+        i++;//TODO
         if (lth->written_bytes < F_MAX_SIZE)
         {
             continue;
         }
-
-        if (&lth->muninn->compressor_q == NULL)
-        {
-            // Se non c'è il compressore, azzeriamo solo i byte? 
-            // ATTENZIONE: Questo lascerebbe crescere il file all'infinito!
-            // Di solito, se non c'è compressione, si svuota il file o si ruota e basta.
-            continue; 
-        }
-
+        
         fflush(lth->file);
         fclose(lth->file);
         
@@ -126,7 +128,8 @@ void *flogger_loop_fn(void *arg)
 
         char *file_to_compress = strdup(rotating_file);
         if (file_to_compress) {
-            ts_queue_push(&lth->muninn->compressor_q, LOG_NONE, file_to_compress);
+            //mw_post(&lth->muninn->fcompressor,file_to_compress);
+            ts_queue_push(out,LOG_NONE,file_to_compress);
             
         }
 
@@ -153,15 +156,7 @@ void *flogger_stop_fn(void *arg)
 
     flogger_th_data *lth_data = (flogger_th_data *)arg;
 
-    ts_queue_stop(&lth_data->muninn->flogger_q);
-    return NULL;
-}
-
-//TODO
-void *flogger_join_fn(void *arg)
-{  
-    if(arg == NULL) return NULL;
-   
+    ts_queue_stop(lth_data->reading_queue);
     return NULL;
 }
 
@@ -178,7 +173,7 @@ void *flogger_post_fn(void *context, void *data)
     uint8_t sev = (uint8_t)1;//TODO
     ts_rb_message_set(&message,full_len,ts,sev,(uint8_t *)message_content);
 
-    ts_queue_push(&lth_data->muninn->flogger_q,1,data);
+    ts_queue_push(lth_data->reading_queue,1,data);
 
     return NULL;
 }

@@ -8,9 +8,9 @@
 
 #define PATH_LEN 100
 
-#define RERUN_TIMES 2
-#define TIMES       18100
-#define BUFFER_SIZE 50
+#define RERUN_TIMES 1
+#define TIMES       5000
+#define BUFFER_SIZE 200
 
 #include <libgen.h>
 #include <unistd.h>
@@ -150,7 +150,7 @@ int main(void)
         for(int j=0;j<TIMES;j++)
         {
             muninn_log_info(&muninn,message);
-            usleep(5);
+            usleep(50);
         }
     }
 

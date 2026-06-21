@@ -103,3 +103,8 @@ int compute_test_current_dir_impl(char* out, size_t out_size)
 {
     
 }
+
+void sleep_ms_impl(int value_ms)
+{
+    usleep(value_ms * 1000);
+}

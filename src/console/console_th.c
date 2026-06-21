@@ -1,67 +1,50 @@
-#include <internal/console_th.h>
+#include <internal/clogger_th.h>
+#include <muninn.h>
 
-int console_th_start(console_th_data *cth_data)
+
+void *clogger_stop_fn(void *arg)
 {
-    console_handler_setup(&cth_data->ch);
+    if(arg == NULL) return NULL;
+
+    clogger_th_data *cth_data = (clogger_th_data *)arg;
     
-    int rc = pthread_create(&cth_data->th,NULL,console_th_function,cth_data);
-    if(rc != 0)
-    {
-        fprintf(stderr,"Error starting thread.\n");
-        return 1;
-    }
+    muninn_t *muninn = cth_data->muninn;
+    if(muninn == NULL) return NULL;
+
+    ts_queue_stop(&muninn->clogger_q);
     
-    return 0;
-}
-int console_th_stop(console_th_data *cth_data)
-{
-    if(cth_data == NULL || cth_data->tasks == NULL)
-    {
-        fprintf(stderr,"Error stopping thread.\n");
-        return 1;
-    }
-    ts_queue_stop(cth_data->tasks);
-    
-    return 0;
-}
-int console_th_join(console_th_data *cth_data)
-{
-    if(cth_data == NULL || cth_data->tasks == NULL)
-    {
-        fprintf(stderr,"Error trying to join thread.\n");
-        return 1;
-    }
-
-    int rc = pthread_join(cth_data->th,NULL);
-    if(rc != 0)
-    {
-        fprintf(stderr,"Error joining compressor thread.\n");
-        return 1;
-    }
-
-    return 0;
-}
-void console_th_perform(console_th_data *cth_data,log_severity_t severity, const char *message)
-{
-    if(cth_data == NULL || cth_data->tasks == NULL)
-    {
-        fprintf(stderr,"Error trying to join thread.\n");
-        return;
-    }
-
-    ts_queue_push(cth_data->tasks,severity,message);
+    return NULL;
 }
 
-static void *console_th_function(void *arg)
+void *clogger_post_fn(void *context, void *arg)
 {
-    console_th_data *cth_data = (console_th_data *)arg;
+    if(context == NULL || arg == NULL) return NULL;
+
+    clogger_th_data *cth_data = (clogger_th_data *)context;
+    const char      *message  = (const char      *)arg;
+
+    muninn_t *muninn = cth_data->muninn;
+    if(muninn == NULL) return NULL;
+
+    ts_queue_push(&muninn->clogger_q,1,message);
+
+    return NULL;
+}
+
+void *clogger_loop_fn(void *arg)
+{
+    if(arg == NULL) return NULL;
+
+    clogger_th_data *cth_data = (clogger_th_data *)arg;
+
+    muninn_t *muninn = cth_data->muninn;
+    if(muninn == NULL) return NULL;
     
     char buffer[P_SIZE] = {0};
     queue_message_t console_m = {0};
     setup_queue_message(&console_m,buffer,P_SIZE);
 
-    atomic_store(&cth_data->running,true);
-    while(ts_queue_pop(cth_data->tasks,&console_m))
+    while(ts_queue_pop(&muninn->clogger_q,&console_m))
     {
         if(console_m.size == 0)
         {
@@ -75,7 +58,7 @@ static void *console_th_function(void *arg)
             console_m.size
         );
     }
-    atomic_store(&cth_data->running,false);
 
+    printf("Clogger end\n");
     return NULL;
 }

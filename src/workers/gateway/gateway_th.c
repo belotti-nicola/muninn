@@ -10,28 +10,29 @@ void *gateway_loop_fn(void *arg)
 {
     if(arg == NULL) return NULL;
     gateway_th_data *gw_data = (gateway_th_data *)arg;
+    ts_queue_t *q1 = gw_data->q1;
+    ts_queue_t *q2 = gw_data->q2;
 
-    muninn_t *m = gw_data->muninn;
-    if(m == NULL) return NULL;
     
-    ts_ring_buffer_t *rb     = &m->gateway_rb;
-    ts_rb_message_t *message = &m->gateway_message;
+    uint8_t read_buffer[LOG_MESSAGE_SIZE];
+    ts_rb_message_t message;
     ts_rb_message_setup(
-        message,
-        (uint8_t *)&m->gateway_message,
+        &message,
+        read_buffer,
         LOG_MESSAGE_SIZE
     );
 
-
-    char with_terminator[4096];
-    while(ts_rb_pop(rb,message))
+    ts_ring_buffer_t *rb = gw_data->rb;
+    if(rb == NULL) {return NULL;}
+    char with_terminator[4096];//todo
+    while(ts_rb_pop(rb,&message))
     {
         //TODO
-        strncat(with_terminator,message->payload.payload_bytes,message->header.msg_len);
-        with_terminator[message->header.msg_len] = '\0';
+        strncat(with_terminator,message.payload.payload_bytes,message.header.msg_len);
+        with_terminator[message.header.msg_len] = '\0';
 
-        mw_post(&m->flogger,with_terminator);
-        //console_th_perform(&m->console_th,1,with_terminator);//TODO
+        ts_queue_push(q1,1,with_terminator);
+        ts_queue_push(q2,1,with_terminator);
     }
 
     printf("Gateway end\n");
@@ -43,34 +44,22 @@ void *gateway_stop_fn(void *arg)
     if(arg == NULL) return NULL;
 
     gateway_th_data *gw_data = (gateway_th_data *)arg;
-    if(&gw_data->muninn->gateway_rb == NULL) return NULL;
+    if(&gw_data->rb == NULL) return NULL;
 
-    ts_rb_stop(&gw_data->muninn->gateway_rb);
-
-    return NULL;
-}
-
-//TODO
-void *gateway_join_fn(void *arg)
-{
-    if(arg == NULL) return NULL;
-
-    gateway_th_data *gw_data = (gateway_th_data *)arg;
+    ts_rb_stop(gw_data->rb);
 
     return NULL;
 }
 
-void *gateway_th_perform(void *context, void *data)
+void *gateway_post_fn(void *context, void *data)
 {
     if(context == NULL || data == NULL) return NULL;
     
     gateway_th_data *gw_data = (gateway_th_data *)context;
     const char *message_data = (const char *)data;
 
-    if(gw_data->muninn == NULL) return NULL;
-
-    ts_ring_buffer_t *tsrb = &gw_data->muninn->gateway_rb;
-    if(tsrb == NULL) return NULL;
+    if(gw_data->rb == NULL) return NULL;
+    ts_ring_buffer_t *tsrb = gw_data->rb;
 
     ts_rb_message_t message = {0};
     size_t full_len = strlen(message_data) + sizeof(ts_rb_header_t);

@@ -64,5 +64,6 @@ void *clogger_post_fn(void *arg)
         );
     }
 
+    printf("Console logger end\n");
     return NULL;
 }

@@ -13,7 +13,7 @@
 - telemetrying
 - init threads + dispatcher
 - rc start
-
+- QUEUE / RINGBUFFER SETUP WITH ONE AND ONLY ONE FUNCTION
 
 Architecture changes:
 - sem_wait for pushes with full buffer! 

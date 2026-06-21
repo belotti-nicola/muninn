@@ -1,5 +1,7 @@
+#include <internal/muninn_worker.h>
 #include <internal/compressor_th.h>
-#include <unistd.h>
+#include <internal/ts_ring_buffer.h>
+#include "test_utils.h"
 
 #define MESSAGE_SIZE 100
 #define QUEUE_SIZE 5
@@ -7,39 +9,49 @@
 int main()
 {
     int offset = 0;
-    char buffer[MESSAGE_SIZE * QUEUE_SIZE]; 
+    char buffer[MESSAGE_SIZE * QUEUE_SIZE];
     queue_message_t messages[QUEUE_SIZE] = {0};
-    for(int i=0;i<QUEUE_SIZE;i++)
+    for (int i = 0; i < QUEUE_SIZE; i++)
     {
-        setup_queue_message(messages+i,buffer+offset,MESSAGE_SIZE);
+        setup_queue_message(messages + i, buffer + offset, MESSAGE_SIZE);
         offset += MESSAGE_SIZE;
     }
 
     ts_queue_t tsq;
-    ts_queue_setup(&tsq,messages,QUEUE_SIZE);
+    ts_queue_setup(&tsq, messages, QUEUE_SIZE);
 
-    compressor_th_data data;data.tasks = &tsq;
+    compressor_th_data data = {0};
+    data.q = &tsq;
+
+    muninn_worker_t mw = {0};
+    mw_init(&mw,"test_worker",
+        fcompressor_loop_fn,
+        fcompressor_stop_fn,
+        fcompressor_post_fn,
+        (void *)&data
+    );
+    mw_start(&mw);
     
-    int rc;
-    rc = compressor_th_start(&data);
-    if ( rc != 0)
+    sleep_ms(10);
+    if(mw_running(&mw) == false)
     {
-        printf("Error: compressor_th_start");
-        return 1;
-    }
-        
-    rc = compressor_th_stop(&data);
-    if ( rc != 0)
-    {
-        printf("Error: compressor_th_stop");
+        mw_shutdown(&mw);
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Running boolean is false instead of true during the test.");
         return 1;
     }
 
-    rc = compressor_th_join(&data);
-    if ( rc != 0)
+    mw_shutdown(&mw);
+
+    sleep_ms(10);
+    if(mw_running(&mw) == true)
     {
-        printf("Error: compressor_th_stop");
+        mw_shutdown(&mw);
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Running boolean is true instead of false at the end of the test.");
         return 1;
     }
+
+
     return 0;
 }

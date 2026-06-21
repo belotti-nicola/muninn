@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #define TEST_ERROR(fmt, ...) \
     printf("[TEST ERROR] %s:%d: " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__)
@@ -18,6 +20,7 @@
 #define compute_test_file_name(out, size)  compute_test_file_name_impl(out, size, __FILE__)
 #define compute_test_current_dir(out,size) compute_test_current_dir(out,size)
 #define files_counter(path)                files_counter_impl(path, __FILE__)
+#define sleep_ms(value_ms)                 sleep_ms_impl(value_ms)
 
 bool  file_exists_impl(const char *fullpath);
 bool *test_file_exists_impl(const char *test_name);
@@ -25,6 +28,7 @@ char *get_executable_directory(char *out, size_t out_size);
 char *compute_test_file_name_impl(char *out, size_t out_size, const char *calling_file);
 int   files_counter_impl(const char* path, const char *calling_file);
 int   compute_test_current_dir_impl(char* out, size_t out_size);
+void  sleep_ms_impl(int value_ms);
 
 
 #endif // TEST_UTILS_H

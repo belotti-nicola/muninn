@@ -11,7 +11,7 @@
 #include <internal/log_types.h>
 #include <internal/muninn_int.h>
 #include <internal/compressor_th.h>
-#include <internal/muninn_worker_th.h>
+#include <internal/muninn_worker.h>
 #include <internal/ts_ring_buffer.h>
 
 #include <internal/gateway_th.h>
@@ -27,19 +27,10 @@ typedef struct muninn_t
     atomic_char        threshold;//log level
     char               path[P_SIZE];
 
-    char               buffer_compressor[COMP_MESSAGE_SIZE * COMP_QUEUE_SIZE];
-    char               buffer_console[CONS_MESSAGE_SIZE * CONS_QUEUE_SIZE];
-
-    queue_message_t    queue_console[CONS_QUEUE_SIZE];
-    queue_message_t    queue_compressor[COMP_QUEUE_SIZE];
-    
-    ts_queue_t         console_q;
-    ts_queue_t         compressor_q;
-
-    //console_th_data    console_th;
     compressor_th_data compressor_th;
     gateway_th_data    gateway_th;
     flogger_th_data    flogger_th;
+    clogger_th_data    clogger_th;
 
     char               gateway_buff[LOG_RB_SIZE];
     ts_ring_buffer_t   gateway_rb;
@@ -55,6 +46,11 @@ typedef struct muninn_t
     ts_queue_t         clogger_q;
     queue_message_t    clogger_m[LOG_MESSAGE_SIZE];
     muninn_worker_t    clogger;
+
+    char               fcompressor_buff[COMP_QUEUE_SIZE * COMP_MESSAGE_SIZE];
+    ts_queue_t         fcompressor_q;
+    queue_message_t    fcompressor_m[COMP_QUEUE_SIZE];
+    muninn_worker_t    fcompressor;
 
     
 } muninn_t;

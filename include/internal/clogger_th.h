@@ -12,13 +12,14 @@ typedef struct muninn_t muninn_t;
 
 typedef struct clogger_th_data
 {
+    console_handler_t ch;
     muninn_t *muninn;
 
 } clogger_th_data;
 
-int  fconsole_loop_fn(void *arg);
-int  fconsole_stop_fn(void *arg);
-int  fconsole_join_fn(void *arg);
-void fconsole_post_fn(void *context,void *arg);
+void *clogger_loop_fn(void *arg);
+void *clogger_stop_fn(void *arg);
+void *clogger_join_fn(void *arg);
+void *clogger_post_fn(void *context,void *arg);
 
 #endif 
