@@ -7,11 +7,12 @@
 
 2.2.2 :: Missed an opportunity :(
 
-Currently doing:
 3.0.0 :: Console logger
 
-Further developments
+Currently doing:
 3.1.0 :: Configurable threads working
+
+Further developments
 3.2.0 :: Double buffering architecture
 3.2.1 :: A FIX
 3.3.0 :: Configure messages dump / log
