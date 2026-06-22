@@ -9,7 +9,7 @@
 #define PATH_LEN 100
 
 #define RERUN_TIMES 1
-#define TIMES       5000
+#define TIMES       5200
 #define BUFFER_SIZE 200
 
 #include <libgen.h>

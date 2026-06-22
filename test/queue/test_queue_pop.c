@@ -24,7 +24,7 @@ int offset = 0;
     }
     
     char *test_case = "Hello World";
-    bool rc = queue_push(&q,LOG_INFO,test_case);
+    bool rc = queue_push(&q,test_case,strlen(test_case));
     if ( q.size != 1)
     {
         printf("Error at line %d: q size is %ld instead of the expected 0!\n",__LINE__,q.size);
@@ -37,17 +37,16 @@ int offset = 0;
     }
 
     char popped_buffer[MESSAGE_SIZE] = {0};
-    queue_message_t popped_message = {0};
-    setup_queue_message(&popped_message,popped_buffer,MESSAGE_SIZE);
-    rc = queue_pop(&q,&popped_message);
+    size_t popped;
+    rc = queue_pop(&q,popped_buffer,MESSAGE_SIZE,&popped);
     if ( rc == false )
-    {
+{
         printf("Error at line %d: pop returned false!\n",__LINE__);
         return 1;
     }
-    if(strlen(buffer) != popped_message.size )
+    if(strlen(buffer) != popped )
     {
-        printf("Error at line %d: strlen fail since '%ld'(expected) is different from '%ld'(computed value)!\n",__LINE__,strlen(buffer),popped_message.size);
+        printf("Error at line %d: strlen fail since '%ld'(expected) is different from '%ld'(computed value)!\n",__LINE__,strlen(buffer),popped);
         return 1;
     }
 

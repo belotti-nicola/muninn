@@ -15,27 +15,25 @@ void queue_setup(queue_t *q,queue_message_t *buffer, size_t max_dim)
   q->messages    = buffer;
 }
 
-bool queue_pop(queue_t *q,queue_message_t *out)
+bool queue_pop(queue_t *q,uint8_t *out, size_t out_size, size_t *popped_bytes)
 {
-  if(q->size == 0)
+  if(q == NULL || out == NULL || popped_bytes == NULL || out_size == 0)
   {
-    fprintf(stderr,"Popping empty queue.\n");
+    fprintf(stderr,"Error popping Queue.\n");
     return false;
   }
 
-  size_t offset  = q->first_index;
+  size_t          offset  = q->first_index;
   queue_message_t *target = q->messages + offset;
-  size_t len = target->size;
+  size_t              len = target->size;
   if( len > COMP_MESSAGE_SIZE )//TODO
   {
     fprintf(stderr, "Message size overflow in pop. Trucanting to %d bytes.\n", COMP_MESSAGE_SIZE);//TODO
     len = COMP_MESSAGE_SIZE;
   }
 
-  memcpy(out->data,target->data,len);
-  out->max_size = target->max_size;
-  out->severity = target->severity;
-  out->size = len;
+  memcpy(out,target->data,len);
+  *popped_bytes = len;
 
   offset = (offset + 1) % q->max_size;
 
@@ -45,7 +43,7 @@ bool queue_pop(queue_t *q,queue_message_t *out)
   return true;
 }
 
-bool queue_push(queue_t *q, log_severity_t severity, const char *s)
+bool queue_push(queue_t *q, const uint8_t *out, size_t out_size)
 {
   if(q->size >= q->max_size)
   {
@@ -53,22 +51,12 @@ bool queue_push(queue_t *q, log_severity_t severity, const char *s)
     return false;
   }
 
-  if (s == NULL) return false;
-
-  size_t offset = q->last_index;
+  size_t offset           = q->last_index;
   queue_message_t *target = q->messages + offset;
   
-  size_t len = strlen(s);
-  if( len > COMP_MESSAGE_SIZE ) //TODO
-  {
-    fprintf(stderr, "Message size overflow in push. Trucanting to %d bytes.\n", COMP_MESSAGE_SIZE);//TODO
-    len = COMP_MESSAGE_SIZE - 1;//TODO
-  }
-
-  memcpy(target->data, s, len);
-  target->data[len]   = '\0';
-  target->size        = len;
-  target->severity    = severity;
+  memcpy(target->data, out, out_size);
+  target->data[out_size] = '\0';
+  target->size           = out_size;
   
   q->last_index = (offset + 1) % q->max_size;
   q->size++;

@@ -13,7 +13,7 @@ typedef struct muninn_t muninn_t;
 typedef struct clogger_th_data
 {
     console_handler_t ch;
-    muninn_t *muninn;
+    ts_queue_t *q;
 
 } clogger_th_data;
 

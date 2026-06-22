@@ -35,7 +35,7 @@ bool muninn_init(muninn_t *muninn,const char *path)
     {
         char *tmp = muninn->flogger_buff + offset;
         setup_queue_message(muninn->flogger_m+i,tmp,LOG_MESSAGE_SIZE);
-        offset += COMP_MESSAGE_SIZE;
+        offset += LOG_MESSAGE_SIZE;
     }
     ts_queue_setup(&muninn->flogger_q,muninn->flogger_m,LOG_QUEUE_SIZE);
 
@@ -60,6 +60,8 @@ bool muninn_init(muninn_t *muninn,const char *path)
 
     ts_rb_setup(&muninn->gateway_rb,(uint8_t *)muninn->gateway_buff,LOG_RB_SIZE);
     muninn->gateway_th.rb = &muninn->gateway_rb;
+    muninn->gateway_th.q1 = &muninn->flogger_q;
+    muninn->gateway_th.q2 = &muninn->clogger_q;
     atomic_init(&muninn->gateway.running, false);
     mw_init(&muninn->gateway,"muninn_gateway",
         gateway_loop_fn,
@@ -74,7 +76,7 @@ bool muninn_init(muninn_t *muninn,const char *path)
     muninn->flogger_th.reading_queue = &muninn->flogger_q; 
     muninn->flogger_th.output_queue  = &muninn->fcompressor_q; 
     atomic_init(&muninn->flogger.running, false);
-    mw_init(&muninn->flogger,"muninn_flogger",
+    mw_init(&muninn->flogger,"muninn_fcompressor",
         flogger_loop_fn,
         flogger_stop_fn,
         flogger_post_fn,
@@ -82,7 +84,7 @@ bool muninn_init(muninn_t *muninn,const char *path)
     );
     mw_start(&muninn->flogger);
 
-    muninn->clogger_th.muninn = muninn; 
+    muninn->clogger_th.q = &muninn->clogger_q; 
     atomic_init(&muninn->clogger.running, false);
     mw_init(&muninn->clogger,"muninn_clogger",
         clogger_loop_fn,
@@ -92,13 +94,13 @@ bool muninn_init(muninn_t *muninn,const char *path)
     );
     mw_start(&muninn->clogger);
 
-    muninn->compressor_th.q = &muninn->fcompressor_q ; 
+    muninn->fcompressor_th.q = &muninn->fcompressor_q ; 
     atomic_init(&muninn->fcompressor.running, false);
     mw_init(&muninn->fcompressor,"muninn_fcompressor",
         fcompressor_loop_fn,
         fcompressor_stop_fn,
         fcompressor_post_fn,
-        (void *)&muninn->compressor_th
+        (void *)&muninn->fcompressor_th
     );
     mw_start(&muninn->fcompressor);
 

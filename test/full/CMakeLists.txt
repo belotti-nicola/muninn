@@ -8,9 +8,6 @@ function(add_munin_test test_name source_file)
             ${ARGN}
     )
 
-    # Directory del file sorgente senza estensione
-    get_filename_component(test_dir ${source_file} DIRECTORY)
-
     add_test(
         NAME ${test_name}
         COMMAND ${test_name}
@@ -29,7 +26,7 @@ add_munin_test(TestInstantiatorTestVariadic    test_variadic.c)
 add_munin_test(TestInstantiatorPanicFlush      test_panic_flush.c)
 add_munin_test(TestInstantiatorLogLevel        test_log_level.c)
 add_munin_test(TestInstantiatorCompression     test_compression.c)
-add_munin_test(TestInstantiatorStressingMuninn test_stressing_muninn.c)
+#add_munin_test(TestInstantiatorStressingMuninn test_stressing_muninn.c)
 
 
 

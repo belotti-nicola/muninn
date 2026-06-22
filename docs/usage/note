@@ -1,0 +1,4 @@
+either 
+    export CMAKE_PREFIX_PATH=$HOME/.local:$CMAKE_PREFIX_PATH && cmake ..
+or
+    cmake -DCMAKE_PREFIX_PATH=$HOME/.local ..

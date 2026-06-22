@@ -85,14 +85,14 @@ void *flogger_loop_fn(void *arg)
     char qm[1024] = {0};//TODO
     char qm_compressor[P_SIZE] = {0};
 
-    char buffer[LOG_QUEUE_SIZE * LOG_MESSAGE_SIZE];
-    queue_message_t msg[LOG_QUEUE_SIZE];
-    setup_queue_message(msg,buffer,LOG_QUEUE_SIZE);
+    char buffer[LOG_MESSAGE_SIZE];
+    queue_message_t msg = {0};
+    setup_queue_message(&msg,buffer,LOG_MESSAGE_SIZE);
 
     int i=0;
-    while (ts_queue_pop(q,msg))
-    {      
-        int written = fprintf(lth->file, "[INSERT] %.*s\n",(int)msg->size, msg->data);
+    while (ts_queue_pop(q,&msg))
+    {       
+        int written = fprintf(lth->file, "[INSERT] %.*s\n",(int)msg.size, msg.data);
         if (written > 0)
         {
             lth->written_bytes += written;

@@ -24,15 +24,27 @@ void *gateway_loop_fn(void *arg)
 
     ts_ring_buffer_t *rb = gw_data->rb;
     if(rb == NULL) {return NULL;}
-    char with_terminator[4096];//todo
+    char with_terminator[4096];
+    with_terminator[0] = '\0';
     while(ts_rb_pop(rb,&message))
     {
         //TODO
         strncat(with_terminator,message.payload.payload_bytes,message.header.msg_len);
-        with_terminator[message.header.msg_len] = '\0';
+        with_terminator[message.header.msg_len-13] = '\0';
+
+        if (message.header.msg_len >= 13) 
+        {
+            with_terminator[message.header.msg_len - 13] = '\0';
+        }
+        else 
+        {
+            with_terminator[message.header.msg_len] = '\0'; 
+        }
 
         ts_queue_push(q1,1,with_terminator);
         ts_queue_push(q2,1,with_terminator);
+        
+        with_terminator[0] = '\0';
     }
 
     printf("Gateway end\n");

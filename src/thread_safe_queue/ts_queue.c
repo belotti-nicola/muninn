@@ -26,7 +26,7 @@ bool ts_queue_pop(ts_queue_t* q,queue_message_t *out)
         return false;
     }
 
-    bool retVal = queue_pop(&q->queue, out);
+    bool retVal = queue_pop(&q->queue, out->data, out->max_size, &out->size);
 
 
     pthread_mutex_unlock(&q->mutex);
@@ -48,7 +48,7 @@ bool ts_queue_push(ts_queue_t* q, log_severity_t severity, const char *msg)
         return false;
     }
 
-    bool retVal = queue_push(&q->queue,severity, msg);
+    bool retVal = queue_push(&q->queue,msg,strlen(msg));
     if  (retVal)
     {
         pthread_cond_signal(&q->empty);

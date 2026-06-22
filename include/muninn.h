@@ -27,10 +27,10 @@ typedef struct muninn_t
     atomic_char        threshold;//log level
     char               path[P_SIZE];
 
-    compressor_th_data compressor_th;
     gateway_th_data    gateway_th;
     flogger_th_data    flogger_th;
     clogger_th_data    clogger_th;
+    compressor_th_data fcompressor_th;
 
     char               gateway_buff[LOG_RB_SIZE];
     ts_ring_buffer_t   gateway_rb;

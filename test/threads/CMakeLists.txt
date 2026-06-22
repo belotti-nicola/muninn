@@ -1,14 +1,15 @@
 function(add_munin_test test_name source_file)
+    cmake_parse_arguments(ARG "" "PASS_REGEX" "" ${ARGN})    
+
     add_executable(${test_name} ${source_file})
 
     target_link_libraries(${test_name}
         PRIVATE
             muninn
             muninn_test_utils
-            ${ARGN}
+            ${ARG_UNPARSED_ARGUMENTS}
     )
 
-    # Directory del file sorgente senza estensione
     get_filename_component(test_dir ${source_file} DIRECTORY)
 
     add_test(
@@ -19,6 +20,12 @@ function(add_munin_test test_name source_file)
 
     set_tests_properties(${test_name}
         PROPERTIES TIMEOUT 10)
+
+    if(ARG_PASS_REGEX)
+        set_tests_properties(${test_name} PROPERTIES
+            PASS_REGULAR_EXPRESSION "${ARG_PASS_REGEX}"
+        )
+    endif()
 endfunction()
 
 add_munin_test(TestInstantiatorMuninnWorkerRB  test_muninn_worker_rb.c)
@@ -29,6 +36,8 @@ add_munin_test(TestInstantiatorLogThApi        test_log_th_api.c)
 add_munin_test(TestInstantiatorLogThRoutine    test_log_th_routine.c)
 add_munin_test(TestInstantiatorCompThApi       test_comp_th_api.c)
 add_munin_test(TestInstantiatorCompThRoutine   test_comp_th_routine.c)
+add_munin_test(TestInstantiatorConsThApi       test_cons_th_api.c)
 
-
-
+#check output with cmake
+add_munin_test(TestInstantiatorConsThRoutine   test_cons_th_routine.c 
+    PASS_REGEX "Hello.*World")
