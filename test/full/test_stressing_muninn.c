@@ -8,8 +8,8 @@
 
 #define PATHSIZE 200
 
-#define NUM_THREADS    10
-#define MSG_PER_THREAD 10
+#define NUM_THREADS     20
+#define MSG_PER_THREAD 100
 
 void* stress_producer_routine(void *arg)
 {
@@ -54,22 +54,28 @@ int main(void)
         TEST_ERROR("Could not compute test file.");
     }
 
-    muninn_t m ={0};
-    muninn_init(&m,testlog);
+    CONFIG CONF;
+    muninn_config_default(&CONF);
+    muninn_config_set_file(&CONF,true,testlog);
+    muninn_config_set_console(&CONF,false,false);
+
+    muninn_t muninn;
+    muninn_init(&muninn,CONF);
 
     pthread_t competitors[NUM_THREADS];
     for (int i = 0; i < NUM_THREADS; i++)
     {
-        pthread_create(&competitors[i], NULL, stress_producer_routine, &m);
+        pthread_create(&competitors[i], NULL, stress_producer_routine, &muninn);
     }
 
-    muninn_shutdown(&m);
+    muninn_shutdown(&muninn);
 
-    if(countRows(testlog) < NUM_THREADS * MSG_PER_THREAD * 0.5 )
+    if(countRows(testlog) < NUM_THREADS * MSG_PER_THREAD * 0.99 )
     {
         TRACE_ERROR_POSITION();
         TEST_ERROR("countRows fail:%ld instead of %d.",countRows(testlog),NUM_THREADS * MSG_PER_THREAD);
+        return 1;
     }
 
-    return 1;
+    return 0;
 }

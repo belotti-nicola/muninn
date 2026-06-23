@@ -19,8 +19,12 @@ int main(void)
         return -1;
     }
 
+    CONFIG CONF;
+    muninn_config_default(&CONF);
+    muninn_config_set_file(&CONF,true,file);
+
     muninn_t muninn;
-    muninn_init(&muninn,file);
+    muninn_init(&muninn,CONF);
 
     muninn_log_warning(&muninn,"Hello World");//LOGGED
     muninn_log_warning(&muninn,"Hello World");//LOGGED

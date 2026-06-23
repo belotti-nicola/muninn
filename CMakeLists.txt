@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(muninn VERSION 3.0.0 DESCRIPTION "Logger for C" LANGUAGES C)
+project(muninn VERSION 3.1.0 DESCRIPTION "Logger for C" LANGUAGES C)
 
 find_package(Threads REQUIRED)
 
@@ -19,6 +19,7 @@ set(MUNINN_SOURCES
     src/workers/muninn_worker.c
     src/workers/gateway/gateway_th.c
     src/workers/flogger/flogger_th.c
+    src/config/muninn_config.c
     src/internal/panic_flusher.c
     src/internal/console_handler.c
     src/queue/queue_message.c

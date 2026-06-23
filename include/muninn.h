@@ -18,14 +18,15 @@
 #include <internal/flogger_th.h>
 #include <internal/clogger_th.h>
 
-
+#include <internal/muninn_config.h>
 
 typedef struct muninn_t 
 {
+    CONFIG             config;
+
     uint64_t           start_ts;
     atomic_bool        running;
-    atomic_char        threshold;//log level
-    char               path[P_SIZE];
+    atomic_char        threshold;
 
     gateway_th_data    gateway_th;
     flogger_th_data    flogger_th;
@@ -55,7 +56,7 @@ typedef struct muninn_t
     
 } muninn_t;
 
-bool     muninn_init(muninn_t *m,const char *path);
+bool     muninn_init(muninn_t *m,CONFIG c);
 
          //DO NOT USE THIS
 void     muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file, int line, const char *fmt, ...);

@@ -18,8 +18,12 @@ int main(void)
         return 1;
     }
     
-    muninn_t muninn = {0};
-    muninn_init(&muninn,log);
+    CONFIG CONF;
+    muninn_config_default(&CONF);
+    muninn_config_set_file(&CONF,true,log);
+
+    muninn_t muninn;
+    muninn_init(&muninn,CONF);
 
     muninn_log_fatal(&muninn, "hello");
     muninn_log_fatal(&muninn, "world");

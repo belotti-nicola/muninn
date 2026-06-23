@@ -26,7 +26,7 @@ add_munin_test(TestInstantiatorTestVariadic    test_variadic.c)
 add_munin_test(TestInstantiatorPanicFlush      test_panic_flush.c)
 add_munin_test(TestInstantiatorLogLevel        test_log_level.c)
 add_munin_test(TestInstantiatorCompression     test_compression.c)
-#add_munin_test(TestInstantiatorStressingMuninn test_stressing_muninn.c)
+add_munin_test(TestInstantiatorStressingMuninn test_stressing_muninn.c)
 
 
 

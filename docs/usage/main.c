@@ -8,8 +8,13 @@ int main()
 {
   remove(POC_LOG);
 
+  CONFIG CONF;
+  muninn_config_default(&CONF);
+  muninn_config_set_file(&CONF,true,POC_LOG);
+
+
   muninn_t m;
-  muninn_init(&m,POC_LOG);
+  muninn_init(&m,CONF);
   muninn_log_debug(&m,"This is a debug log");
   muninn_log_info(&m,"This is a info log");
   muninn_log_warning(&m,"This is a warning log");
