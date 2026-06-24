@@ -6,6 +6,8 @@
 
 #include <string.h>
 
+#define BUFFSIZE 4096
+
 void *gateway_loop_fn(void *arg)
 {
     if(arg == NULL) return NULL;
@@ -24,27 +26,31 @@ void *gateway_loop_fn(void *arg)
 
     ts_ring_buffer_t *rb = gw_data->rb;
     if(rb == NULL) {return NULL;}
-    char with_terminator[4096];
-    with_terminator[0] = '\0';
+
+
+    char buffer[BUFFSIZE] = {0};
+    size_t buffer_size = 0;
     while(ts_rb_pop(rb,&message))
     {
-        //TODO
-        strncat(with_terminator,message.payload.payload_bytes,message.header.msg_len);
-        with_terminator[message.header.msg_len-13] = '\0';
+        if(13 + buffer_size + message.header.msg_len + 1 > BUFFSIZE) continue;
 
-        if (message.header.msg_len >= 13) 
-        {
-            with_terminator[message.header.msg_len - 13] = '\0';
-        }
-        else 
-        {
-            with_terminator[message.header.msg_len] = '\0'; 
-        }
+        memcpy(buffer + buffer_size, message.payload.payload_bytes, message.header.msg_len);
+        buffer[message.header.msg_len-13 + buffer_size] = '\n';
+        buffer_size += message.header.msg_len + 1 -13;
 
-        ts_queue_push(q1,1,with_terminator);
-        ts_queue_push(q2,1,with_terminator);
+        if(buffer_size < BUFFSIZE * 0.95 ) continue;
+
+        ts_queue_push(q1,1,buffer);
+        ts_queue_push(q2,1,buffer);
         
-        with_terminator[0] = '\0';
+        buffer[0] = '\0';
+        buffer_size = 0;
+    }
+
+    if(buffer_size > 0 )
+    {
+        ts_queue_push(q1,1,buffer);
+        ts_queue_push(q2,1,buffer);
     }
 
     printf("Gateway end\n");

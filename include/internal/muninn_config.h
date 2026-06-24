@@ -28,5 +28,7 @@ typedef struct CONFIG {
 void muninn_config_default(CONFIG *cfg);
 void muninn_config_set_file(CONFIG *cfg, bool enabled, const char *path);
 void muninn_config_set_console(CONFIG *cfg, bool enabled, bool colored);
+void muninn_config_set_compressor(CONFIG *cfg, bool enabled);
+
 
 #endif

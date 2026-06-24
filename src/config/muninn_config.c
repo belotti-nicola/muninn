@@ -25,3 +25,9 @@ void muninn_config_set_console(CONFIG *cfg, bool enabled, bool colored)
     cfg->console.enabled = enabled;
     cfg->console.colored = colored;
 }
+
+void muninn_config_set_compressor(CONFIG *cfg, bool enabled)
+{
+    if (!cfg) return;
+    cfg->compressor.enabled = enabled;
+}

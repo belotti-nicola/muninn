@@ -8,8 +8,8 @@
 
 #define PATHSIZE 200
 
-#define NUM_THREADS      20
-#define MSG_PER_THREAD  100
+#define NUM_THREADS       20
+#define MSG_PER_THREAD  1000
 
 #define MESSAGE_SIZE    128
 

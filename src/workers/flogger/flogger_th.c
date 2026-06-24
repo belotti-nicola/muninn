@@ -10,6 +10,7 @@
 
 #define TS_SIZE 16
 #define ROTATING_SUFFIX ".rotating"
+#define BUFFSIZE 2048
 
 void create_rotate_file_name(const char *in, char *out, size_t out_size)
 {
@@ -61,92 +62,116 @@ void create_rotate_file_name(const char *in, char *out, size_t out_size)
 void *flogger_loop_fn(void *arg)
 {
     if(arg == NULL) return NULL;
-
     flogger_th_data *lth = (flogger_th_data *)arg;
-
     if(lth->path == NULL) return NULL;
 
     lth->file = fopen(lth->path, "a");
-    if (!lth->file)
-    {
-        fprintf(stderr,"Error: could not open file '%s'",lth->path);
+    if (!lth->file) {
+        fprintf(stderr, "Error: could not open file '%s'\n", lth->path);
         return NULL;
     }
 
-    if(lth->reading_queue == NULL)
-    {
-        fprintf(stderr,"Error: reading Queue is null\n");
+    if(lth->reading_queue == NULL) {
+        fprintf(stderr, "Error: reading Queue is null\n");
+        fclose(lth->file);
         return NULL;
     }
-    ts_queue_t *q   = lth->reading_queue;
     
+    ts_queue_t *q   = lth->reading_queue;
     ts_queue_t *out = lth->output_queue;
 
-    char qm[1024] = {0};//TODO
-    char qm_compressor[P_SIZE] = {0};
-
-    char buffer[LOG_MESSAGE_SIZE];
+    char data[LOG_MESSAGE_SIZE];
     queue_message_t msg = {0};
-    setup_queue_message(&msg,buffer,LOG_MESSAGE_SIZE);
+    setup_queue_message(&msg, data, LOG_MESSAGE_SIZE);
 
-    int i=0;
-    while (ts_queue_pop(q,&msg))
+    char buffer[BUFFSIZE] = {0};
+    size_t buffer_size = 0;
+
+    while (ts_queue_pop(q, &msg))
     {       
-        int written = fprintf(lth->file, "[INSERT] %.*s\n",(int)msg.size, msg.data);
-        if (written > 0)
+        // CORREZIONE 2: Se il messaggio + il '\n' non ci stanno nel buffer, 
+        // non saltiamo il turno! Flusshiamo il buffer ORA per fare spazio.
+        if (buffer_size + msg.size + 1 > BUFFSIZE)
         {
-            lth->written_bytes += written;
+            if (buffer_size > 0) {
+                int written = fprintf(lth->file, "%.*s", (int)buffer_size, buffer);
+                if (written > 0) {
+                    lth->written_bytes += written;
+                }
+                buffer_size = 0; // Buffer svuotato
+            }
         }
 
-        //todo
-        //if (message.header.severity >= LOG_ERROR) 
-        if(i%10 == 0)
-        {
-            fflush(lth->file); // Prima svuota la libc
-            fdatasync(fileno(lth->file)); // Poi forza il disco
-        }
-        i++;//TODO
-        if (lth->written_bytes < F_MAX_SIZE)
-        {
-            continue;
-        }
-        
-        fflush(lth->file);
-        fclose(lth->file);
-        
-        char rotating_file[P_SIZE] = {0};
-        create_rotate_file_name(lth->path, rotating_file, P_SIZE);
-        
-        if (rename(lth->path, rotating_file) != 0)
-        {
-            fprintf(stderr, "Error: could not rename %s to %s.\n", lth->path, rotating_file);
-            // Non fare return NULL! Se fallisce, riapri almeno il vecchio e prova a continuare
-            lth->file = fopen(lth->path, "a");
-            lth->written_bytes = 0;
-            continue;
-        }
+        // CORREZIONE 1: Usiamo memcpy al posto di strncat. Velocità O(1) invece di O(N).
+        // Nessun pericolo di overflow perché abbiamo appena controllato lo spazio.
+        memcpy(buffer + buffer_size, msg.data, msg.size);
+        buffer_size += msg.size;
+        buffer[buffer_size] = '\n'; // Aggiungiamo il new line in sicurezza
+        buffer_size += 1;
 
-        char *file_to_compress = strdup(rotating_file);
-        if (file_to_compress) {
-            //mw_post(&lth->muninn->fcompressor,file_to_compress);
-            ts_queue_push(out,LOG_NONE,file_to_compress);
+        // Se abbiamo accumulato abbastanza roba (es. 95%), scriviamo a terra su disco
+        if (buffer_size >= BUFFSIZE * 0.95)
+        {
+            int written = fprintf(lth->file, "%.*s", (int)buffer_size, buffer);
+            if (written > 0) {
+                lth->written_bytes += written;
+                //fflush(lth->file);
+                //fdatasync(fileno(lth->file)); 
+            }
+            buffer_size = 0;
+        }
+                   
+        // Gestione della rotazione del file
+        if (lth->written_bytes >= F_MAX_SIZE)
+        {
+            // Se c'è ancora qualcosa nel buffer locale rimasto, va scritto prima di chiudere il file!
+            if (buffer_size > 0) {
+                int written = fprintf(lth->file, "%.*s", (int)buffer_size, buffer);
+                if (written > 0) lth->written_bytes += written;
+                buffer_size = 0;
+            }
+
+            fflush(lth->file);
+            fclose(lth->file);
             
-        }
+            char rotating_file[P_SIZE] = {0};
+            create_rotate_file_name(lth->path, rotating_file, P_SIZE);
+            
+            if (rename(lth->path, rotating_file) != 0)
+            {
+                fprintf(stderr, "Error: could not rename %s to %s.\n", lth->path, rotating_file);
+                lth->file = fopen(lth->path, "a");
+                lth->written_bytes = 0;
+                continue;
+            }
 
-        lth->file = fopen(lth->path, "a");
-        if (!lth->file)
-        {
-            fprintf(stderr, "Fatal Error: Logger thread cannot reopen %s\n", lth->path);
-            return NULL;
+            char *file_to_compress = strdup(rotating_file);
+            if (file_to_compress) {
+                // Spingiamo il puntatore nella coda. 
+                // CORREZIONE 3: RIMOSSA la free(file_to_compress) da qui sotto!
+                // Sarà il thread fcompressor a fare la free() una volta terminato il lavoro.
+                ts_queue_push(out, LOG_NONE, file_to_compress);
+            }
+
+            lth->file = fopen(lth->path, "a");
+            if (!lth->file) {
+                fprintf(stderr, "Fatal Error: Logger thread cannot reopen %s\n", lth->path);
+                return NULL;
+            }
+            
+            lth->written_bytes = 0;
         }
-        
-        lth->written_bytes = 0;
-        free(file_to_compress);
     }
     
+    // Svuotamento finale dei residui prima di uscire dal thread
+    if (buffer_size > 0)
+    {
+        fprintf(lth->file, "%.*s", (int)buffer_size, buffer);
+    }    
+
     fclose(lth->file);
     lth->file = NULL;
-    fprintf(stdout,"Logger end.\n");
+    fprintf(stdout, "Logger end.\n");
     return NULL;
 }
 

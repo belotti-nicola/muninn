@@ -9,8 +9,8 @@
 #define PATH_LEN 100
 
 #define RERUN_TIMES 1
-#define TIMES       5200
-#define BUFFER_SIZE 200
+#define TIMES       5300
+#define BUFFER_SIZE 201
 
 #include <libgen.h>
 #include <unistd.h>
@@ -29,6 +29,7 @@ int main(void)
     CONFIG CONF;
     muninn_config_default(&CONF);
     muninn_config_set_file(&CONF,true,filepath);
+    muninn_config_set_compressor(&CONF,true);
 
     muninn_t muninn;
     muninn_init(&muninn,CONF);
@@ -44,7 +45,7 @@ int main(void)
         for(int j=0;j<TIMES;j++)
         {
             muninn_log_info(&muninn,message);
-            usleep(50);
+            usleep(5000);
         }
     }
 
