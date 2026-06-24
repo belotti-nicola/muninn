@@ -40,12 +40,12 @@ typedef struct muninn_t
 
     char               flogger_buff[LOG_QUEUE_SIZE * LOG_MESSAGE_SIZE];
     ts_queue_t         flogger_q;
-    queue_message_t    flogger_m[LOG_MESSAGE_SIZE];
+    queue_message_t    flogger_m[LOG_QUEUE_SIZE];
     muninn_worker_t    flogger;
 
     char               clogger_buff[LOG_QUEUE_SIZE * LOG_MESSAGE_SIZE];
     ts_queue_t         clogger_q;
-    queue_message_t    clogger_m[LOG_MESSAGE_SIZE];
+    queue_message_t    clogger_m[LOG_QUEUE_SIZE];
     muninn_worker_t    clogger;
 
     char               fcompressor_buff[COMP_QUEUE_SIZE * COMP_MESSAGE_SIZE];

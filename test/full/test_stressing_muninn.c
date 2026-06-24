@@ -8,15 +8,17 @@
 
 #define PATHSIZE 200
 
-#define NUM_THREADS     20
-#define MSG_PER_THREAD 100
+#define NUM_THREADS      20
+#define MSG_PER_THREAD  100
+
+#define MESSAGE_SIZE    128
 
 void* stress_producer_routine(void *arg)
 {
     muninn_t *m = (muninn_t *)arg;
-    char msg_buffer[128];
+    char msg_buffer[MESSAGE_SIZE];
     memset(msg_buffer,(int)'a',127);
-    msg_buffer[127] ='\0';
+    msg_buffer[MESSAGE_SIZE-1] ='\0';
 
     for (int i = 0; i < MSG_PER_THREAD; i++)
     {
@@ -66,6 +68,7 @@ int main(void)
     for (int i = 0; i < NUM_THREADS; i++)
     {
         pthread_create(&competitors[i], NULL, stress_producer_routine, &muninn);
+        sleep_ms(20);
     }
 
     muninn_shutdown(&muninn);

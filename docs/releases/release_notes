@@ -8,13 +8,14 @@
 2.2.2 :: Missed an opportunity :(
 
 3.0.0 :: Console logger
+3.1.0 :: Configurable threads working
+3.1.1 :: Fix Queue dimenion in muninn struct
 
 Currently doing:
-3.1.0 :: Configurable threads working
+3.2.0 :: Double buffering architecture
 
 Further developments
-3.2.0 :: Double buffering architecture
-3.2.1 :: A FIX
+3.2.1 :: A FIX for the meme
 3.3.0 :: Configure messages dump / log
 
 
