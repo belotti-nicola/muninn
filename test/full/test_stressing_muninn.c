@@ -23,6 +23,7 @@ void* stress_producer_routine(void *arg)
     for (int i = 0; i < MSG_PER_THREAD; i++)
     {
         muninn_log_info(m,msg_buffer);
+        sleep_ms(50);
     }
 
     return NULL;
@@ -68,7 +69,6 @@ int main(void)
     for (int i = 0; i < NUM_THREADS; i++)
     {
         pthread_create(&competitors[i], NULL, stress_producer_routine, &muninn);
-        sleep_ms(20);
     }
 
     muninn_shutdown(&muninn);

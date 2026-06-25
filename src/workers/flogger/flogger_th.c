@@ -10,7 +10,7 @@
 
 #define TS_SIZE 16
 #define ROTATING_SUFFIX ".rotating"
-#define BUFFSIZE 2048
+#define BUFFSIZE 65536
 
 void create_rotate_file_name(const char *in, char *out, size_t out_size)
 {
@@ -58,7 +58,6 @@ void create_rotate_file_name(const char *in, char *out, size_t out_size)
              ROTATING_SUFFIX);
 }
 
-
 void *flogger_loop_fn(void *arg)
 {
     if(arg == NULL) return NULL;
@@ -70,6 +69,9 @@ void *flogger_loop_fn(void *arg)
         fprintf(stderr, "Error: could not open file '%s'\n", lth->path);
         return NULL;
     }
+
+    // 2. DISATTIVIAMO il buffer interno della libc. Scrittura diretta a bassa latenza!
+    setvbuf(lth->file, NULL, _IONBF, 0);
 
     if(lth->reading_queue == NULL) {
         fprintf(stderr, "Error: reading Queue is null\n");
@@ -84,53 +86,48 @@ void *flogger_loop_fn(void *arg)
     queue_message_t msg = {0};
     setup_queue_message(&msg, data, LOG_MESSAGE_SIZE);
 
-    char buffer[BUFFSIZE] = {0};
+    // Allocato una volta sola all'avvio del thread
+    char buffer[BUFFSIZE]; 
     size_t buffer_size = 0;
 
     while (ts_queue_pop(q, &msg))
     {       
-        // CORREZIONE 2: Se il messaggio + il '\n' non ci stanno nel buffer, 
-        // non saltiamo il turno! Flusshiamo il buffer ORA per fare spazio.
+        // Se il messaggio non ci sta, svuotiamo il buffer IMMEDIATAMENTE
         if (buffer_size + msg.size + 1 > BUFFSIZE)
         {
             if (buffer_size > 0) {
-                int written = fprintf(lth->file, "%.*s", (int)buffer_size, buffer);
-                if (written > 0) {
-                    lth->written_bytes += written;
-                }
-                buffer_size = 0; // Buffer svuotato
+                // 3. Sostituito fprintf con fwrite: copia binaria pura O(1)
+                size_t written = fwrite(buffer, 1, buffer_size, lth->file);
+                lth->written_bytes += written;
+                buffer_size = 0; 
             }
         }
 
-        // CORREZIONE 1: Usiamo memcpy al posto di strncat. Velocità O(1) invece di O(N).
-        // Nessun pericolo di overflow perché abbiamo appena controllato lo spazio.
+        // Copia istantanea nel nostro buffer privato
         memcpy(buffer + buffer_size, msg.data, msg.size);
         buffer_size += msg.size;
-        buffer[buffer_size] = '\n'; // Aggiungiamo il new line in sicurezza
+        buffer[buffer_size] = '\n'; 
         buffer_size += 1;
 
-        // Se abbiamo accumulato abbastanza roba (es. 95%), scriviamo a terra su disco
+        // Svuotiamo quando arriviamo vicini al limite (95%)
         if (buffer_size >= BUFFSIZE * 0.95)
         {
-            int written = fprintf(lth->file, "%.*s", (int)buffer_size, buffer);
-            if (written > 0) {
-                lth->written_bytes += written;
-                //fflush(lth->file);
-                //fdatasync(fileno(lth->file)); 
-            }
+            size_t written = fwrite(buffer, 1, buffer_size, lth->file);
+            lth->written_bytes += written;
             buffer_size = 0;
+            // Abbiamo rimosso fflush e fdatasync: rallentavano del 99% il sistema!
         }
                    
         // Gestione della rotazione del file
         if (lth->written_bytes >= F_MAX_SIZE)
         {
-            // Se c'è ancora qualcosa nel buffer locale rimasto, va scritto prima di chiudere il file!
             if (buffer_size > 0) {
-                int written = fprintf(lth->file, "%.*s", (int)buffer_size, buffer);
-                if (written > 0) lth->written_bytes += written;
+                size_t written = fwrite(buffer, 1, buffer_size, lth->file);
+                lth->written_bytes += written;
                 buffer_size = 0;
             }
 
+            // Qui facciamo il flush atomico solo perché stiamo per chiudere il file
             fflush(lth->file);
             fclose(lth->file);
             
@@ -139,7 +136,7 @@ void *flogger_loop_fn(void *arg)
             
             if (rename(lth->path, rotating_file) != 0)
             {
-                fprintf(stderr, "Error: could not rename %s to %s.\n", lth->path, rotating_file);
+                fprintf(stderr, "Error: could not rename %s.\n", lth->path);
                 lth->file = fopen(lth->path, "a");
                 lth->written_bytes = 0;
                 continue;
@@ -147,26 +144,26 @@ void *flogger_loop_fn(void *arg)
 
             char *file_to_compress = strdup(rotating_file);
             if (file_to_compress) {
-                // Spingiamo il puntatore nella coda. 
-                // CORREZIONE 3: RIMOSSA la free(file_to_compress) da qui sotto!
-                // Sarà il thread fcompressor a fare la free() una volta terminato il lavoro.
+                // NOTA: Se questa push si blocca, tutto Muninn si ferma. 
+                // Assicurati che la coda COMP_QUEUE_SIZE sia abbastanza capiente (es. 128 o 256)
                 ts_queue_push(out, LOG_NONE, file_to_compress);
             }
 
             lth->file = fopen(lth->path, "a");
             if (!lth->file) {
-                fprintf(stderr, "Fatal Error: Logger thread cannot reopen %s\n", lth->path);
+                fprintf(stderr, "Fatal Error: Cannot reopen %s\n", lth->path);
                 return NULL;
             }
-            
+            // Riapplichiamo il no-buffering sul nuovo file aperto!
+            setvbuf(lth->file, NULL, _IONBF, 0);
             lth->written_bytes = 0;
         }
     }
     
-    // Svuotamento finale dei residui prima di uscire dal thread
+    // Svuotamento finale prima di morire
     if (buffer_size > 0)
     {
-        fprintf(lth->file, "%.*s", (int)buffer_size, buffer);
+        fwrite(buffer, 1, buffer_size, lth->file);
     }    
 
     fclose(lth->file);

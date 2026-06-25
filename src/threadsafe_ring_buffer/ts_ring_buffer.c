@@ -5,6 +5,7 @@
 #include <internal/ts_rb_message.h>
 #include <string.h>
 
+#include <internal/muninn_int.h>
 
 void ts_rb_setup(ts_ring_buffer_t *tsrb,uint8_t *buffer, size_t buffer_dim)
 {
@@ -17,64 +18,59 @@ void ts_rb_setup(ts_ring_buffer_t *tsrb,uint8_t *buffer, size_t buffer_dim)
     pthread_cond_init(&tsrb->empty, NULL);
 }
 
-bool ts_rb_pop(ts_ring_buffer_t *tsrb,ts_rb_message_t *out)
+bool ts_rb_pop(ts_ring_buffer_t *tsrb, ts_rb_message_t *out)
 {
     if(tsrb == NULL || out == NULL) return false;
 
     pthread_mutex_lock(&tsrb->mutex);
 
-    while (tsrb->ring_buffer.current_size == 0 && !tsrb->stop)
-    {
+    while (tsrb->ring_buffer.current_size == 0 && !tsrb->stop) {
         pthread_cond_wait(&tsrb->empty, &tsrb->mutex);
     }
 
-    if (tsrb->stop && tsrb->ring_buffer.current_size == 0)
-    {
+    if (tsrb->stop && tsrb->ring_buffer.current_size == 0) {
         pthread_mutex_unlock(&tsrb->mutex);
         return false;
     }
     
-    uint8_t headers[sizeof(ts_rb_header_t)] = {0};
+    // 1. Leggiamo l'INTERO HEADER in un colpo solo (Invece di fare 4 byte alla volta)
+    uint8_t headers[sizeof(ts_rb_header_t)];
+    if (rb_pop(&tsrb->ring_buffer, headers, sizeof(ts_rb_header_t)) == 0) {
+        pthread_mutex_unlock(&tsrb->mutex);
+        return false;
+    }
+
+    // Decodifichiamo tutto comodamente dal buffer locale
     decoder_t decoder = {0};
     decoder_setup(&decoder, headers, sizeof(ts_rb_header_t));
-
+    
     uint32_t tmp_msg_len = 0;
     uint64_t tmp_ts = 0;
     uint8_t  tmp_severity = 0;
 
-    if (rb_pop(&tsrb->ring_buffer, headers, 4) == 0)
-    {
-        pthread_mutex_unlock(&tsrb->mutex);
-        return false;
-    }
     decode_u32(&decoder, &tmp_msg_len);
-
-    size_t remaining_header = sizeof(ts_rb_header_t) - 4;
-    if (rb_pop(&tsrb->ring_buffer, headers + 4, remaining_header) == 0)
-    {
-        pthread_mutex_unlock(&tsrb->mutex);
-        return false;
-    }
     decode_u64(&decoder, &tmp_ts);
     decode_u8(&decoder, &tmp_severity);
 
+    // 2. Calcolo protetto del payload per evitare Buffer Overflow
     size_t payload_len = tmp_msg_len - sizeof(ts_rb_header_t);
-    size_t bytes_to_copy = payload_len;
+    
+    // Limitiamo la copia alla dimensione massima del buffer di destinazione
+    size_t max_buffer_capacity = LOG_RB_SIZE - 1; 
+    size_t bytes_to_copy = (payload_len > max_buffer_capacity) ? max_buffer_capacity : payload_len;
 
-    if (bytes_to_copy > 0)
-    {
+    if (bytes_to_copy > 0) {
         rb_pop(&tsrb->ring_buffer, out->payload.payload_bytes, bytes_to_copy);
-        out->payload.payload_bytes[bytes_to_copy] = '\0'; // Terminatore di sicurezza
+        out->payload.payload_bytes[bytes_to_copy] = '\0'; 
     }
 
+    // 3. Ora il Trash Bin ha senso: se il messaggio era troppo grande, scartiamo il resto
     size_t leftover_bytes = payload_len - bytes_to_copy;
-    if (leftover_bytes > 0)
-    {
-        uint8_t trash_bin[64]; 
-        while (leftover_bytes > 0)
-        {
+    if (leftover_bytes > 0) {
+        uint8_t trash_bin[128]; 
+        while (leftover_bytes > 0) {
             size_t chunk = (leftover_bytes > sizeof(trash_bin)) ? sizeof(trash_bin) : leftover_bytes;
-            rb_pop(&tsrb->ring_buffer, trash_bin, chunk); // Estrazione a vuoto
+            rb_pop(&tsrb->ring_buffer, trash_bin, chunk);
             leftover_bytes -= chunk;
         }
     }
