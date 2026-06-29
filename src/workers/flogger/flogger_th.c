@@ -10,7 +10,7 @@
 
 #define TS_SIZE 16
 #define ROTATING_SUFFIX ".rotating"
-#define BUFFSIZE 65536
+#define BUFFSIZE 65536 * 2
 
 void create_rotate_file_name(const char *in, char *out, size_t out_size)
 {
@@ -142,13 +142,8 @@ void *flogger_loop_fn(void *arg)
                 continue;
             }
 
-            char *file_to_compress = strdup(rotating_file);
-            if (file_to_compress) {
-                // NOTA: Se questa push si blocca, tutto Muninn si ferma. 
-                // Assicurati che la coda COMP_QUEUE_SIZE sia abbastanza capiente (es. 128 o 256)
-                ts_queue_push(out, LOG_NONE, file_to_compress);
-            }
-
+            ts_queue_push(out, LOG_NONE, rotating_file);
+            
             lth->file = fopen(lth->path, "a");
             if (!lth->file) {
                 fprintf(stderr, "Fatal Error: Cannot reopen %s\n", lth->path);
@@ -164,7 +159,14 @@ void *flogger_loop_fn(void *arg)
     if (buffer_size > 0)
     {
         fwrite(buffer, 1, buffer_size, lth->file);
-    }    
+    }
+    if (buffer_size + lth->written_bytes > F_MAX_SIZE)
+    {
+        char rotating_file[P_SIZE] = {0};
+        create_rotate_file_name(lth->path, rotating_file, P_SIZE);
+        rename(lth->path, rotating_file);
+        ts_queue_push(out, LOG_NONE, rotating_file);
+    }
 
     fclose(lth->file);
     lth->file = NULL;

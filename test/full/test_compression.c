@@ -29,6 +29,7 @@ int main(void)
     CONFIG CONF;
     muninn_config_default(&CONF);
     muninn_config_set_file(&CONF,true,filepath);
+    muninn_config_set_console(&CONF,false,false);
     muninn_config_set_compressor(&CONF,true);
 
     muninn_t muninn;
@@ -45,7 +46,6 @@ int main(void)
         for(int j=0;j<TIMES;j++)
         {
             muninn_log_info(&muninn,message);
-            usleep(5000);
         }
     }
 

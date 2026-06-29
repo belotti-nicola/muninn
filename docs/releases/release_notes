@@ -10,16 +10,14 @@
 3.0.0 :: Console logger
 3.1.0 :: Configurable threads working
 3.1.1 :: Fix Queue dimenion in muninn struct
+3.2.0 :: Better buffer handling in worker threads
 
 Currently doing:
-3.2.0 :: Double buffering architecture
-
-Further developments
 3.2.1 :: A FIX for the meme
 3.3.0 :: Configure messages dump / log
 
 
-VERY GOOD:
-Lock Free Qs 
-
+Further developments
+Double buffer Qs
+Removing con wait to implement LOSSY (flags needed)
     

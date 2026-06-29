@@ -26,10 +26,10 @@ bool queue_pop(queue_t *q,uint8_t *out, size_t out_size, size_t *popped_bytes)
   size_t          offset  = q->first_index;
   queue_message_t *target = q->messages + offset;
   size_t              len = target->size;
-  if( len > COMP_MESSAGE_SIZE )//TODO
+  if( len > target->max_size )
   {
-    fprintf(stderr, "Message size overflow in pop. Trucanting to %d bytes.\n", COMP_MESSAGE_SIZE);//TODO
-    len = COMP_MESSAGE_SIZE;
+    fprintf(stderr, "Message size overflow in pop. Truncanting to %d bytes.\n", target->max_size);
+    len = target->max_size;
   }
 
   memcpy(out,target->data,len);
@@ -47,7 +47,7 @@ bool queue_push(queue_t *q, const uint8_t *out, size_t out_size)
 {
   if(q->size >= q->max_size)
   {
-    fprintf(stderr, "Limit reached. Size is:%zu.\n", q->max_size);
+    fprintf(stderr, "Limit reached. Size is:%ld.\n", q->max_size);
     return false;
   }
 
