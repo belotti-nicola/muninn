@@ -108,3 +108,56 @@ void sleep_ms_impl(int value_ms)
 {
     usleep(value_ms * 1000);
 }
+
+long count_rows_impl(const char *filename) 
+{
+    FILE *fp = fopen(filename, "r");
+    if (fp == NULL) {
+        return 0;
+    }
+
+    char buffer[65536];
+    long rows = 0;
+    size_t bytes_read;
+
+    while ((bytes_read = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
+        for (size_t i = 0; i < bytes_read; i++) {
+            if (buffer[i] == '\n') {
+                rows++;
+            }
+        }
+    }
+
+    fclose(fp);
+    return rows;
+}
+
+long count_rows_across_files_impl(const char *dir_path, const char *prefix)
+{
+    DIR *dir = opendir(dir_path);
+    if (dir == NULL) {
+        perror("Errore nell'apertura della directory di test");
+        return -1;
+    }
+
+    struct dirent *entry;
+    long total_rows = 0;
+    size_t prefix_len = strlen(prefix);
+
+    printf("\n--- Scansione file di log generati ---\n");
+    while ((entry = readdir(dir)) != NULL) {
+        // Controlliamo se il nome del file inizia con il nostro prefisso (es. "test_stressing")
+        if (strncmp(entry->d_name, prefix, prefix_len) == 0) {
+            char full_path[512];
+            snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
+            
+            long file_rows = count_rows(full_path);
+            total_rows += file_rows;
+            
+            printf("Trovato: %s -> %ld righe\n", entry->d_name, file_rows);
+        }
+    }
+
+    closedir(dir);
+    return total_rows;
+}

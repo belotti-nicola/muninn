@@ -8,7 +8,7 @@
 
 
 #define MESSAGE_SIZE            120
-#define MESSAGE_PER_THREAD     1500
+#define MESSAGE_PER_THREAD    80000
 #define THREADS_NUMBER           30
 
 #define TEST_QUEUE_SIZE   (MESSAGE_PER_THREAD * THREADS_NUMBER + 100)
@@ -30,7 +30,6 @@ void* stress_producer_routine(void *arg)
     return NULL;
 }
 
-
 int main()
 {
     char *buffer1 = malloc(sizeof(char) * TEST_BUFFER_SIZE * TEST_QUEUE_SIZE);
@@ -47,6 +46,20 @@ int main()
         TEST_ERROR("Malloc fail.");
         return 1;
     }
+    queue_message_t *messages1 = calloc(TEST_QUEUE_SIZE, sizeof(queue_message_t));
+    if(messages1 == NULL)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Malloc fail.");
+        return 1;
+    }
+    queue_message_t *messages2 = calloc(TEST_QUEUE_SIZE, sizeof(queue_message_t));
+    if(messages2 == NULL)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Malloc fail.");
+        return 1;
+    }
 
     //RINGBUFFER
     ts_ring_buffer_t tsrb;
@@ -58,7 +71,6 @@ int main()
     //FIRST QUEUE
     offset = 0;
     ts_queue_t q1;
-    queue_message_t messages1[TEST_QUEUE_SIZE] = {0};
     for(int i=0;i<TEST_QUEUE_SIZE;i++)
     {
         setup_queue_message(messages1+i,buffer1+offset,TEST_BUFFER_SIZE);
@@ -69,7 +81,6 @@ int main()
     //SECOND QUEUE
     offset = 0;
     ts_queue_t q2;
-    queue_message_t messages2[TEST_QUEUE_SIZE] = {0};
     for(int i=0;i<TEST_QUEUE_SIZE;i++)
     {
         setup_queue_message(messages2+i,buffer2+offset,TEST_BUFFER_SIZE);
@@ -122,6 +133,8 @@ int main()
 
     free(buffer1);
     free(buffer2);
+    free(messages1);
+    free(messages2);
 
     return 0;
 }

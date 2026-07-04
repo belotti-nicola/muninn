@@ -10,6 +10,7 @@ typedef struct ts_queue
     queue_t            queue;
     pthread_mutex_t    mutex;
     pthread_cond_t     empty;
+    pthread_cond_t     full;
 
 } ts_queue_t;
 

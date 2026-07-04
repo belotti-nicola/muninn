@@ -19,7 +19,7 @@ function(add_munin_test test_name source_file)
     )
 
     set_tests_properties(${test_name}
-        PROPERTIES TIMEOUT 10)
+        PROPERTIES TIMEOUT 120)
 
     if(ARG_PASS_REGEX)
         set_tests_properties(${test_name} PROPERTIES
@@ -35,6 +35,7 @@ add_munin_test(TestInstantiatorGWThRoutine     test_gw_th_routine.c)
 add_munin_test(TestInstantiatorGWThStress      test_gw_th_stress.c)
 add_munin_test(TestInstantiatorLogThApi        test_log_th_api.c)
 add_munin_test(TestInstantiatorLogThRoutine    test_log_th_routine.c)
+add_munin_test(TestInstantiatorLogThStress     test_log_th_stress.c)
 add_munin_test(TestInstantiatorCompThApi       test_comp_th_api.c)
 add_munin_test(TestInstantiatorCompThRoutine   test_comp_th_routine.c)
 add_munin_test(TestInstantiatorConsThApi       test_cons_th_api.c)

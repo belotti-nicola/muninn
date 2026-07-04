@@ -6,6 +6,8 @@
 
 void     timestamp_now(char* buffer, size_t size);
 uint64_t timestamp_u64();
+long long timestamp_now_ms();
+
 
 
 #endif

@@ -15,9 +15,7 @@
 void create_rotate_file_name(const char *in, char *out, size_t out_size)
 {
     char ts[TS_SIZE];
-
-    time_t now = time(NULL);
-    snprintf(ts, sizeof(ts), "%ld", (long)now);
+    snprintf(ts, sizeof(ts), "%ld", (long)timestamp_now_ms());
 
     const char *dot = strrchr(in, '.');
 

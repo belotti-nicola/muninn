@@ -10,10 +10,10 @@
 
 #define PATHSIZE 200
 
-#define NUM_THREADS        20
-#define MSG_PER_THREAD   5000
+#define NUM_THREADS         40
+#define MSG_PER_THREAD   50000
 
-#define MESSAGE_SIZE      300
+#define MESSAGE_SIZE       400
 
 void* stress_producer_routine(void *arg)
 {
@@ -28,57 +28,6 @@ void* stress_producer_routine(void *arg)
     }
 
     return NULL;
-}
-
-long countRows(const char *filename) {
-    FILE *fp = fopen(filename, "r");
-    if (fp == NULL) {
-        return 0; // Se un file non si apre, restituiamo 0 per non bloccare il conteggio degli altri
-    }
-
-    char buffer[65536]; // Buffer generoso da 64KB
-    long rows = 0;
-    size_t bytes_read;
-
-    while ((bytes_read = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
-        for (size_t i = 0; i < bytes_read; i++) {
-            if (buffer[i] == '\n') {
-                rows++;
-            }
-        }
-    }
-
-    fclose(fp);
-    return rows;
-}
-
-long countTotalRowsWithPrefix(const char *dir_path, const char *prefix) {
-    DIR *dir = opendir(dir_path);
-    if (dir == NULL) {
-        perror("Errore nell'apertura della directory di test");
-        return -1;
-    }
-
-    struct dirent *entry;
-    long total_rows = 0;
-    size_t prefix_len = strlen(prefix);
-
-    printf("\n--- Scansione file di log generati ---\n");
-    while ((entry = readdir(dir)) != NULL) {
-        // Controlliamo se il nome del file inizia con il nostro prefisso (es. "test_stressing")
-        if (strncmp(entry->d_name, prefix, prefix_len) == 0) {
-            char full_path[512];
-            snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
-            
-            long file_rows = countRows(full_path);
-            total_rows += file_rows;
-            
-            printf("Trovato: %s -> %ld righe\n", entry->d_name, file_rows);
-        }
-    }
-
-    closedir(dir);
-    return total_rows;
 }
 
 int main(void)
@@ -119,13 +68,12 @@ int main(void)
         TEST_ERROR("Error: could not detect executable directory.");
         return 1;
     }
-    if(countTotalRowsWithPrefix(cwd,"test_stressing") < MSG_PER_THREAD * NUM_THREADS * 0.99 )
+    if(count_rows_across_files(cwd,"test_stressing") < MSG_PER_THREAD * NUM_THREADS * 0.99 )
     {
         TRACE_ERROR_POSITION();
-        TEST_ERROR("countRows fail:%ld instead of %f.",countTotalRowsWithPrefix(cwd,"test_stressing"),NUM_THREADS * MSG_PER_THREAD * 0.99);
+        TEST_ERROR("countRows fail:%ld instead of %f.",count_rows_across_files(cwd,"test_stressing"),NUM_THREADS * MSG_PER_THREAD * 0.99);
         return 1;
     }
-    
 
     return 0;
 }
