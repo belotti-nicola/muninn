@@ -147,6 +147,7 @@ void ts_rb_stop(ts_ring_buffer_t *tsrb)
 
     tsrb->stop = true;
     pthread_cond_broadcast(&tsrb->empty);
+    pthread_cond_broadcast(&tsrb->full);
     
     pthread_mutex_unlock(&tsrb->mutex);
 }
