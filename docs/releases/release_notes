@@ -11,13 +11,13 @@
 3.1.0 :: Configurable threads working
 3.1.1 :: Fix Queue dimenion in muninn struct
 3.2.0 :: Better buffer handling in worker threads
+3.2.1 :: Q size fix
 
 Currently doing:
-3.2.1 :: A FIX for the meme
 3.3.0 :: Configure messages dump / log
 
 
 Further developments
 Double buffer Qs
-Removing con wait to implement LOSSY (flags needed)
+cond waits vs drop policy
     

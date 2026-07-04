@@ -9,7 +9,6 @@
 - more tests
 
 - thread_id / __FILE__:__LINE__
-- Dual-Output: File + Console (colors!)
 - telemetrying
 - init threads + dispatcher
 - rc start

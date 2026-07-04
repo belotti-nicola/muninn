@@ -28,7 +28,7 @@ bool queue_pop(queue_t *q,uint8_t *out, size_t out_size, size_t *popped_bytes)
   size_t              len = target->size;
   if( len > target->max_size )
   {
-    fprintf(stderr, "Message size overflow in pop. Truncanting to %d bytes.\n", target->max_size);
+    fprintf(stderr, "Message size overflow in pop. Truncanting to %ld bytes.\n", target->max_size);
     len = target->max_size;
   }
 

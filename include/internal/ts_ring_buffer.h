@@ -13,6 +13,7 @@ typedef struct ts_ring_buffer
     ring_buffer        ring_buffer;
     pthread_mutex_t    mutex;
     pthread_cond_t     empty;
+    pthread_cond_t     full;
 
 } ts_ring_buffer_t;
 

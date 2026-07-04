@@ -57,7 +57,6 @@ void *gateway_stop_fn(void *arg)
     if(arg == NULL) return NULL;
     gateway_th_data *gw_data = (gateway_th_data *)arg;
     
-    // FIX: Rimosso la '&'. Controlliamo se il puntatore al ring buffer è valido
     if(gw_data->rb == NULL) return NULL;
 
     ts_rb_stop(gw_data->rb);

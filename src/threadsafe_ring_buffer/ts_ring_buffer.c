@@ -16,6 +16,7 @@ void ts_rb_setup(ts_ring_buffer_t *tsrb,uint8_t *buffer, size_t buffer_dim)
 
     pthread_mutex_init(&tsrb->mutex, NULL);
     pthread_cond_init(&tsrb->empty, NULL);
+    pthread_cond_init(&tsrb->full, NULL);
 }
 
 bool ts_rb_pop(ts_ring_buffer_t *tsrb, ts_rb_message_t *out)
@@ -33,14 +34,12 @@ bool ts_rb_pop(ts_ring_buffer_t *tsrb, ts_rb_message_t *out)
         return false;
     }
     
-    // 1. Leggiamo l'INTERO HEADER in un colpo solo (Invece di fare 4 byte alla volta)
     uint8_t headers[sizeof(ts_rb_header_t)];
     if (rb_pop(&tsrb->ring_buffer, headers, sizeof(ts_rb_header_t)) == 0) {
         pthread_mutex_unlock(&tsrb->mutex);
         return false;
     }
 
-    // Decodifichiamo tutto comodamente dal buffer locale
     decoder_t decoder = {0};
     decoder_setup(&decoder, headers, sizeof(ts_rb_header_t));
     
@@ -52,10 +51,8 @@ bool ts_rb_pop(ts_ring_buffer_t *tsrb, ts_rb_message_t *out)
     decode_u64(&decoder, &tmp_ts);
     decode_u8(&decoder, &tmp_severity);
 
-    // 2. Calcolo protetto del payload per evitare Buffer Overflow
     size_t payload_len = tmp_msg_len - sizeof(ts_rb_header_t);
     
-    // Limitiamo la copia alla dimensione massima del buffer di destinazione
     size_t max_buffer_capacity = LOG_RB_SIZE - 1; 
     size_t bytes_to_copy = (payload_len > max_buffer_capacity) ? max_buffer_capacity : payload_len;
 
@@ -64,7 +61,6 @@ bool ts_rb_pop(ts_ring_buffer_t *tsrb, ts_rb_message_t *out)
         out->payload.payload_bytes[bytes_to_copy] = '\0'; 
     }
 
-    // 3. Ora il Trash Bin ha senso: se il messaggio era troppo grande, scartiamo il resto
     size_t leftover_bytes = payload_len - bytes_to_copy;
     if (leftover_bytes > 0) {
         uint8_t trash_bin[128]; 
@@ -78,6 +74,8 @@ bool ts_rb_pop(ts_ring_buffer_t *tsrb, ts_rb_message_t *out)
     out->header.msg_len  = tmp_msg_len;
     out->header.severity = tmp_severity;
     out->header.ts       = tmp_ts;
+
+    pthread_cond_signal(&tsrb->full);
 
     pthread_mutex_unlock(&tsrb->mutex);
     return true;
@@ -93,7 +91,7 @@ bool ts_rb_push(ts_ring_buffer_t* tsrb, const ts_rb_message_t *message)
         return false;
     }
 
-    //COMPUTE HEADERS THEN PUSH
+
     uint32_t full_len = message->header.msg_len;
     uint64_t ts = message->header.ts;
     uint8_t  sev = message->header.severity;
@@ -109,15 +107,13 @@ bool ts_rb_push(ts_ring_buffer_t* tsrb, const ts_rb_message_t *message)
     encode_u8(&encoder,sev);
     
     pthread_mutex_lock(&tsrb->mutex);
+ 
+    while (rb_peek(&tsrb->ring_buffer) < message->header.msg_len && !tsrb->stop) 
+    {
+        pthread_cond_wait(&tsrb->full, &tsrb->mutex);
+    }
 
     if (tsrb->stop)
-    {
-        pthread_mutex_unlock(&tsrb->mutex);
-        return false;
-    }
-    
-    size_t available_bytes = rb_peek(&tsrb->ring_buffer);
-    if( available_bytes < message->header.msg_len )
     {
         pthread_mutex_unlock(&tsrb->mutex);
         return false;

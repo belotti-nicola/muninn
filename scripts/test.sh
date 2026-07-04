@@ -2,7 +2,7 @@
 
 # Se viene passato un argomento lo usa come build type,
 # altrimenti usa Release come default
-BUILD_TYPE=${1:-Release}
+BUILD_TYPE=${1:-Debug}
 
 echo "Build type: $BUILD_TYPE"
 sleep 1 && echo "\t-3"
