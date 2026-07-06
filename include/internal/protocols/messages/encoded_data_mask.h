@@ -14,6 +14,7 @@ typedef enum ENCONDED_DATA_MASK
     MEDM_FUNCTION   = 1 << 6,
     MEDM_PID        = 1 << 7,
 
+    MEDM_RUNTS      = 1 << 8, 
 
     MEDM_ALL        = 0xFFFFFFFF 
 
