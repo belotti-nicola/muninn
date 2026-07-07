@@ -90,12 +90,9 @@ bool mm_encode(const ENCONDED_DATA_MASK *mask,
 }
 
 bool mm_decode(mnn_data_t *out,
-    const uint8_t *in, size_t  in_size,
-    size_t *decoded_bytes)
+    const uint8_t *in, size_t  in_size)
 {
-    if( out == NULL || in == NULL || in_size == 0 || decoded_bytes == NULL ) return false;
-
-    *decoded_bytes = 0;
+    if( out == NULL || in == NULL || in_size == 0 ) return false;
 
     bool retVal = true;
     
@@ -105,6 +102,62 @@ bool mm_decode(mnn_data_t *out,
     ENCONDED_DATA_MASK mask;
     mc_decode_u32(&dec,&mask);
 
+    if(mask & MEDM_PID )
+    {
+        retVal = mc_decode_u32(&dec,&out->pid);
+        if(retVal == false) return false;
+    }
+
+    if(mask & MEDM_THREAD)
+    {
+        retVal = mc_decode_u64(&dec,&out->thread_id);
+        if(retVal == false) return false;
+    }
+
+    if(mask & MEDM_TIMESTAMP)
+    {
+        retVal = mc_decode_u64(&dec,&out->timestamp);
+        if(retVal == false) return false;
+    }
+
+    if(mask & MEDM_FILE)
+    {
+        retVal = mc_decode_u8(&dec,&out->file_len);
+        if(retVal == false) return false;
+        
+        retVal = mc_decode_bytes(&dec,out->file,out->file_len);
+        if(retVal == false) return false;
+    }
+
+    if(mask & MEDM_LINE)
+    {
+        retVal = mc_decode_u32(&dec,&out->line);
+        if(retVal == false) return false;
+    }
+
+    if(mask & MEDM_SEVERITY)
+    {
+        retVal = mc_decode_u8(&dec,&out->severity);
+        if(retVal == false) return false;
+    }
+
+    if(mask & MEDM_FUNCTION)
+    {
+        retVal = mc_decode_u8(&dec,&out->func_len);
+        if(retVal == false) return false;
+
+        retVal = mc_decode_bytes(&dec,out->func,out->func_len);
+        if(retVal == false) return false;
+    }
+
+    if(mask & MEDM_MESSAGE)
+    {
+        retVal = mc_decode_u16(&dec,&out->msg_len);
+        if(retVal == false) return false;
+
+        retVal = mc_decode_bytes(&dec,out->msg,out->msg_len);
+        if(retVal == false) return false;
+    }
     
 
     return true;

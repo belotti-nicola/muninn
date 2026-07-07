@@ -65,7 +65,7 @@ bool mc_encode_u64(encoder_t *encoder,uint64_t value)
     if (encoder == NULL)
         return false;
 
-    if (encoder->current_size + sizeof(uint32_t) > encoder->buffer_size)
+    if (encoder->current_size + sizeof(uint64_t) > encoder->buffer_size)
         return false;
 
     size_t    index = encoder->offset;
@@ -83,7 +83,7 @@ bool mc_encode_bytes(encoder_t *encoder,const uint8_t *values,size_t values_size
     if (encoder == NULL)
         return false;
 
-    if (encoder->current_size + sizeof(uint32_t) > encoder->buffer_size)
+    if (encoder->current_size + values_size > encoder->buffer_size)
         return false;
 
     size_t    index = encoder->offset;
@@ -141,7 +141,7 @@ bool mc_decode_u16(decoder_t *decoder,uint16_t *value)
     memcpy(value,target,bytes);
 
     decoder->offset       += bytes;
-    decoder->current_size += 1;
+    decoder->current_size += bytes;
     return true;
 }
 bool mc_decode_u32(decoder_t *decoder,uint32_t *value)

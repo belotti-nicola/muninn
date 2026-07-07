@@ -14,14 +14,14 @@ typedef struct mnn_data_t
     uint32_t pid;
 
     //variable
-    const char *file; 
-    uint8_t     file_len;
+    uint8_t  *file; 
+    uint8_t   file_len;
 
-    const char *func;
-    uint8_t     func_len;
+    uint8_t  *func;
+    uint8_t   func_len;
 
-    const char *msg;
-    uint16_t    msg_len;
+    uint8_t  *msg;
+    uint16_t  msg_len;
     
 } mnn_data_t;
 

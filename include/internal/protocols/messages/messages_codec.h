@@ -17,8 +17,7 @@ bool mm_encode(
 
 bool mm_decode(
     mnn_data_t    *out,
-    const uint8_t *in, size_t  in_size,
-    size_t *decoded_bytes
+    const uint8_t *in, size_t  in_size
 );
 
 #endif
