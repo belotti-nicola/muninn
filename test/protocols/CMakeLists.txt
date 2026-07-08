@@ -8,11 +8,8 @@ function(add_munin_test test_name source_file)
             ${ARGN}
     )
 
-    add_test(
-        NAME ${test_name}
-        COMMAND ${test_name}
-        WORKING_DIRECTORY $<TARGET_FILE_DIR:${test_name}>
-    )
+    add_test(NAME ${test_name}
+             COMMAND ${test_name})
 
     set_tests_properties(${test_name}
         PROPERTIES TIMEOUT 120
@@ -22,3 +19,5 @@ endfunction()
 
 add_munin_test(TestInstantiatorMPEnc test_encode.c)
 add_munin_test(TestInstantiatorMPDec test_decode.c)
+
+muninn_copy_test_assets(TestInstantiatorMPEnc  "data")

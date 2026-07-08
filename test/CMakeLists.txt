@@ -1,4 +1,8 @@
-add_library(muninn_test_utils STATIC utils/test_utils.c)
+add_library(muninn_test_utils STATIC 
+    utils/test_utils.c 
+    utils/reader/csv_reader.c
+)
+
 target_include_directories(muninn_test_utils PUBLIC utils)
 
 function(muninn_copy_test_assets TARGET_NAME ASSET_FOLDER)

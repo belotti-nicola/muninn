@@ -18,3 +18,9 @@ Architecture changes:
 - sem_wait for pushes with full buffer! 
 - double buffering architecture
 - lock free
+
+
+
+- compute test protocols size
+- check bytes
+- if mask change...
