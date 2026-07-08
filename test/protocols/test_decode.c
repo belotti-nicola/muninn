@@ -47,10 +47,10 @@ int main()
     mnn.msg = message_buffer;
 
     const uint8_t buffer[] = {
-    LE32(0xFFFFFFFF),//mask 
-    LE32(60094),//pid
-    LE64(12345678),//thread id
-    LE64(1182859210),//timestamp
+    LE32(0xFFFFFFFF),  //mask 
+    LE32(60094),       //pid
+    LE64(12345678),    //thread id
+    LE64(1182859210),  //timestamp
 
     6,//file len
     STR6("main.c"),//file

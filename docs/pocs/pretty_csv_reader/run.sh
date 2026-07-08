@@ -1,5 +1,5 @@
 #!/usr/bin/sh
 
-gcc main.c csv_reader.h -o main.out
+gcc main.c csv_reader.c csv_reader.h -o main.out
 
 ./main.out
