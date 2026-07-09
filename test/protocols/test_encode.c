@@ -23,6 +23,7 @@ int main()
         return 1;
     }
 
+    int iteration = 0;
     while(csvreader_next(&reader))
     {
         char **parsed = reader.records;
@@ -55,13 +56,17 @@ int main()
             &encoded_bytes
         );
 
-        int test_check = 53;
+        int test_check = 29 + 4 +
+            (int)strlen(parsed[6])+
+            (int)strlen(parsed[7])+
+            (int)strlen(parsed[8]);
         if(encoded_bytes != test_check)
         {
             TRACE_ERROR_POSITION();
-            TEST_ERROR("Encoded bytes %ld differs from %d",encoded_bytes,test_check);
+            TEST_ERROR("Encoded bytes %ld differs from %d for test case number %d",encoded_bytes,test_check,iteration);
             return 1;
         }
+        iteration++;
     }
     
     csvreader_close(&reader);

@@ -46,11 +46,14 @@ bool csvreader_next(CSVReader *reader)
 
     if(counter == 0) return false;
 
-    
+    bool comment = false;
     bool started = false;
     for(size_t tmp=0 ; tmp < counter ; tmp++ )
     {
         char c = reader->buffer[tmp];
+        if(comment == true) continue;
+        
+        if(c == '/') comment = !comment;
        
         if(c == ',')
         {
