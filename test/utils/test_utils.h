@@ -22,7 +22,8 @@
 #define files_counter(path)                           files_counter_impl(path, __FILE__)
 #define sleep_ms(value_ms)                            sleep_ms_impl(value_ms)
 #define count_rows_across_files(dir_path,prefix)      count_rows_across_files_impl(dir_path,prefix)
-#define count_rows(filename)                          count_rows_impl(filename) 
+#define count_rows(filename)                          count_rows_impl(filename)
+#define STRING_TO_INT(value)                          STRING_TO_INT_impl(value)
 
 
 bool  file_exists_impl(const char *fullpath);
@@ -34,6 +35,7 @@ int   compute_test_current_dir_impl(char* out, size_t out_size);
 void  sleep_ms_impl(int value_ms);
 long  count_rows_across_files_impl(const char *dir_path, const char *prefix);
 long  count_rows_impl(const char *filename);
+int   STRING_TO_INT_impl(char *value);
 
 
 

@@ -6,6 +6,7 @@
 #include <libgen.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <string.h>
 
 #define PATH_LEN 1024
 
@@ -161,3 +162,18 @@ long count_rows_across_files_impl(const char *dir_path, const char *prefix)
     closedir(dir);
     return total_rows;
 }
+
+int STRING_TO_INT_impl(char *s)
+{
+    if(s == NULL) return -1;
+
+    int retVal;
+
+    if (strncmp(s, "0x", 2) == 0 || strncmp(s, "0X", 2) == 0)
+        retVal = (int)strtol(s, NULL, 16);
+    else
+        retVal = (int)strtol(s, NULL, 10);
+
+    return retVal;
+}
+

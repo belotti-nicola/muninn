@@ -6,8 +6,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
-#define TEST_BUFFER_SIZE 256
+#define TEST_BUFFER_SIZE 2048
 
 int main()
 {
@@ -23,7 +24,7 @@ int main()
         return 1;
     }
 
-    int iteration = 0;
+    int record = 0;
     while(csvreader_next(&reader))
     {
         char **parsed = reader.records;
@@ -56,17 +57,37 @@ int main()
             &encoded_bytes
         );
 
-        int test_check = 29 + 4 +
+        int expected_bytes = 29 + 4 +
             (int)strlen(parsed[6])+
             (int)strlen(parsed[7])+
             (int)strlen(parsed[8]);
-        if(encoded_bytes != test_check)
+        
+        if(encoded_bytes != expected_bytes)
         {
             TRACE_ERROR_POSITION();
-            TEST_ERROR("Encoded bytes %ld differs from %d for test case number %d",encoded_bytes,test_check,iteration);
+            TEST_ERROR("Encoded bytes %ld differs from %d for test case number %d",encoded_bytes,expected_bytes,record);
             return 1;
         }
-        iteration++;
+
+        for(size_t tmp = 0 ; tmp < encoded_bytes ; tmp ++)
+        {
+            char *target = reader.records[tmp + 9];
+
+            int expected_value = STRING_TO_INT(target);
+            int computed_value = buffer[tmp];
+            
+            if( computed_value != expected_value)
+            {
+                TRACE_ERROR_POSITION();
+                TEST_ERROR("Encoded byte differs from expected (tmp: %ld, record %d) record",tmp,record);
+                TEST_ERROR("(computed %d, expected %d)",computed_value,expected_value);
+                return 1;
+            }
+
+            TEST_INFO("Ok computed %d, expected %d)",computed_value,expected_value);
+        }
+
+        record++;
     }
     
     csvreader_close(&reader);
