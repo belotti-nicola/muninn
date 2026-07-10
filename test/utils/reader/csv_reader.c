@@ -19,6 +19,7 @@ bool csvreader_next(CSVReader *reader)
 
     reader->records_size = 0;
 
+    bool string_processing = false;
     size_t counter = 0;
     char c;
     while(true)
@@ -31,17 +32,32 @@ bool csvreader_next(CSVReader *reader)
             break;
         }
 
-        if(c == '\r' || c == '\n' || c == '\t') continue;
-        
-        if(c != ';')
+        if(c == '"')
         {
-            reader->buffer[counter] = c;
-            reader->buffer[counter+1] = '\0';
-            counter++;
+            string_processing = !string_processing;
+            if(string_processing)
+            {
+                reader->buffer[counter] = c;
+                reader->buffer[counter+1] = '\0';
+                counter++;
+            }
             continue;
         }
 
-        break;
+        if(string_processing == false)
+        {
+            if(c == '\r' || c == '\n' || c == '\t') continue;
+            
+            if(c != ';')
+            {
+                reader->buffer[counter] = c;
+                reader->buffer[counter+1] = '\0';
+                counter++;
+                continue;
+            }
+
+            break;
+        }
     }
 
     if(counter == 0) return false;
