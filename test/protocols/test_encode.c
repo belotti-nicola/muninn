@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#define TEST_BUFFER_SIZE 2048
+#define TEST_BUFFER_SIZE 4096
 
 int main()
 {
@@ -76,15 +76,22 @@ int main()
             int expected_value = STRING_TO_INT(target);
             int computed_value = buffer[tmp];
             
-            if( computed_value != expected_value)
+            if (computed_value != expected_value)
             {
                 TRACE_ERROR_POSITION();
-                TEST_ERROR("Encoded byte differs from expected (tmp: %ld, record %d) record",tmp,record);
-                TEST_ERROR("(computed %d, expected %d)",computed_value,expected_value);
+                TEST_ERROR("Encoded byte differs from expected (tmp: %ld, record %d)", tmp, record);
+                
+                TEST_ERROR("(computed: %d [ASCII: '%c'], expected: %d [ASCII: '%c'])", 
+                        computed_value, 
+                        (computed_value >= 32 && computed_value <= 126) ? computed_value : '?', 
+                        expected_value, 
+                        (expected_value >= 32 && expected_value <= 126) ? expected_value : '?');
+                        
                 return 1;
             }
 
-            TEST_INFO("Ok computed %d, expected %d)",computed_value,expected_value);
+            TEST_INFO("Ok computed %d, expected %d (ASCII char: '%c')",computed_value,expected_value,
+                        (expected_value >= 32 && expected_value <= 126) ? expected_value : '?');
         }
 
         record++;
