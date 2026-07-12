@@ -9,7 +9,7 @@
 #include <stddef.h>
 
 bool mm_encode(
-    const ENCONDED_DATA_MASK *mask,
+    const ENCODED_DATA_MASK *mask,
     const mnn_data_t         *data,
     uint8_t *out, size_t out_size,
     size_t *encode_bytes

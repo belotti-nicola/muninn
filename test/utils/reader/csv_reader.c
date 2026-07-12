@@ -55,7 +55,7 @@ bool csvreader_next(CSVReader *reader)
         {
             case 0:
             {
-                if(c == '\n' || c == '\t' || c == '\r' || c == " ") break;
+                if(c == '\n' || c == '\t' || c == '\r' || c == ' ') break;
 
                 size_t offset = reader->records_size;
                 if(c == '"')
@@ -82,7 +82,7 @@ bool csvreader_next(CSVReader *reader)
             }
             case 2:
             {
-                if(c == '\n' || c == '\t' || c == '\r' || c == " ") break;
+                if(c == '\n' || c == '\t' || c == '\r' || c == ' ') break;
 
                 if(c == ',')
                 {
@@ -99,7 +99,7 @@ bool csvreader_next(CSVReader *reader)
             }
             case 3:
             {
-                if(c == '\n' || c == '\t' || c == '\r' || c == " ") break;
+                if(c == '\n' || c == '\t' || c == '\r' || c == ' ') break;
 
                 if(c == ',')
                 {

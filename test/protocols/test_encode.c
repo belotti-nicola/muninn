@@ -1,4 +1,6 @@
 #include <internal/protocols/messages/messages_codec.h>
+#include <internal/protocols/messages/encoded_data_mask.h>
+
 
 #include "test_utils.h"
 #include "reader/csv_reader.h"
@@ -28,28 +30,63 @@ int main()
     while(csvreader_next(&reader))
     {
         char **parsed = reader.records;
-        mnn_data_t mnn2 = 
-        {       
-            .pid         = (uint32_t)strtoul(parsed[1], NULL, 10),
-            .thread_id   = (uint64_t)strtoul(parsed[2], NULL, 10),
-            .timestamp   = (uint64_t)strtoul(parsed[3], NULL, 10),
-            .line        = (uint32_t)strtoul(parsed[4], NULL, 10),
-            .severity    = (uint8_t)strtoul(parsed[5], NULL, 10),
-            
-            .file_len    = (uint8_t)strlen(parsed[6]),
-            .file        = parsed[6],
 
-            .func_len    = (uint8_t)strlen(parsed[7]),
-            .func        = parsed[7],
-            
-            .msg_len     = (uint16_t)strlen(parsed[8]),
-            .msg         = parsed[8],
-        };
+        ENCODED_DATA_MASK mask = string_to_edm(parsed[0]);
 
-        //todo
-        //ENCONDED_DATA_MASK mask = strtoul(parsed[0], NULL, 10);
-        ENCONDED_DATA_MASK mask = MEDM_ALL;
+        size_t offset = 1;
+        mnn_data_t mnn2;
 
+        if(mask & MEDM_PID)
+        {
+            mnn2.pid = (uint32_t)strtoul(parsed[offset], NULL, 10);
+            offset += 1;
+        }
+
+        if(mask & MEDM_THREAD)
+        {
+            mnn2.thread_id   = (uint64_t)strtoul(parsed[offset], NULL, 10);
+            offset += 1;
+        }
+
+        if(mask & MEDM_TIMESTAMP)
+        {
+            mnn2.timestamp   = (uint64_t)strtoul(parsed[offset], NULL, 10);
+            offset += 1;
+        }
+        
+        if(mask & MEDM_LINE)
+        {
+            mnn2.line        = (uint32_t)strtoul(parsed[offset], NULL, 10);
+            offset += 1;
+        }
+        
+        if(mask & MEDM_SEVERITY)
+        {
+            mnn2.severity    = (uint8_t)strtoul(parsed[offset], NULL, 10);
+            offset += 1;
+        }
+
+        if(mask & MEDM_FILE)
+        {
+            mnn2.file_len    = (uint8_t)strlen(parsed[offset]);
+            mnn2.file        = parsed[offset];
+            offset += 1;
+        }
+       
+        if(mask & MEDM_FUNCTION)
+        {
+            mnn2.func_len    = (uint8_t)strlen(parsed[offset]),
+            mnn2.func         = parsed[offset],
+            offset += 1;
+        }
+
+        if(mask & MEDM_MESSAGE)
+        {
+            mnn2.msg_len     = (uint16_t)strlen(parsed[offset]),
+            mnn2.msg         = parsed[offset],
+            offset += 1;
+        }
+       
         mm_encode(
             &mask,
             &mnn2,

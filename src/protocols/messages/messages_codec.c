@@ -2,7 +2,7 @@
 
 #include <internal/protocols/messages/codec_utility.h>
 
-bool mm_encode(const ENCONDED_DATA_MASK *mask,
+bool mm_encode(const ENCODED_DATA_MASK *mask,
     const mnn_data_t    *data,
     uint8_t *out, size_t out_size,
     size_t  *encoded_len)
@@ -99,7 +99,7 @@ bool mm_decode(mnn_data_t *out,
     decoder_t dec;
     mc_decoder_setup(&dec,in,in_size);
 
-    ENCONDED_DATA_MASK mask;
+    ENCODED_DATA_MASK mask;
     mc_decode_u32(&dec,&mask);
 
     if(mask & MEDM_PID )
