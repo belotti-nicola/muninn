@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdint.h>
 
 #define TEST_ERROR(fmt, ...) \
     printf("[TEST ERROR] %s:%d: " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__)
@@ -24,6 +25,7 @@
 #define count_rows_across_files(dir_path,prefix)      count_rows_across_files_impl(dir_path,prefix)
 #define count_rows(filename)                          count_rows_impl(filename)
 #define STRING_TO_INT(value)                          STRING_TO_INT_impl(value)
+#define STRING_TO_UINT64(value)                       STRING_TO_UINT64_impl(value)
 
 
 bool  file_exists_impl(const char *fullpath);
@@ -36,6 +38,7 @@ void  sleep_ms_impl(int value_ms);
 long  count_rows_across_files_impl(const char *dir_path, const char *prefix);
 long  count_rows_impl(const char *filename);
 int   STRING_TO_INT_impl(char *value);
+uint64_t STRING_TO_UINT64_impl(char *value);
 
 
 

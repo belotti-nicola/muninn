@@ -1,14 +1,12 @@
 #include <internal/protocols/messages/messages_codec.h>
 #include <internal/protocols/messages/encoded_data_mask.h>
 #include "reader/csv_reader.h"
+#include <stdlib.h>
 
 #include <string.h>
 #include <inttypes.h>
 
 #include "test_utils.h"
-
-#define BUFFER_SIZE 256
-
 
 #define U8(x) ((uint8_t)(x))
 
@@ -87,9 +85,11 @@ int main()
         uint8_t mnn_file_buf[256] = {0};
         uint8_t mnn_func_buf[256] = {0};
         uint8_t mnn_msg_buf[2048] = {0};
+
         mnn.file = mnn_file_buf;
         mnn.func = mnn_func_buf;
         mnn.msg  = mnn_msg_buf;
+        
         bool rc = mm_decode(&mnn,buf,reader.records_size);
         if(rc == false)
         {
@@ -97,20 +97,163 @@ int main()
             TEST_ERROR("mm_decode fail for iteration %d",iteration);
             return 1;
         }
-
         
-        if( (mask & MEDM_SEVERITY) && reader.records_size >= 5)
+        size_t buffer_offset = 1;
+        if( (mask & MEDM_PID) && reader.records_size >= buffer_offset)
         {
-            int expected = STRING_TO_INT(reader.records[5]);
+            int expected = STRING_TO_INT(reader.records[buffer_offset]);
+            if(expected != mnn.pid)
+            {
+                TRACE_ERROR_POSITION();
+                TEST_ERROR("Iteration %d",iteration);
+                TEST_ERROR("Computed pid is %d but %d was expected",mnn.severity,expected);
+                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                return 1;
+            }
+            buffer_offset += 1;
+        }
+
+        if( (mask & MEDM_THREAD) && reader.records_size >= buffer_offset)
+        {
+            char *target = reader.records[buffer_offset];
+            uint64_t expected = STRING_TO_UINT64(target);
+            if(expected != mnn.thread_id)
+            {
+                TRACE_ERROR_POSITION();
+                TEST_ERROR("Iteration %d",iteration);
+                TEST_ERROR("Computed pid is %ld but %ld was expected",mnn.thread_id,expected);
+                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                return 1;
+            }
+            buffer_offset += 1;
+        }
+
+        if( (mask & MEDM_TIMESTAMP) && reader.records_size >= buffer_offset)
+        {
+            uint64_t expected = STRING_TO_UINT64(reader.records[buffer_offset]);
+            if(expected != mnn.timestamp)
+            {
+                TRACE_ERROR_POSITION();
+                TEST_ERROR("Iteration %d",iteration);
+                TEST_ERROR("Computed thread_id is %ld but %ld was expected",mnn.timestamp,expected);
+                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                return 1;
+            }
+            buffer_offset += 1;
+        }
+
+        if( (mask & MEDM_FILE) && reader.records_size >= buffer_offset + 1)
+        {
+            int expected = strlen(reader.records[buffer_offset]);
+            if(expected != mnn.file_len)
+            {
+                TRACE_ERROR_POSITION();
+                TEST_ERROR("Iteration %d",iteration);
+                TEST_ERROR("Computed file_len is %d but %d was expected",mnn.file_len,expected);
+                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                return 1;
+            }
+            buffer_offset += 1;
+
+            for( int i = 0 ; i < mnn.file_len ; i++)
+            {
+                int expected = STRING_TO_INT(reader.records[buffer_offset]);
+                if(expected != mnn.file[buffer_offset])
+                {
+                    TRACE_ERROR_POSITION();
+                    TEST_ERROR("Iteration %d",iteration);
+                    TEST_ERROR("Computed file byte %d-th is %d but %d was expected",i,mnn.file[i],expected);
+                    TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                }
+                buffer_offset += 1 ;
+            }
+        }
+      
+        if( (mask & MEDM_LINE) && reader.records_size >= buffer_offset)
+        {
+            char *target = reader.records[buffer_offset];
+            int expected = STRING_TO_INT(target);
+            if(expected != mnn.line)
+            {
+                TRACE_ERROR_POSITION();
+                TEST_ERROR("Iteration %d",iteration);
+                TEST_ERROR("Computed line is %d but %d was expected",mnn.line,expected);
+                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                return 1;
+            }
+            buffer_offset += 1;
+        }
+      
+        if( (mask & MEDM_SEVERITY) && reader.records_size >= buffer_offset)
+        {
+            int expected = STRING_TO_INT(reader.records[buffer_offset]);
             if(expected != mnn.severity)
             {
                 TRACE_ERROR_POSITION();
                 TEST_ERROR("Iteration %d",iteration);
                 TEST_ERROR("Computed %d but %d was expected",mnn.severity,expected);
-                TEST_ERROR("(record %s)",reader.records[5]);
+                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
+            buffer_offset += 1;
         }
+
+        if( (mask & MEDM_FUNCTION) && reader.records_size >= buffer_offset + 1)
+        {
+            int expected = STRING_TO_INT(reader.records[buffer_offset]);
+            if(expected != mnn.func_len)
+            {
+                TRACE_ERROR_POSITION();
+                TEST_ERROR("Iteration %d",iteration);
+                TEST_ERROR("Computed file_len is %d but %d was expected",mnn.func_len,expected);
+                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                return 1;
+            }
+            buffer_offset += 1;
+
+            for( int i = 0 ; i < mnn.func_len ; i++)
+            {
+                int expected = STRING_TO_INT(reader.records[buffer_offset]);
+                if(expected != mnn.func[buffer_offset])
+                {
+                    TRACE_ERROR_POSITION();
+                    TEST_ERROR("Iteration %d",iteration);
+                    TEST_ERROR("Computed file byte %d-th is %d but %d was expected",i,mnn.func[i],expected);
+                    TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                }
+                buffer_offset += 1 ;
+            }
+        }
+      
+        if( (mask & MEDM_MESSAGE) && reader.records_size >= buffer_offset + 1)
+        {
+            int expected = STRING_TO_INT(reader.records[buffer_offset]);
+            if(expected != mnn.msg_len)
+            {
+                TRACE_ERROR_POSITION();
+                TEST_ERROR("Iteration %d",iteration);
+                TEST_ERROR("Computed file_len is %d but %d was expected",mnn.msg_len,expected);
+                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                return 1;
+            }
+            buffer_offset += 1;
+
+            for( int i = 0 ; i < mnn.msg_len ; i++)
+            {
+                int expected = STRING_TO_INT(reader.records[buffer_offset]);
+                if(expected != mnn.file[buffer_offset])
+                {
+                    TRACE_ERROR_POSITION();
+                    TEST_ERROR("Iteration %d",iteration);
+                    TEST_ERROR("Computed file byte %d-th is %d but %d was expected",i,mnn.msg[i],expected);
+                    TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                }
+                buffer_offset += 1 ;
+            }
+        }
+      
+        
+
         
 
         iteration++;

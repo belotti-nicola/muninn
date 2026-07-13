@@ -178,3 +178,17 @@ int STRING_TO_INT_impl(char *s)
     return retVal;
 }
 
+uint64_t STRING_TO_UINT64_impl(char *s)
+{
+    if(s == NULL) return -1;
+
+    uint64_t retVal;
+
+    if (strncmp(s, "0x", 2) == 0 || strncmp(s, "0X", 2) == 0)
+        retVal = strtoull(s, NULL, 16);
+    else
+        retVal = strtoull(s, NULL, 10);
+
+    return retVal;
+}
+
