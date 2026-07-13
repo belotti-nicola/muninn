@@ -1,4 +1,7 @@
 #include <internal/protocols/messages/messages_codec.h>
+#include <internal/protocols/messages/encoded_data_mask.h>
+#include "reader/csv_reader.h"
+
 #include <string.h>
 #include <inttypes.h>
 
@@ -38,100 +41,79 @@
 
 int main()
 {
-    mnn_data_t mnn;
-    char file_buffer[100] = {0};
-    char function_buffer[100] = {0};
-    char message_buffer[100] = {0};
-    mnn.file = file_buffer;
-    mnn.func = function_buffer;
-    mnn.msg = message_buffer;
-
-    const uint8_t buffer[] = {
-    LE32(0xFFFFFFFF),  //mask 
-    LE32(60094),       //pid
-    LE64(12345678),    //thread id
-    LE64(1182859210),  //timestamp
-
-    6,//file len
-    STR6("main.c"),//file
-
-    LE32(0),//line
-    U8(0), //severity
-
-    3,//function len
-    STR3("foo"),//function
-
-    11,//message le
-    0,
-    STR11("Hello World"),//message
-
-    };
-
-    if(mm_decode(&mnn,buffer,53) == false)
-    {
+    CSVReader reader;
+    bool rc = csvreader_open(&reader,"data/codec_dataset.csv");
+    if(rc == false)
+    {   
         TRACE_ERROR_POSITION();
-        TEST_ERROR("Decode generic error!");
+        TEST_ERROR("Error");
         return 1;
     }
 
-    if(mnn.pid != 60094)
-    {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Pid %u instead of %u",mnn.pid,60094);
-        return 1;
-    }
-
-    if(mnn.thread_id != 12345678ULL)
-    {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Thread ID %llu instead of %llu", (unsigned long long)mnn.thread_id, 12345678ULL);
-        return 1;
-    }
+    uint8_t buf[4096] = {0};
     
-    if(mnn.timestamp != 1182859210ULL)
+    int iteration = 0;
+    while(csvreader_next(&reader))
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Timestamp %llu instead of %llu", (unsigned long long)mnn.timestamp, 1182859210ULL);
-        return 1;
-    }
-    
-    if(mnn.file_len != strlen("main.c"))
-    {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("File len error %" PRIu8 " of %ld", mnn.file_len,strlen("main.c"));
-        return 1;
-    }
-    if(strncmp(mnn.file,"main.c",mnn.file_len) != 0)
-    {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error on file content");
-        return 1;
-    }
+        char *edm_st = reader.records[0];
+        ENCODED_DATA_MASK mask = string_to_edm(edm_st);
 
-    if(mnn.func_len != strlen("foo"))
-    {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("func len error %" PRIu8 " of %ld", mnn.func_len,strlen("foo"));
-        return 1;
-    }
-    if(strncmp(mnn.func,"foo",mnn.func_len) != 0)
-    {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error on func content");
-        return 1;
-    }
-    
-    if(mnn.msg_len != strlen("Hello world"))
-    {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("msg len error %" PRIu16 " of %ld", mnn.msg_len,strlen("Hello World"));
-        return 1;
-    }
-    if(strncmp(mnn.msg,"Hello World",mnn.msg_len) != 0)
-    {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error on msg content");
-        return 1;
+        size_t records = reader.records_size;
+        size_t offset  =  1 +
+            (mask & MEDM_FILE? 1 : 0) +  
+            (mask & MEDM_THREAD? 1 : 0) +  
+            (mask & MEDM_TIMESTAMP? 1 : 0) +  
+            (mask & MEDM_SEVERITY? 1 : 0) +  
+            (mask & MEDM_MESSAGE? 1 : 0) +  
+            (mask & MEDM_LINE? 1 : 0)+  
+            (mask & MEDM_FUNCTION? 1 : 0)+  
+            (mask & MEDM_PID? 1 : 0);
+
+        size_t binary_len = 0; 
+        for(size_t i = offset; i < reader.records_size; i++) 
+        { 
+            if (binary_len >= sizeof(buf)) 
+            {
+                TRACE_ERROR_POSITION();
+                TEST_ERROR("Buffer di test troppo piccolo per l'estrazione dei byte!");
+                csvreader_close(&reader);
+                return 1;
+            }
+
+            buf[binary_len++] = (uint8_t)strtoul(reader.records[i], NULL, 0); 
+        }
+
+        mnn_data_t mnn = {0};
+        uint8_t mnn_file_buf[256] = {0};
+        uint8_t mnn_func_buf[256] = {0};
+        uint8_t mnn_msg_buf[2048] = {0};
+        mnn.file = mnn_file_buf;
+        mnn.func = mnn_func_buf;
+        mnn.msg  = mnn_msg_buf;
+        bool rc = mm_decode(&mnn,buf,reader.records_size);
+        if(rc == false)
+        {
+            TRACE_ERROR_POSITION();
+            TEST_ERROR("mm_decode fail for iteration %d",iteration);
+            return 1;
+        }
+
+        
+        if( (mask & MEDM_SEVERITY) && reader.records_size >= 5)
+        {
+            int expected = STRING_TO_INT(reader.records[5]);
+            if(expected != mnn.severity)
+            {
+                TRACE_ERROR_POSITION();
+                TEST_ERROR("Iteration %d",iteration);
+                TEST_ERROR("Computed %d but %d was expected",mnn.severity,expected);
+                TEST_ERROR("(record %s)",reader.records[5]);
+                return 1;
+            }
+        }
+        
+
+        iteration++;
     }
     
     return 0;
