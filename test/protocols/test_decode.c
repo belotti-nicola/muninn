@@ -73,7 +73,7 @@ int main()
             if (binary_len >= sizeof(buf)) 
             {
                 TRACE_ERROR_POSITION();
-                TEST_ERROR("Buffer di test troppo piccolo per l'estrazione dei byte!");
+                TEST_ERROR("Buffer isn't big enough!");
                 csvreader_close(&reader);
                 return 1;
             }
