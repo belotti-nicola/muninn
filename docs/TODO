@@ -22,6 +22,6 @@ Architecture changes:
 
 
 - compute test protocols size
-- check bytes
 - if mask change...
 - buffer overflow for fields
+- if post is ok, then return 1;
