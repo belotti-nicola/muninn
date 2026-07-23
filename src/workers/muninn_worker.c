@@ -17,7 +17,7 @@ static void* mw_internal_runner(void *arg)
 int mw_init(muninn_worker_t *muninn_worker, const char *name, 
     void* (*thread_loop)(void*),
     void* (*thread_stop)(void*),
-    void* (*thread_perform)(void *arg, void *data),
+    void* (*thread_perform)(void *arg, void *data, size_t data_size),
     void *context)
 {
     if(muninn_worker == NULL || name == NULL ) return 1;
@@ -88,11 +88,11 @@ int mw_shutdown(muninn_worker_t *muninn_worker)
     return 0;
 }
 
-int mw_post(muninn_worker_t *muninn_worker, void *data)
+int mw_post(muninn_worker_t *muninn_worker, void *data, size_t data_size)
 {
     if(muninn_worker == NULL) return 1;
 
-    muninn_worker->thread_post(muninn_worker->context,data);
+    muninn_worker->thread_post(muninn_worker->context,data,data_size);
 
     return 0;
 }

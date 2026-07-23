@@ -42,7 +42,7 @@ int main()
     uint8_t fifth[5];
 
     bool rc;
-    decoder_t decoder = {0};
+    mm_decoder_t decoder = {0};
     decoder_setup(&decoder,decoder_buffer,20);
     rc = decode_u8(&decoder,&first);
     if(rc == false)

@@ -21,11 +21,12 @@ void* stress_producer_routine(void *arg)
     
     char message[MESSAGE_SIZE];
     memset(message,(int)'a',MESSAGE_SIZE);
+    message[MESSAGE_SIZE-2] ='\n';
     message[MESSAGE_SIZE-1] ='\0';
 
     for (int i = 0; i < MESSAGE_PER_THREAD; i++)
     {
-        mw_post(mw,message);
+        mw_post(mw,message,MESSAGE_SIZE);
     }
 
     return NULL;

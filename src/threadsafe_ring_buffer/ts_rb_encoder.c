@@ -1,7 +1,7 @@
 #include <internal/ts_rb_encoder.h>
 #include <string.h>
 
-void encoder_setup(encoder_t *encoder,uint8_t *buffer,size_t buffer_size)
+void encoder_setup(mm_encoder_t *encoder,uint8_t *buffer,size_t buffer_size)
 {
     encoder->buffer       = buffer;
     encoder->buffer_size  = buffer_size;
@@ -9,7 +9,7 @@ void encoder_setup(encoder_t *encoder,uint8_t *buffer,size_t buffer_size)
     encoder->offset       = 0;
 }
 
-bool encode_u8(encoder_t *encoder,uint8_t value)
+bool encode_u8(mm_encoder_t *encoder,uint8_t value)
 {
     if (encoder == NULL)
         return false;
@@ -26,7 +26,7 @@ bool encode_u8(encoder_t *encoder,uint8_t value)
     return true;
 }
 
-bool encode_u16(encoder_t *encoder,uint16_t value)
+bool encode_u16(mm_encoder_t *encoder,uint16_t value)
 {
     if (encoder == NULL)
         return false;
@@ -38,12 +38,12 @@ bool encode_u16(encoder_t *encoder,uint16_t value)
     uint8_t *target = encoder->buffer + index;
 
     memcpy(target,&value,sizeof(uint16_t));
-    encoder->offset      += sizeof(uint16_t);
+    encoder->offset       += sizeof(uint16_t);
     encoder->current_size += sizeof(uint16_t);
     return true;
 }
 
-bool encode_u32(encoder_t *encoder,uint32_t value)
+bool encode_u32(mm_encoder_t *encoder,uint32_t value)
 {
     if (encoder == NULL)
         return false;
@@ -60,7 +60,7 @@ bool encode_u32(encoder_t *encoder,uint32_t value)
     return true;
 }
 
-bool encode_u64(encoder_t *encoder,uint64_t value)
+bool encode_u64(mm_encoder_t *encoder,uint64_t value)
 {
     if (encoder == NULL)
         return false;
@@ -78,7 +78,7 @@ bool encode_u64(encoder_t *encoder,uint64_t value)
     return true;
 }
 
-bool encode_bytes(encoder_t *encoder,uint8_t *values,size_t values_size)
+bool encode_bytes(mm_encoder_t *encoder,uint8_t *values,size_t values_size)
 {
     if (encoder == NULL)
         return false;
@@ -90,7 +90,7 @@ bool encode_bytes(encoder_t *encoder,uint8_t *values,size_t values_size)
     uint8_t *target = encoder->buffer + index;
 
     memcpy(target,values,values_size);
-    encoder->offset      += values_size;
+    encoder->offset       += values_size;
     encoder->current_size += values_size;
     return true;
 }

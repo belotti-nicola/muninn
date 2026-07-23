@@ -10,7 +10,7 @@
 int main()
 {
     uint8_t encoded_bytes[ENCODED_BYTES_NUMBER] = {0};
-    encoder_t encoder = 
+    mm_encoder_t encoder = 
     {
         .buffer = encoded_bytes,
         .buffer_size = ENCODED_BYTES_NUMBER,

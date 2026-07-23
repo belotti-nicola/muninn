@@ -3,6 +3,8 @@
 
 #include <muninn.h>
 
+#include <internal/ts_rb_decoder.h>
+
 #include <internal/ts_queue.h>
 #include <internal/flogger_th.h>
 #include <internal/timestamp_gen.h>
@@ -88,44 +90,21 @@ void *flogger_loop_fn(void *arg)
     char buffer[BUFFSIZE]; 
     size_t buffer_size = 0;
 
-    while (ts_queue_pop(q, &msg))
-    {       
-        // Se il messaggio non ci sta, svuotiamo il buffer IMMEDIATAMENTE
-        if (buffer_size + msg.size + 1 > BUFFSIZE)
-        {
-            if (buffer_size > 0) {
-                // 3. Sostituito fprintf con fwrite: copia binaria pura O(1)
-                size_t written = fwrite(buffer, 1, buffer_size, lth->file);
-                lth->written_bytes += written;
-                buffer_size = 0; 
-            }
-        }
 
-        // Copia istantanea nel nostro buffer privato
-        memcpy(buffer + buffer_size, msg.data, msg.size);
-        buffer_size += msg.size;
-        buffer[buffer_size] = '\n'; 
-        buffer_size += 1;
+    size_t max_dim      = BUFFSIZE;
+    size_t popped_bytes = 0;
+    while (ts_queue_n_pop(q, buffer, max_dim, &popped_bytes))
+    {
+        if (popped_bytes == 0) continue;
 
-        // Svuotiamo quando arriviamo vicini al limite (95%)
-        if (buffer_size >= BUFFSIZE * 0.95)
-        {
-            size_t written = fwrite(buffer, 1, buffer_size, lth->file);
-            lth->written_bytes += written;
-            buffer_size = 0;
-            // Abbiamo rimosso fflush e fdatasync: rallentavano del 99% il sistema!
-        }
-                   
-        // Gestione della rotazione del file
+        //write
+        size_t written = fwrite(buffer, 1, popped_bytes , lth->file);
+        lth->written_bytes += written;
+
+        //rotation
         if (lth->written_bytes >= F_MAX_SIZE)
         {
-            if (buffer_size > 0) {
-                size_t written = fwrite(buffer, 1, buffer_size, lth->file);
-                lth->written_bytes += written;
-                buffer_size = 0;
-            }
-
-            // Qui facciamo il flush atomico solo perché stiamo per chiudere il file
+            // Svuotiamo i buffer interni di I/O della libc prima della chiusura
             fflush(lth->file);
             fclose(lth->file);
             
@@ -136,38 +115,59 @@ void *flogger_loop_fn(void *arg)
             {
                 fprintf(stderr, "Error: could not rename %s.\n", lth->path);
                 lth->file = fopen(lth->path, "a");
+                if (!lth->file) {
+                    fprintf(stderr, "Fatal Error: Cannot reopen %s after failed rename\n", lth->path);
+                    return NULL;
+                }
+                setvbuf(lth->file, NULL, _IONBF, 0);
                 lth->written_bytes = 0;
                 continue;
             }
 
+            // Notifica il file ruotato alla coda di output (es. per flogger/flipper/compressore)
             ts_queue_push(out, LOG_NONE, rotating_file);
             
+            // Riapertura del file di log principale
             lth->file = fopen(lth->path, "a");
             if (!lth->file) {
                 fprintf(stderr, "Fatal Error: Cannot reopen %s\n", lth->path);
                 return NULL;
             }
-            // Riapplichiamo il no-buffering sul nuovo file aperto!
+
+            // Riapplichiamo il no-buffering sulla nuova stream appena aperta
             setvbuf(lth->file, NULL, _IONBF, 0);
             lth->written_bytes = 0;
         }
     }
-    
-    // Svuotamento finale prima di morire
-    if (buffer_size > 0)
+
+    if (lth->file != NULL)
     {
-        fwrite(buffer, 1, buffer_size, lth->file);
-    }
-    if (buffer_size + lth->written_bytes > F_MAX_SIZE)
-    {
-        char rotating_file[P_SIZE] = {0};
-        create_rotate_file_name(lth->path, rotating_file, P_SIZE);
-        rename(lth->path, rotating_file);
-        ts_queue_push(out, LOG_NONE, rotating_file);
+        if (lth->written_bytes >= F_MAX_SIZE)
+        {
+            fflush(lth->file);
+            fclose(lth->file);
+
+            char rotating_file[P_SIZE] = {0};
+            create_rotate_file_name(lth->path, rotating_file, P_SIZE);
+            
+            if (rename(lth->path, rotating_file) == 0)
+            {
+                ts_queue_push(out, LOG_NONE, rotating_file);//TODO
+            }
+            else
+            {
+                fprintf(stderr, "Error: final rename failed for %s.\n", lth->path);
+            }
+        }
+        else
+        {
+            fflush(lth->file);
+            fclose(lth->file);
+        }
+
+        lth->file = NULL;
     }
 
-    fclose(lth->file);
-    lth->file = NULL;
     fprintf(stdout, "Logger end.\n");
     return NULL;
 }
@@ -182,20 +182,14 @@ void *flogger_stop_fn(void *arg)
     return NULL;
 }
 
-void *flogger_post_fn(void *context, void *data)
+void *flogger_post_fn(void *context, void *data,size_t data_size)
 {
     if(context == NULL || data == NULL) return NULL;
 
     flogger_th_data *lth_data = (flogger_th_data *)context;
     char *message_content = (char *)data;
 
-    ts_rb_message_t message = {0};
-    size_t full_len = strlen(message_content) + sizeof(ts_rb_header_t);
-    uint64_t ts = timestamp_u64();
-    uint8_t sev = (uint8_t)1;//TODO
-    ts_rb_message_set(&message,full_len,ts,sev,(uint8_t *)message_content);
-
-    ts_queue_push(lth_data->reading_queue,1,data);
+    ts_queue_n_push(lth_data->reading_queue, 1, (const uint8_t *)message_content, data_size);
 
     return NULL;
 }

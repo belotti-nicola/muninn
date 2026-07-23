@@ -15,14 +15,14 @@ void *clogger_stop_fn(void *arg)
     return NULL;
 }
 
-void *clogger_post_fn(void *context, void *arg)
+void *clogger_post_fn(void *context, void *arg, size_t size)
 {
     if(context == NULL || arg == NULL) return NULL;
 
     clogger_th_data *cth_data = (clogger_th_data *)context;
     const char      *message  = (const char      *)arg;
 
-    ts_queue_push(cth_data->q,1,message);
+    ts_queue_n_push(cth_data->q,1,message,size);
 
     return NULL;
 }

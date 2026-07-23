@@ -16,6 +16,8 @@
 #include <internal/clogger_th.h>
 #include <internal/compressor_th.h>
 
+#include <internal/protocols/messages/messages_codec.h>
+
 
 
 bool muninn_init(muninn_t *muninn, CONFIG config)
@@ -127,51 +129,59 @@ bool muninn_init(muninn_t *muninn, CONFIG config)
     atomic_init(&muninn->threshold, (char)0);
     atomic_init(&muninn->running, true);
 
+    muninn->mask = MEDM_MESSAGE;
+
     return true;
 }
 
 void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file, int line, const char *fmt, ...)
 {
     if (!atomic_load(&m->running)) return;
+    if (severity < atomic_load(&m->threshold)) return;
 
-    if ( severity < atomic_load(&m->threshold) ) return;
-
-    va_list args, args_copy;
+    va_list args;
     va_start(args, fmt);
-    
-    va_copy(args_copy, args);
 
     char stack_buffer[1024];
     int req_len = vsnprintf(stack_buffer, sizeof(stack_buffer), fmt, args);
     va_end(args);
 
-    if (req_len < 0) {
-        va_end(args_copy);
-        return; 
+    if (req_len < 0) return;
+
+    if ((size_t)req_len + 1 < sizeof(stack_buffer)) 
+    {
+        stack_buffer[req_len]     = '\n'; //TODO POTENTIAL STACK OVERFLOW ? 
+        
+        mw_post(&m->gateway,stack_buffer,req_len+1);
     }
 
-    if ((size_t)req_len < sizeof(stack_buffer)) 
-    {
-        // stack buffer was enough. 
-        // send it to the logger thread
-        mw_post(&m->gateway,stack_buffer);
-    } 
     else 
     {
-        //using malloc for bigger lines
-        char *heap_buffer = malloc(req_len + 1);
-        
-        if (heap_buffer != NULL) 
-        {
-            vsnprintf(heap_buffer, req_len + 1, fmt, args_copy);
-            
-            mw_post(&m->gateway,heap_buffer);
-            
-            free(heap_buffer);
-        }
-    }
+        char   *heap_buffer = malloc(req_len + 1);
+        if(heap_buffer == NULL) return;        
 
-    va_end(args_copy);
+        uint8_t *heap_postable = malloc(req_len + 200); //TODO POTENTIAL STACK OVERFLOW
+        if(heap_postable == NULL) return;
+        
+        
+        vsnprintf(heap_buffer, req_len + 1, fmt, args);
+
+        size_t encoded_bytes = 0;
+        mnn_data_t mnn_message;
+        mnn_message.msg_len = strlen(stack_buffer);
+        memcpy(mnn_message.msg,stack_buffer,req_len);
+
+        if(mm_encode(&m->mask,&mnn_message,heap_postable,1024,&encoded_bytes) == false ) 
+        {
+            return; // TODO 1024 
+        }
+                
+        mw_post(&m->gateway,heap_postable,encoded_bytes);
+            
+        free(heap_buffer);
+        free(heap_postable);
+        
+    }
 }
 
 void muninn_shutdown(muninn_t *muninn)

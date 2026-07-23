@@ -50,13 +50,13 @@ void *stop_fn(void *arg)
     return NULL;
 }
 
-void *post_fn(void *arg,void *arg2) 
+void *post_fn(void *arg,void *arg2,size_t arg3) 
 {
     if(arg == NULL) return NULL;
     THREAD_CTX_T *ctx = (THREAD_CTX_T *)arg;
 
     ts_queue_t *tsq = ctx->tsq;
-    ts_queue_push(tsq,1,arg2);
+    ts_queue_n_push(tsq,1,arg2,arg3);
 
     return NULL;
 }
@@ -92,8 +92,8 @@ int main()
         (void *)&ctx     
     );
 
-    mw_post(&mw,"");
-    mw_post(&mw,"");
+    mw_post(&mw,"1",1);
+    mw_post(&mw,"1",1);
 
     mw_shutdown(&mw);
 

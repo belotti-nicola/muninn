@@ -3,6 +3,8 @@
 #include <internal/ts_queue.h>
 #include <string.h>
 
+#include <internal/ts_rb_encoder.h>
+
 #include "test_utils.h"
 
 #define PATH_SIZE   100
@@ -44,8 +46,11 @@ int main()
     );
     mw_start(&mw);
     
-    mw_post(&mw,"TestLog");
-    mw_post(&mw,"ThRoutine");
+    
+    char first[] = "TestLog\n";
+    mw_post(&mw,first, strlen(first));
+    char second[] = "ThRoutine\n";
+    mw_post(&mw,second,strlen(second));
 
     sleep_ms(10);   
     mw_shutdown(&mw);
@@ -54,47 +59,52 @@ int main()
     if(test_file == NULL)
     {
         TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: char pointer is null at line %d (file %s).\n",__LINE__,test_log);
+        TEST_ERROR("Error: char pointer is null for file %s.",test_log);
         return 1;
     }
 
-    char tmp[256];
+    char tmp[256] = {0};
+    
     if(fgets(tmp, 256, test_file) == NULL)
     {
         TRACE_ERROR_POSITION();
+        TEST_ERROR("%s",test_log);
         TEST_ERROR("Error: char pointer is null.");
         return 1;
     }
     if(strstr(tmp, "TestLog") == NULL)
     {
         TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: tmp(%s) is not substring of the expected(%s) at line %d.\n",tmp,"hello",__LINE__);
+        TEST_ERROR("%s",test_log);
+        TEST_ERROR("Error: \"%s\" is not substring of \"%s\".", "TestLog", tmp);
         return 1;
     }
 
     if(fgets(tmp, 256, test_file) == NULL)
     {
         TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: char pointer is null at line %d.\n",__LINE__);
+        TEST_ERROR("%s",test_log);
+        TEST_ERROR("Error: char pointer is null.");
         return 1;
     }
     if(strstr(tmp, "ThRoutine") == NULL)
     {
         TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: tmp(%s) is not substring of the expected(%s) at line %d.\n",tmp,"world",__LINE__);
+        TEST_ERROR("%s",test_log);
+        TEST_ERROR("Error: \"%s\" is not substring of \"%s\".", "ThRoutine", tmp);
         return 1;
     }
 
-    if (fgets(tmp, 256, test_file) == NULL)
+    if (fgets(tmp, sizeof(tmp), test_file) != NULL)
     {
-        if (feof(test_file))
-        {
-            //end of the file is fine!
-        }
-        else if (ferror(test_file))
-        {
-            TRACE_ERROR_POSITION(); return 1;
-        }
+        TEST_ERROR("Unexpected extra line: %s", tmp);
+        return 1;
+    }
+
+    if (ferror(test_file))
+    {
+        TEST_ERROR("Read error");
+        return 1;
     }
 
     fclose(test_file);

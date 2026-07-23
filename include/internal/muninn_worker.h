@@ -15,7 +15,7 @@ typedef struct muninn_worker_t
 
     void* (*thread_loop)   (void *arg);
     void* (*thread_stop)   (void *arg);
-    void* (*thread_post)   (void *ctx, void *data);
+    void* (*thread_post)   (void *ctx, void *data, size_t data_size);
     void                         *context;
 
 } muninn_worker_t;
@@ -23,13 +23,13 @@ typedef struct muninn_worker_t
 int  mw_init(muninn_worker_t *muninn_worker, const char *name, 
     void* (*thread_loop)(void*),
     void* (*thread_stop)(void*),
-    void* (*thread_perform)(void *arg,void *data),
+    void* (*thread_perform)(void *arg,void *data, size_t data_size),
     void *context);
 int  mw_start(muninn_worker_t *muninn_worker);
 int  mw_stop(muninn_worker_t *muninn_worker);
 int  mw_join(muninn_worker_t *muninn_worker);
 int  mw_shutdown(muninn_worker_t *muninn_worker);
-int  mw_post(muninn_worker_t *muninn_worker, void *data);
+int  mw_post(muninn_worker_t *muninn_worker, void *data, size_t data_size);
 
 bool mw_running(muninn_worker_t *muninn_worker);
 

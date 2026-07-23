@@ -4,6 +4,7 @@ function(add_munin_test test_name source_file)
     target_link_libraries(${test_name}
         PRIVATE
             muninn
+            muninn_test_utils
             ${ARGN}
     )
 

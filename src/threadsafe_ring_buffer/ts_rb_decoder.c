@@ -1,7 +1,7 @@
 #include <internal/ts_rb_decoder.h>
 #include <string.h>
 
-void decoder_setup(decoder_t *decoder,uint8_t *buffer,size_t buffer_size)
+void decoder_setup(mm_decoder_t *decoder,uint8_t *buffer,size_t buffer_size)
 {
     decoder->buffer       = buffer;
     decoder->buffer_size  = buffer_size;
@@ -9,7 +9,7 @@ void decoder_setup(decoder_t *decoder,uint8_t *buffer,size_t buffer_size)
     decoder->current_size = 0;
 }
 
-bool decode_u8(decoder_t *decoder,uint8_t *value)
+bool decode_u8(mm_decoder_t *decoder,uint8_t *value)
 {
     if(decoder == NULL || value == NULL ) 
     {
@@ -29,7 +29,7 @@ bool decode_u8(decoder_t *decoder,uint8_t *value)
     return true;
 }
 
-bool decode_u16(decoder_t *decoder,uint16_t *value)
+bool decode_u16(mm_decoder_t *decoder,uint16_t *value)
 {
     if(decoder == NULL || value == NULL) 
     {
@@ -47,10 +47,10 @@ bool decode_u16(decoder_t *decoder,uint16_t *value)
     memcpy(value,target,bytes);
 
     decoder->offset       += bytes;
-    decoder->current_size += 1;
+    decoder->current_size += bytes;
     return true;
 }
-bool decode_u32(decoder_t *decoder,uint32_t *value)
+bool decode_u32(mm_decoder_t *decoder,uint32_t *value)
 {
     if(decoder == NULL || value == NULL) 
     {
@@ -71,7 +71,7 @@ bool decode_u32(decoder_t *decoder,uint32_t *value)
     decoder->current_size += bytes;
     return true;
 }
-bool decode_u64(decoder_t *decoder,uint64_t *value)
+bool decode_u64(mm_decoder_t *decoder,uint64_t *value)
 {
     if(decoder == NULL || value == NULL) 
     {
@@ -92,7 +92,7 @@ bool decode_u64(decoder_t *decoder,uint64_t *value)
     decoder->current_size += bytes;
     return true;
 }
-bool decode_bytes(decoder_t *decoder,uint8_t *values,size_t values_size)
+bool decode_bytes(mm_decoder_t *decoder,uint8_t *values,size_t values_size)
 {
     if(decoder == NULL || values == NULL) 
     {

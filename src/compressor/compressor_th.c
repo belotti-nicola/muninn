@@ -96,12 +96,12 @@ void *fcompressor_loop_fn(void *arg)
     return NULL;
 }
 
-void *fcompressor_post_fn(void *context,void *arg)
+void *fcompressor_post_fn(void *context,void *arg, size_t size)
 {   
     if( arg == NULL || context == NULL ) return NULL;
     compressor_th_data *cth_data = (compressor_th_data *)context;
 
-    ts_queue_push(cth_data->q,1,arg);
+    ts_queue_n_push(cth_data->q,1,arg,size);
 
     return NULL;
 }

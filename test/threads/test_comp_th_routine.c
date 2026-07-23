@@ -76,7 +76,7 @@ int main()
     );
     mw_start(&mw);
     
-    mw_post(&mw,test_file);
+    mw_post(&mw,test_file,strlen(test_file));
 
     mw_shutdown(&mw);
 

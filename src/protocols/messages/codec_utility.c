@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-void mc_encoder_setup(encoder_t *encoder,uint8_t *buffer,size_t buffer_size)
+void mc_encoder_setup(mc_encoder_t *encoder,uint8_t *buffer,size_t buffer_size)
 {
     encoder->buffer       = buffer;
     encoder->buffer_size  = buffer_size;
@@ -10,7 +10,7 @@ void mc_encoder_setup(encoder_t *encoder,uint8_t *buffer,size_t buffer_size)
     encoder->offset       = 0;
 }
 
-bool mc_encode_u8(encoder_t *encoder,uint8_t value)
+bool mc_encode_u8(mc_encoder_t *encoder,uint8_t value)
 {
     if (encoder == NULL) return false;
 
@@ -26,7 +26,7 @@ bool mc_encode_u8(encoder_t *encoder,uint8_t value)
     return true;
 }
 
-bool mc_encode_u16(encoder_t *encoder,uint16_t value)
+bool mc_encode_u16(mc_encoder_t *encoder,uint16_t value)
 {
     if (encoder == NULL)
         return false;
@@ -43,7 +43,7 @@ bool mc_encode_u16(encoder_t *encoder,uint16_t value)
     return true;
 }
 
-bool mc_encode_u32(encoder_t *encoder,uint32_t value)
+bool mc_encode_u32(mc_encoder_t *encoder,uint32_t value)
 {
     if (encoder == NULL)
         return false;
@@ -60,7 +60,7 @@ bool mc_encode_u32(encoder_t *encoder,uint32_t value)
     return true;
 }
 
-bool mc_encode_u64(encoder_t *encoder,uint64_t value)
+bool mc_encode_u64(mc_encoder_t *encoder,uint64_t value)
 {
     if (encoder == NULL)
         return false;
@@ -78,7 +78,7 @@ bool mc_encode_u64(encoder_t *encoder,uint64_t value)
     return true;
 }
 
-bool mc_encode_bytes(encoder_t *encoder,const uint8_t *values,size_t values_size)
+bool mc_encode_bytes(mc_encoder_t *encoder,const uint8_t *values,size_t values_size)
 {
     if (encoder == NULL)
         return false;
@@ -95,7 +95,7 @@ bool mc_encode_bytes(encoder_t *encoder,const uint8_t *values,size_t values_size
     return true;
 }
 
-void mc_decoder_setup(decoder_t *decoder, const uint8_t *buffer, size_t buffer_size)
+void mc_decoder_setup(mc_decoder_t *decoder, const uint8_t *buffer, size_t buffer_size)
 {
     decoder->buffer       = buffer;
     decoder->buffer_size  = buffer_size;
@@ -103,7 +103,7 @@ void mc_decoder_setup(decoder_t *decoder, const uint8_t *buffer, size_t buffer_s
     decoder->current_size = 0;
 }
 
-bool mc_decode_u8(decoder_t *decoder,uint8_t *value)
+bool mc_decode_u8(mc_decoder_t *decoder,uint8_t *value)
 {
     if(decoder == NULL || value == NULL ) 
     {
@@ -123,7 +123,7 @@ bool mc_decode_u8(decoder_t *decoder,uint8_t *value)
     return true;
 }
 
-bool mc_decode_u16(decoder_t *decoder,uint16_t *value)
+bool mc_decode_u16(mc_decoder_t *decoder,uint16_t *value)
 {
     if(decoder == NULL || value == NULL) 
     {
@@ -144,7 +144,7 @@ bool mc_decode_u16(decoder_t *decoder,uint16_t *value)
     decoder->current_size += bytes;
     return true;
 }
-bool mc_decode_u32(decoder_t *decoder,uint32_t *value)
+bool mc_decode_u32(mc_decoder_t *decoder,uint32_t *value)
 {
     if(decoder == NULL || value == NULL) 
     {
@@ -165,7 +165,7 @@ bool mc_decode_u32(decoder_t *decoder,uint32_t *value)
     decoder->current_size += bytes;
     return true;
 }
-bool mc_decode_u64(decoder_t *decoder,uint64_t *value)
+bool mc_decode_u64(mc_decoder_t *decoder,uint64_t *value)
 {
     if(decoder == NULL || value == NULL) 
     {
@@ -186,7 +186,7 @@ bool mc_decode_u64(decoder_t *decoder,uint64_t *value)
     decoder->current_size += bytes;
     return true;
 }
-bool mc_decode_bytes(decoder_t *decoder,uint8_t *values,size_t values_size)
+bool mc_decode_bytes(mc_decoder_t *decoder,uint8_t *values,size_t values_size)
 {
     if(decoder == NULL || values == NULL) 
     {

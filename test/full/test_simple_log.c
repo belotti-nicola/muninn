@@ -34,38 +34,36 @@ int main(void)
     if(test_file == NULL)
     {
         TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: char pointer is null at line %d (file %s).\n",__LINE__,log);
+        TEST_ERROR("Error: char pointer is null for file %s.",log);
         return 1;
     }
 
     char buffer[256];
-    char *res;
+    size_t size;
 
-    res = fgets(buffer, sizeof(buffer), test_file);
-    if(res == NULL)
+    if(fgets(buffer, 256, test_file) == NULL)
     {
         TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: char pointer is null at line %d.\n",__LINE__);
+        TEST_ERROR("Error: fgets is null for file %s.",log);
         return 1;
     }
-    if(strstr(buffer, "hello") == NULL)
+    if(strncmp(buffer,"hello",strlen("hello")) != 0)
     {
         TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: buffer(%s) is not substring of the expected(%s) at line %d.\n",buffer,"hello",__LINE__);
+        TEST_ERROR("Error: buffer(%s) is not substring of the expected(%s)",buffer,"hello");
         return 1;
     }
 
-    res = fgets(buffer, sizeof(buffer), test_file);
-    if(res == NULL)
+    if(fgets(buffer, 256, test_file) == NULL)
     {
         TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: char pointer is null at line %d.\n",__LINE__);
+        TEST_ERROR("Error: fgets is null for file %s.",log);
         return 1;
     }
-    if(strstr(buffer, "world") == NULL)
+    if(strncmp(buffer,"world",strlen("world")) != 0)
     {
         TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: buffer(%s) is not substring of the expected(%s) at line %d.\n",buffer,"world",__LINE__);
+        TEST_ERROR("Error: buffer(%s) is not substring of the expected(%s)",buffer,"world");
         return 1;
     }
 

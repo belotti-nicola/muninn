@@ -11,6 +11,6 @@ typedef struct compressor_th_data
 
 void *fcompressor_loop_fn(void *arg);
 void *fcompressor_stop_fn(void *arg);
-void *fcompressor_post_fn(void *context, void *arg);
+void *fcompressor_post_fn(void *context, void *arg,size_t size);
 
 #endif 

@@ -24,7 +24,7 @@ void* stress_producer_routine(void *arg)
 
     for (int i = 0; i < MESSAGE_PER_THREAD; i++)
     {
-        mw_post(mw,message);
+        mw_post(mw,message,MESSAGE_SIZE);
     }
 
     return NULL;
@@ -62,7 +62,7 @@ int main()
     }
 
     //RINGBUFFER
-    ts_ring_buffer_t tsrb;
+    ts_ring_buffer_t tsrb = {0};
     uint8_t buffer[LOG_RB_SIZE];
     ts_rb_setup(&tsrb,buffer,LOG_RB_SIZE);
 
@@ -117,7 +117,7 @@ int main()
         pthread_join(competitors[i],NULL);
     }
 
-    sleep_ms(100);
+    sleep_ms(1000*10);
     mw_shutdown(&mw);
 
 
@@ -127,6 +127,8 @@ int main()
         TEST_ERROR("%ld vs %d",q1.queue.size,THREADS_NUMBER * MESSAGE_PER_THREAD);
         free(buffer1);
         free(buffer2);
+        free(messages1);
+        free(messages2);
         return 1;
     }
 

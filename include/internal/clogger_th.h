@@ -20,6 +20,6 @@ typedef struct clogger_th_data
 void *clogger_loop_fn(void *arg);
 void *clogger_stop_fn(void *arg);
 void *clogger_join_fn(void *arg);
-void *clogger_post_fn(void *context,void *arg);
+void *clogger_post_fn(void *context,void *arg,size_t size);
 
 #endif 

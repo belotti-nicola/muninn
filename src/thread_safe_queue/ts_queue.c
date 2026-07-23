@@ -90,3 +90,57 @@ void ts_queue_stop(ts_queue_t *q)
     pthread_mutex_unlock(&q->mutex);
 
 }
+
+bool ts_queue_n_push(ts_queue_t* q, log_severity_t severity, const char *msg, size_t size)
+{
+    if(q == NULL || size == 0 || size > 512)//TODO SIZE
+    {
+        return false;
+    }
+    
+    pthread_mutex_lock(&q->mutex);
+
+    while (q->queue.size == q->queue.max_size && q->stop == false)
+    {
+        pthread_cond_wait(&q->full, &q->mutex);
+    }
+
+    if (q->stop)
+    {
+        pthread_mutex_unlock(&q->mutex);
+        return false;
+    }
+
+    bool retVal = queue_push(&q->queue,msg,size);
+    if  (retVal)
+    {
+        pthread_cond_signal(&q->empty);
+    }
+
+    pthread_mutex_unlock(&q->mutex);
+    return retVal;
+}
+
+bool ts_queue_n_pop(ts_queue_t* q, uint8_t *out,size_t out_max_size, size_t *out_size)
+{
+    pthread_mutex_lock(&q->mutex);
+
+    while (q->queue.size == 0 && !q->stop)
+    {
+        pthread_cond_wait(&q->empty, &q->mutex);
+    }
+
+    if (q->stop && q->queue.size == 0)
+    {
+        pthread_mutex_unlock(&q->mutex);
+        return false;
+    }
+
+    bool retVal = queue_pop(&q->queue, out, out_max_size, out_size);
+
+    pthread_cond_signal(&q->full);
+
+    pthread_mutex_unlock(&q->mutex);
+    
+    return retVal;
+}

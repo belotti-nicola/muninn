@@ -24,7 +24,7 @@ typedef struct gateway_th_data
 
 void *gateway_loop_fn(void *arg);
 void *gateway_stop_fn(void *arg);
-void *gateway_post_fn(void *context, void *data);
+void *gateway_post_fn(void *context, void *data, size_t data_size);
 
 
 #endif

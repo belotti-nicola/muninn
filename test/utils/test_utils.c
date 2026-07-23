@@ -192,3 +192,24 @@ uint64_t STRING_TO_UINT64_impl(char *s)
     return retVal;
 }
 
+const void *MEMMEM_SIMPLE_impl(const void *haystack, size_t haystack_len,
+                          const void *needle, size_t needle_len)
+{
+    if (needle_len == 0)
+        return haystack;
+
+    if (haystack_len < needle_len)
+        return NULL;
+
+    const uint8_t *h = haystack;
+    const uint8_t *n = needle;
+
+    for (size_t i = 0; i <= haystack_len - needle_len; ++i)
+    {
+        if (memcmp(h + i, n, needle_len) == 0)
+            return h + i;
+    }
+
+    return NULL;
+}
+

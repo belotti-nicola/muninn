@@ -25,3 +25,9 @@ Architecture changes:
 - if mask change...
 - buffer overflow for fields
 - if post is ok, then return 1;
+
+
+
+ENCODED_DATA_MASK mask = (ENCODED_DATA_MASK)value; //works only if encoding (LE vs BE) is the same
+mm_encoder mm_payload_encoder + un decoder in utils
+RB WITH BOOL

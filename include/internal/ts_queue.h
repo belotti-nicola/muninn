@@ -20,5 +20,8 @@ bool         ts_queue_push(ts_queue_t* q, log_severity_t severity, const char *m
 void         ts_queue_stop(ts_queue_t *q);
 void         ts_queue_release(ts_queue_t *q);
 
+bool         ts_queue_n_push(ts_queue_t* q, log_severity_t severity, const char *msg,size_t size);
+bool         ts_queue_n_pop(ts_queue_t* q, uint8_t *out,size_t out_max_size, size_t *out_size);
+
 
 #endif

@@ -4,6 +4,8 @@
 #include <internal/timestamp_gen.h>
 #include <internal/ts_rb_message.h>
 #include <string.h>
+#include <internal/protocols/messages/encoded_data_mask.h>
+#include <internal/protocols/messages/codec_utility.h>
 
 #include <internal/muninn_int.h>
 
@@ -19,126 +21,112 @@ void ts_rb_setup(ts_ring_buffer_t *tsrb,uint8_t *buffer, size_t buffer_dim)
     pthread_cond_init(&tsrb->full, NULL);
 }
 
-bool ts_rb_pop(ts_ring_buffer_t *tsrb, ts_rb_message_t *out)
+bool ts_rb_pop(ts_ring_buffer_t *tsrb, uint8_t *out, size_t out_size, size_t *bytes_popped)
 {
-    if(tsrb == NULL || out == NULL) return false;
+    if (tsrb == NULL || out == NULL || bytes_popped == NULL) return false;
 
     pthread_mutex_lock(&tsrb->mutex);
 
-    while (tsrb->ring_buffer.current_size == 0 && !tsrb->stop) {
+    while (tsrb->ring_buffer.current_size < sizeof(uint16_t) && !tsrb->stop) {
         pthread_cond_wait(&tsrb->empty, &tsrb->mutex);
     }
 
-    if (tsrb->stop && tsrb->ring_buffer.current_size == 0) {
-        pthread_mutex_unlock(&tsrb->mutex);
-        return false;
-    }
-    
-    uint8_t headers[sizeof(ts_rb_header_t)];
-    if (rb_pop(&tsrb->ring_buffer, headers, sizeof(ts_rb_header_t)) == 0) {
+    if (tsrb->stop && tsrb->ring_buffer.current_size < sizeof(uint16_t)) {
         pthread_mutex_unlock(&tsrb->mutex);
         return false;
     }
 
-    decoder_t decoder = {0};
-    decoder_setup(&decoder, headers, sizeof(ts_rb_header_t));
-    
-    uint32_t tmp_msg_len = 0;
-    uint64_t tmp_ts = 0;
-    uint8_t  tmp_severity = 0;
-
-    decode_u32(&decoder, &tmp_msg_len);
-    decode_u64(&decoder, &tmp_ts);
-    decode_u8(&decoder, &tmp_severity);
-
-    size_t payload_len = tmp_msg_len - sizeof(ts_rb_header_t);
-    
-    size_t max_buffer_capacity = LOG_RB_SIZE - 1; 
-    size_t bytes_to_copy = (payload_len > max_buffer_capacity) ? max_buffer_capacity : payload_len;
-
-    if (bytes_to_copy > 0) {
-        rb_pop(&tsrb->ring_buffer, out->payload.payload_bytes, bytes_to_copy);
-        out->payload.payload_bytes[bytes_to_copy] = '\0'; 
+    uint8_t headers[sizeof(uint16_t)];
+    if (!rb_pop(&tsrb->ring_buffer, headers, sizeof(headers))) {
+        pthread_mutex_unlock(&tsrb->mutex);
+        return false;
     }
 
-    size_t leftover_bytes = payload_len - bytes_to_copy;
-    if (leftover_bytes > 0) {
-        uint8_t trash_bin[128]; 
-        while (leftover_bytes > 0) {
-            size_t chunk = (leftover_bytes > sizeof(trash_bin)) ? sizeof(trash_bin) : leftover_bytes;
-            rb_pop(&tsrb->ring_buffer, trash_bin, chunk);
-            leftover_bytes -= chunk;
+    mm_decoder_t decoder;
+    decoder_setup(&decoder, headers, sizeof(headers));
+
+    uint16_t message_len = 0;
+    decode_u16(&decoder, &message_len);
+
+    size_t bytes_to_read = message_len;
+    bool is_truncated = false;
+
+    if (bytes_to_read > out_size) {
+        bytes_to_read = out_size; // Tranchiamo per non sfondare lo stack!
+        is_truncated = true;
+    }
+
+    // Leggiamo solo quello che il buffer di destinazione può contenere
+    if (!rb_pop(&tsrb->ring_buffer, out, bytes_to_read)) {
+        pthread_mutex_unlock(&tsrb->mutex);
+        return false;
+    }
+
+    if (is_truncated) {
+        size_t excess_bytes = message_len - out_size;
+        uint8_t trash[128];
+        while (excess_bytes > 0) {
+            size_t chunk = (excess_bytes > sizeof(trash)) ? sizeof(trash) : excess_bytes;
+            rb_pop(&tsrb->ring_buffer, trash, chunk);
+            excess_bytes -= chunk;
         }
     }
 
-    out->header.msg_len  = tmp_msg_len;
-    out->header.severity = tmp_severity;
-    out->header.ts       = tmp_ts;
+    *bytes_popped = bytes_to_read;
 
     pthread_cond_signal(&tsrb->full);
-
     pthread_mutex_unlock(&tsrb->mutex);
     return true;
 }
 
-bool ts_rb_push(ts_ring_buffer_t* tsrb, const ts_rb_message_t *message)
+bool ts_rb_push(ts_ring_buffer_t* tsrb, const uint8_t *buffer, size_t buffer_size)
 {
-    if(tsrb == NULL                                 || 
-       message == NULL                              ||
-       message->payload.payload_bytes == NULL       ||
-       message->header.msg_len == 0)
+    if (tsrb == NULL || buffer == NULL || buffer_size == 0) 
     {
         return false;
     }
 
+    size_t header_size = sizeof(uint16_t);
+    size_t total_msg_size = header_size + buffer_size;
 
-    uint32_t full_len = message->header.msg_len;
-    uint64_t ts = message->header.ts;
-    uint8_t  sev = message->header.severity;
-    size_t   payload_length = full_len - sizeof(ts_rb_header_t);
+    // Preariamo l'header fuori dalla sezione critica (per ridurre il tempo di lock)
+    uint8_t header[sizeof(uint16_t)] = {0}; 
+    mm_encoder_t encoder = {0};
+    encoder_setup(&encoder, header, header_size);
 
-    uint8_t header_encoded[sizeof(ts_rb_header_t)] = {0}; // ENCODING ONLY HEADERS
-    memset(header_encoded,0,sizeof(ts_rb_header_t));      // SINCE DATA IS MEMCPIED AS-IS 
-    
-    encoder_t encoder = {0}; 
-    encoder_setup(&encoder,header_encoded,sizeof(ts_rb_header_t));
-    encode_u32(&encoder,full_len);
-    encode_u64(&encoder,ts);
-    encode_u8(&encoder,sev);
+    if (encode_u16(&encoder, (uint16_t)buffer_size) == false)
+    {
+        return false;
+    }
     
     pthread_mutex_lock(&tsrb->mutex);
  
-    while (rb_peek(&tsrb->ring_buffer) < message->header.msg_len && !tsrb->stop) 
+    // 1. Aspettiamo che ci sia spazio libero per l'INTERO pacchetto (Header + Payload)
+    // Assicurati che rb_free_space (o la tua funzione equivalente) restituisca lo spazio libero rimanente!
+    while (rb_peek(&tsrb->ring_buffer) < total_msg_size && !tsrb->stop) 
     {
         pthread_cond_wait(&tsrb->full, &tsrb->mutex);
     }
 
+    // Se il sistema è in fase di arresto, rilasciamo e usciamo
     if (tsrb->stop)
     {
         pthread_mutex_unlock(&tsrb->mutex);
         return false;
     }
         
-    bool push_rc;
-    push_rc = rb_push(&tsrb->ring_buffer,encoder.buffer,encoder.current_size);
-    if(push_rc == false)
-    {
-        pthread_mutex_unlock(&tsrb->mutex);
-        return false;
-    }
-    push_rc = rb_push(&tsrb->ring_buffer,message->payload.payload_bytes,full_len - sizeof(ts_rb_header_t));
-    if(push_rc == false)
-    {
-        pthread_mutex_unlock(&tsrb->mutex);
-        return false;//TODO REVERT
-    }
+    // 2. Lo spazio è ORA GARANTITO: Scriviamo atomicamente sia l'header che il payload
+    rb_push(&tsrb->ring_buffer, encoder.buffer, encoder.current_size);
+    rb_push(&tsrb->ring_buffer, buffer, buffer_size);
 
+    // 3. Notifichiamo il Gateway che c'è almeno un messaggio pronto
     pthread_cond_signal(&tsrb->empty);
 
     pthread_mutex_unlock(&tsrb->mutex);
-    return true;
 
+    return true;
 }
+
 void ts_rb_stop(ts_ring_buffer_t *tsrb)
 {
     if(tsrb == NULL) return;

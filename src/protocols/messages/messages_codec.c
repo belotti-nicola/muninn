@@ -11,9 +11,9 @@ bool mm_encode(const ENCODED_DATA_MASK *mask,
 
     *encoded_len = 0;
 
-    if(*mask & MEDM_NONE) return true;
+    if(*mask & MEDM_NONE) return false;
 
-    encoder_t enc;
+    mc_encoder_t enc;
     mc_encoder_setup(&enc,out,out_size);
 
     bool retVal = true;
@@ -81,10 +81,8 @@ bool mm_encode(const ENCODED_DATA_MASK *mask,
         if(retVal == false) return false;
     }
 
-    if (encoded_len) 
-    {
-        *encoded_len = enc.current_size; 
-    }
+    *encoded_len = enc.current_size; 
+    
 
     return true;
 }
@@ -96,7 +94,7 @@ bool mm_decode(mnn_data_t *out,
 
     bool retVal = true;
     
-    decoder_t dec;
+    mc_decoder_t dec;
     mc_decoder_setup(&dec,in,in_size);
 
     ENCODED_DATA_MASK mask;

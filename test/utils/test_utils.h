@@ -26,6 +26,7 @@
 #define count_rows(filename)                          count_rows_impl(filename)
 #define STRING_TO_INT(value)                          STRING_TO_INT_impl(value)
 #define STRING_TO_UINT64(value)                       STRING_TO_UINT64_impl(value)
+#define MEMMEM_SIMPLE(h,hl,n,nl)                      MEMMEM_SIMPLE_impl(h,hl,n,nl)
 
 
 bool  file_exists_impl(const char *fullpath);
@@ -39,7 +40,7 @@ long  count_rows_across_files_impl(const char *dir_path, const char *prefix);
 long  count_rows_impl(const char *filename);
 int   STRING_TO_INT_impl(char *value);
 uint64_t STRING_TO_UINT64_impl(char *value);
-
+const void *MEMMEM_SIMPLE_impl(const void *haystack, size_t haystack_len,const void *needle, size_t needle_len);
 
 
 #endif // TEST_UTILS_H

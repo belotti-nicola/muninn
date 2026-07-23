@@ -1,6 +1,7 @@
 #include <internal/muninn_worker.h>
 #include <internal/gateway_th.h>
 #include <internal/ts_ring_buffer.h>
+#include <string.h>
 
 #include "test_utils.h"
 
@@ -56,26 +57,26 @@ int main()
     );
     mw_start(&mw);
 
-    mw_post(&mw,"Hello");
-    mw_post(&mw,"World");
+    mw_post(&mw,"Hello",strlen("Hello"));
+    mw_post(&mw,"World",strlen("World"));
+
+    sleep_ms(50);
 
     mw_shutdown(&mw);
 
-    sleep_ms(10);
+    if(q1.queue.size != 2)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Q1 size is %ld instead of 2",q1.queue.size);
+        return 1;
+    }
 
-    // if(q1.queue.size != 2)
-    // {
-    //     TRACE_ERROR_POSITION();
-    //     TEST_ERROR("Q1 size is %ld instead of 2",q1.queue.size);
-    //     return 1;
-    // }
-
-    // if(q2.queue.size != 2)
-    // {
-    //     TRACE_ERROR_POSITION();
-    //     TEST_ERROR("Q2 size is %ld instead of 2",q2.queue.size);
-    //     return 1;
-    // }
+    if(q2.queue.size != 2)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Q2 size is %ld instead of 2",q2.queue.size);
+        return 1;
+    }
 
     return 0;
 }

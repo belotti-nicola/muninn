@@ -36,8 +36,8 @@ int main()
     );
     mw_start(&mw);
     
-    mw_post(&mw,"Hello");
-    mw_post(&mw,"World");
+    mw_post(&mw,"Hello",strlen("Hello"));
+    mw_post(&mw,"World",strlen("World"));
     
 
     mw_shutdown(&mw);  

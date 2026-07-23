@@ -24,6 +24,6 @@ typedef struct flogger_th_data
 
 void *flogger_loop_fn(void *arg);
 void *flogger_stop_fn(void *arg);
-void *flogger_post_fn(void *context, void *arg);
+void *flogger_post_fn(void *context, void *arg, size_t data_size);
 
 #endif

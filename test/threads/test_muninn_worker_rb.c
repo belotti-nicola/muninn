@@ -1,6 +1,7 @@
 #include <internal/muninn_worker.h>
 #include <internal/ts_ring_buffer.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "test_utils.h"
 
@@ -21,10 +22,9 @@ void *loop_fn(void *arg)
     uint8_t payload_bytes[BUFFER_SIZE];
     size_t  payload_bytes_max_size = BUFFER_SIZE;
     ts_ring_buffer_t *tsrb = ctx->tsrb;
-    ts_rb_message_t msg;
-    ts_rb_message_setup(&msg,payload_bytes,payload_bytes_max_size);
 
-    while(ts_rb_pop(tsrb,&msg))
+    size_t popped_bytes = 0;
+    while(ts_rb_pop(tsrb,payload_bytes,BUFFER_SIZE,&popped_bytes))
     {
         ctx->counter += 1;
     }
@@ -43,13 +43,14 @@ void *stop_fn(void *arg)
     return NULL;
 }
 
-void *post_fn(void *arg,void *arg2) 
+void *post_fn(void *arg,void *arg2, size_t arg3) 
 {
     if(arg == NULL) return NULL;
     THREAD_CTX_T *ctx = (THREAD_CTX_T *)arg;
 
     ts_ring_buffer_t *tsrb = ctx->tsrb;
-    ts_rb_push(tsrb,arg2);
+    const char *target = (const char *)arg2;
+    ts_rb_push(tsrb,target,arg3);
 
     return NULL;
 }
@@ -80,8 +81,8 @@ int main()
         context     
     );
 
-    mw_post(&mw,"");
-    mw_post(&mw,"");
+    mw_post(&mw,"1",1);
+    mw_post(&mw,"1",1);
 
     mw_shutdown(&mw);
 
