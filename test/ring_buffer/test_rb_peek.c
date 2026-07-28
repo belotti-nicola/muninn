@@ -16,46 +16,46 @@ int  main()
     char *test3 = "World";
 
     rb_push(&rb,test1,strlen(test1));
-    if(rb_peek(&rb) != BUFFER_SIZE - strlen(test1))
+    if(rb_available_space(&rb) != BUFFER_SIZE - strlen(test1))
     {
         printf("Error at line %d: computed available data(%ld) differs from expected one (%ld)!\n",__LINE__,
-            rb_peek(&rb),
+            rb_available_space(&rb),
             BUFFER_SIZE - strlen(test1));
         return 1;
     }
     rb_push(&rb,test2,strlen(test2));
-    if(rb_peek(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2))
+    if(rb_available_space(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2))
     {
         printf("Error at line %d: computed available data(%ld) differs from expected one (%ld)!\n",__LINE__,
-            rb_peek(&rb),
+            rb_available_space(&rb),
             BUFFER_SIZE - strlen(test1) - strlen(test2));
         return 1;
     }
     
     rb_push(&rb,test3, strlen(test3));
-    if(rb_peek(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3))
+    if(rb_available_space(&rb) != BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3))
     {
         printf("Error at line %d: computed available data(%ld) differs from expected one (%ld)!\n",__LINE__,
-            rb_peek(&rb),
+            rb_available_space(&rb),
             BUFFER_SIZE - strlen(test1) - strlen(test2) - strlen(test3));
         return 1;
     }
 
     char unused[BUFFER_SIZE] = {0};
     rb_pop(&rb,unused,10);
-    if(rb_peek(&rb) != 99)
+    if(rb_available_space(&rb) != 99)
     {
         printf("Error at line %d: computed available data(%ld) differs from expected one (%d)!\n",__LINE__,
-            rb_peek(&rb),
+            rb_available_space(&rb),
             99);
         return 1;
     }
 
     rb_pop(&rb,unused,1);
-    if(rb_peek(&rb) != 100)
+    if(rb_available_space(&rb) != 100)
     {
         printf("Error at line %d: computed available data(%ld) differs from expected one (%d)!\n",__LINE__,
-            rb_peek(&rb),
+            rb_available_space(&rb),
             100);
         return 1;
     }

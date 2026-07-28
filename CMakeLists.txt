@@ -37,6 +37,12 @@ set(MUNINN_SOURCES
     src/protocols/messages/encoded_data_mask.c
     src/protocols/messages/messages_codec.c
     src/protocols/messages/codec_utility.c
+    src/protocols/muninn_messages/muninn_messages.c
+    src/protocols/muninn_messages/muninn_payload_codec.c
+    src/protocols/muninn_messages/muninn_header_codec.c
+    src/protocols/muninn_messages/muninn_codec.c
+    src/protocols/muninn_messages/muninn_message_mask.c
+    src/protocols/muninn_messages/muninn_codec_utility.c
     src/timestamp/timestamp_gen.c
     src/muninn.c
 )

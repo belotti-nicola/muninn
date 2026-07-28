@@ -1,5 +1,7 @@
-#include <internal/protocols/messages/messages_codec.h>
-#include <internal/protocols/messages/encoded_data_mask.h>
+#include <internal/protocols/muninn_messages/muninn_codec.h>
+#include <internal/protocols/muninn_messages/muninn_message_mask.h>
+#include <internal/protocols/muninn_messages/muninn_message.h>
+
 #include "reader/csv_reader.h"
 #include <stdlib.h>
 
@@ -54,7 +56,7 @@ int main()
     while(csvreader_next(&reader))
     {
         char *edm_st = reader.records[0];
-        ENCODED_DATA_MASK mask = string_to_edm(edm_st);
+        muninn_message_mask mask = mmm_string_to_edm(edm_st);
 
         size_t records = reader.records_size;
         size_t offset  =  1 +
@@ -78,184 +80,215 @@ int main()
                 return 1;
             }
 
-            buf[binary_len++] = (uint8_t)strtoul(reader.records[i], NULL, 0); 
+            uint8_t val = (uint8_t)strtoul(reader.records[i], NULL, 0);
+            buf[binary_len++] = val; 
         }
 
-        mnn_data_t mnn = {0};
+        muninn_header header;
+
+        muninn_payload payload;
         uint8_t mnn_file_buf[256] = {0};
         uint8_t mnn_func_buf[256] = {0};
         uint8_t mnn_msg_buf[2048] = {0};
 
-        mnn.file = mnn_file_buf;
-        mnn.func = mnn_func_buf;
-        mnn.msg  = mnn_msg_buf;
+        payload.file = mnn_file_buf;
+        payload.func = mnn_func_buf;
+        payload.msg  = mnn_msg_buf;
+
+        muninn_message mm = {0};
+        muninn_message_set(&mm,&header,&payload);
         
-        bool rc = mm_decode(&mnn,buf,reader.records_size);
+        bool rc = muninn_messages_decode(buf,binary_len,&mm);
         if(rc == false)
         {
             TRACE_ERROR_POSITION();
             TEST_ERROR("mm_decode fail for iteration %d",iteration);
             return 1;
         }
-        
+       
+        size_t header_expected_size = 4;
         size_t buffer_offset = 1;
         if( (mask & MEDM_PID) && reader.records_size >= buffer_offset)
         {
             int expected = STRING_TO_INT(reader.records[buffer_offset]);
-            if(expected != mnn.pid)
+            if(expected != payload.pid)
             {
                 TRACE_ERROR_POSITION();
                 TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed pid is %d but %d was expected",mnn.severity,expected);
+                TEST_ERROR("Computed pid is %d but %d was expected",payload.pid,expected);
                 TEST_ERROR("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             buffer_offset += 1;
+            header_expected_size += sizeof(payload.pid);
         }
 
         if( (mask & MEDM_THREAD) && reader.records_size >= buffer_offset)
         {
             char *target = reader.records[buffer_offset];
             uint64_t expected = STRING_TO_UINT64(target);
-            if(expected != mnn.thread_id)
+            if(expected != payload.thread_id)
             {
                 TRACE_ERROR_POSITION();
                 TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed pid is %ld but %ld was expected",mnn.thread_id,expected);
+                TEST_ERROR("Computed pid is %ld but %ld was expected",payload.thread_id,expected);
                 TEST_ERROR("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             buffer_offset += 1;
+            header_expected_size += sizeof(payload.thread_id);
         }
 
         if( (mask & MEDM_TIMESTAMP) && reader.records_size >= buffer_offset)
         {
             uint64_t expected = STRING_TO_UINT64(reader.records[buffer_offset]);
-            if(expected != mnn.timestamp)
+            if(expected != payload.timestamp)
             {
                 TRACE_ERROR_POSITION();
                 TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed thread_id is %ld but %ld was expected",mnn.timestamp,expected);
+                TEST_ERROR("Computed thread_id is %ld but %ld was expected",payload.timestamp,expected);
                 TEST_ERROR("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             buffer_offset += 1;
+            header_expected_size += sizeof(payload.timestamp);
         }
 
         if( (mask & MEDM_LINE) && reader.records_size >= buffer_offset)
         {
             char *target = reader.records[buffer_offset];
             int expected = STRING_TO_INT(target);
-            if(expected != mnn.line)
+            if(expected != payload.line)
             {
                 TRACE_ERROR_POSITION();
                 TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed line is %d but %d was expected",mnn.line,expected);
+                TEST_ERROR("Computed line is %d but %d was expected",payload.line,expected);
                 TEST_ERROR("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             buffer_offset += 1;
+            header_expected_size += sizeof(payload.line);
         }
 
         if( (mask & MEDM_SEVERITY) && reader.records_size >= buffer_offset)
         {
             int expected = STRING_TO_INT(reader.records[buffer_offset]);
-            if(expected != mnn.severity)
+            if(expected != payload.severity)
             {
                 TRACE_ERROR_POSITION();
                 TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed %d but %d was expected",mnn.severity,expected);
+                TEST_ERROR("Computed %d but %d was expected",payload.severity,expected);
                 TEST_ERROR("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             buffer_offset += 1;
+            header_expected_size += sizeof(payload.severity);
         }
 
         if( (mask & MEDM_FILE) && reader.records_size >= buffer_offset + 1)
         {
             int expected = strlen(reader.records[buffer_offset]);
-            if(expected != mnn.file_len)
+            if(expected != payload.file_len)
             {
                 TRACE_ERROR_POSITION();
                 TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed file_len is %d but %d was expected",mnn.file_len,expected);
+                TEST_ERROR("Computed file_len is %d but %d was expected",payload.file_len,expected);
                 TEST_ERROR("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
+            header_expected_size += sizeof(payload.file_len);
 
-            for( int i = 0 ; i < mnn.file_len ; i++)
+            for( int i = 0 ; i < payload.file_len ; i++)
             {
                 char *target = reader.records[buffer_offset] + i;
                 int expected = *target;
-                if(expected != mnn.file[i])
+                if(expected != payload.file[i])
                 {
                     TRACE_ERROR_POSITION();
                     TEST_ERROR("Iteration %d",iteration);
-                    TEST_ERROR("Computed file byte %d-th is %d but %d was expected",i,mnn.file[i],expected);
+                    TEST_ERROR("Computed file byte %d-th is %d but %d was expected",i,payload.file[i],expected);
                     TEST_ERROR("(record %s)",reader.records[buffer_offset]);
                     return 1;
                 }
             }
             buffer_offset += 1 ;
+            header_expected_size += payload.file_len;
         }
 
         if( (mask & MEDM_FUNCTION) && reader.records_size >= buffer_offset + 1)
         {
             int expected = strlen(reader.records[buffer_offset]);
-            if(expected != mnn.func_len)
+            if(expected != payload.func_len)
             {
                 TRACE_ERROR_POSITION();
                 TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed func_len is %d but %d was expected",mnn.func_len,expected);
+                TEST_ERROR("Computed func_len is %d but %d was expected",payload.func_len,expected);
                 TEST_ERROR("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
+            header_expected_size += sizeof(payload.func_len);
 
-            for( int i = 0 ; i < mnn.func_len ; i++)
+            for( int i = 0 ; i < payload.func_len ; i++)
             {
                 char *target = reader.records[buffer_offset] + i;
                 int expected = *target;
-                if(expected != mnn.func[buffer_offset])
+                int computed = payload.func[i];
+                if(expected != computed)
                 {
                     TRACE_ERROR_POSITION();
                     TEST_ERROR("Iteration %d",iteration);
-                    TEST_ERROR("Computed func byte %d-th is %d but %d was expected",i,mnn.func[i],expected);
-                    TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                    TEST_ERROR("Computed func byte %d-th is %d but %d was expected",i,computed,expected);
+                    TEST_ERROR("(record %s)",target);
+                    return 1;
                 }
             }
             buffer_offset += 1 ;
+            header_expected_size += payload.func_len;
         }
 
       
         if( (mask & MEDM_MESSAGE) && reader.records_size >= buffer_offset + 1)
         {
             int expected = strlen(reader.records[buffer_offset]);
-            if(expected != mnn.msg_len)
+            if(expected != payload.msg_len)
             {
                 TRACE_ERROR_POSITION();
                 TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed file_len is %d but %d was expected",mnn.msg_len,expected);
+                TEST_ERROR("Computed file_len is %d but %d was expected",payload.msg_len,expected);
                 TEST_ERROR("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
+            header_expected_size += sizeof(payload.msg_len);
 
-            for( int i = 0 ; i < mnn.msg_len ; i++)
+            for( int i = 0 ; i < payload.msg_len ; i++)
             {
-                int expected = STRING_TO_INT(reader.records[buffer_offset]);
-                if(expected != mnn.file[buffer_offset])
+                char *tmp = reader.records[buffer_offset]+i;
+
+                int expected = (int)*tmp;
+                int computed = payload.msg[i];
+                if(expected != computed)
                 {
                     TRACE_ERROR_POSITION();
                     TEST_ERROR("Iteration %d",iteration);
-                    TEST_ERROR("Computed file byte %d-th is %d but %d was expected",i,mnn.msg[i],expected);
-                    TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                    TEST_ERROR("Computed msg byte %d-th is %d but %d was expected",i,computed,expected);
+                    TEST_ERROR("(record  %s)",reader.records[buffer_offset]);
+                    TEST_ERROR("(decoded %.*s)",payload.msg_len,payload.msg);
+                    return 1;
+                    
                 }
             }
             buffer_offset += 1 ;
+            header_expected_size += payload.msg_len;
         }
-      
         
-
-        
+        if(header.payload_len != header_expected_size)
+        {
+            TRACE_ERROR_POSITION();
+            TEST_ERROR("Iteration %d",iteration);
+            TEST_ERROR("Computed file payload_len len %d is different from expected one %ld",(int)header.payload_len,buffer_offset);
+            TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+            return 1;
+        }
 
         iteration++;
     }

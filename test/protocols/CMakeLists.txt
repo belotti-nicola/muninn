@@ -17,7 +17,13 @@ function(add_munin_test test_name source_file)
 
 endfunction()
 
-add_munin_test(TestInstantiatorMPEnc test_encode.c)
-add_munin_test(TestInstantiatorMPDec test_decode.c)
+add_munin_test(TestInstantiatorMPEncHeader  test_encode_header.c)
+add_munin_test(TestInstantiatorMPDecHeader  test_decode_header.c)
 
-muninn_copy_test_assets(TestInstantiatorMPEnc  "data")
+add_munin_test(TestInstantiatorMPEncPayload test_encode_payload.c)
+add_munin_test(TestInstantiatorMPDecPayload test_decode_payload.c)
+
+add_munin_test(TestInstantiatorMPEncCSV     test_encode_csv.c)
+add_munin_test(TestInstantiatorMPDecCSV     test_decode_csv.c)
+
+muninn_copy_test_assets(TestInstantiatorMPEncCSV  "data")

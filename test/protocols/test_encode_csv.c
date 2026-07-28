@@ -1,5 +1,6 @@
-#include <internal/protocols/messages/messages_codec.h>
-#include <internal/protocols/messages/encoded_data_mask.h>
+#include <internal/protocols/muninn_messages/muninn_codec.h>
+#include <internal/protocols/muninn_messages/muninn_message.h>
+#include <internal/protocols/muninn_messages/muninn_message_mask.h>
 
 
 #include "test_utils.h"
@@ -32,76 +33,82 @@ int main()
 
         char **parsed = reader.records;
 
-        ENCODED_DATA_MASK mask = string_to_edm(parsed[0]);
-
-        size_t expected_bytes = 4;
+        muninn_message_mask mask = mmm_string_to_edm(parsed[0]);
+        
+        size_t expected_bytes = 6;
         size_t offset = 1;
-        mnn_data_t mnn2;
-
+        muninn_message mm = {0};
+        muninn_payload payload = {0};
+        muninn_header header = {0};
+        
         if(mask & MEDM_PID)
         {
-            mnn2.pid = (uint32_t)strtoul(parsed[offset], NULL, 10);
+            payload.pid  = (uint32_t)strtoul(parsed[offset], NULL, 10);
             offset         += 1;
-            expected_bytes += sizeof(mnn2.pid);
+            expected_bytes += sizeof(payload.pid);
         }
 
         if(mask & MEDM_THREAD)
         {
-            mnn2.thread_id  = (uint64_t)strtoul(parsed[offset], NULL, 10);
-            offset         += 1;
-            expected_bytes += sizeof(mnn2.thread_id);
+            payload.thread_id  = (uint64_t)strtoul(parsed[offset], NULL, 10);
+            offset               += 1;
+            expected_bytes       += sizeof(payload.thread_id);
         }
 
         if(mask & MEDM_TIMESTAMP)
         {
-            mnn2.timestamp  = (uint64_t)strtoul(parsed[offset], NULL, 10);
-            offset         += 1;
-            expected_bytes += sizeof(mnn2.timestamp);
+            payload.timestamp  = (uint64_t)strtoul(parsed[offset], NULL, 10);
+            offset               += 1;
+            expected_bytes       += sizeof(payload.timestamp);
         }
         
         if(mask & MEDM_LINE)
         {
-            mnn2.line = (uint32_t)strtoul(parsed[offset], NULL, 10);
+            payload.line = (uint32_t)strtoul(parsed[offset], NULL, 10);
             offset         += 1;
-            expected_bytes += sizeof(mnn2.line);
+            expected_bytes += sizeof(payload.line);
         }
         
         if(mask & MEDM_SEVERITY)
         {
-            mnn2.severity   = (uint8_t)strtoul(parsed[offset], NULL, 10);
-            offset         += 1;
-            expected_bytes += sizeof(mnn2.severity);
+            payload.severity   = (uint8_t)strtoul(parsed[offset], NULL, 10);
+            offset               += 1;
+            expected_bytes       += sizeof(payload.severity);
         }
 
         if(mask & MEDM_FILE)
         {
-            mnn2.file_len   = (uint8_t)strlen(parsed[offset]);
-            mnn2.file       = parsed[offset];
-            offset         += 1;
-            expected_bytes += sizeof(mnn2.file_len) + (size_t)mnn2.file_len;
+            payload.file_len   = (uint8_t)strlen(parsed[offset]);
+            payload.file       = parsed[offset];
+            offset               += 1;
+            expected_bytes       += sizeof(payload.file_len) + (size_t)payload.file_len;
         }
        
         if(mask & MEDM_FUNCTION)
         {
-            mnn2.func_len   = (uint8_t)strlen(parsed[offset]),
-            mnn2.func       = parsed[offset],
-            offset         += 1;
-            expected_bytes += sizeof(mnn2.func_len) + (size_t)mnn2.func_len;
+            payload.func_len   = (uint8_t)strlen(parsed[offset]),
+            payload.func       = parsed[offset],
+            offset               += 1;
+            expected_bytes       += sizeof(payload.func_len) + (size_t)payload.func_len;
         }
 
         if(mask & MEDM_MESSAGE)
         {
-            mnn2.msg_len     = (uint16_t)strlen(parsed[offset]),
-            mnn2.msg         = parsed[offset],
-            offset         += 1;
-            expected_bytes += sizeof(mnn2.msg_len) + (size_t)mnn2.msg_len;
+            payload.msg_len  = (uint16_t)strlen(parsed[offset]),
+            payload.msg      = parsed[offset],
+            offset             += 1;
+            expected_bytes     += sizeof(payload.msg_len) + (size_t)payload.msg_len;
         }
+
+        encoded_bytes = expected_bytes;
+
+        header.payload_len = expected_bytes + sizeof(header.payload_len);
+        muninn_message_set(&mm,&header,&payload);
        
-        bool ok = mm_encode(
-            &mask,
-            &mnn2,
-            buffer,TEST_BUFFER_SIZE,
-            &encoded_bytes
+        bool ok = muninn_messages_encode(
+            &mm,
+            mask,
+            buffer,&encoded_bytes
         );
         if(ok == false)
         {
@@ -144,7 +151,10 @@ int main()
                         (expected_value >= 32 && expected_value <= 126) ? expected_value : '?');
         }
 
+        TEST_INFO("Ok record is fine!Next one...");
+
         record++;
+
     }
     
     csvreader_close(&reader);

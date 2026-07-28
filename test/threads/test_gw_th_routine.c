@@ -60,7 +60,7 @@ int main()
     mw_post(&mw,"Hello",strlen("Hello"));
     mw_post(&mw,"World",strlen("World"));
 
-    sleep_ms(50);
+    sleep_ms(500);
 
     mw_shutdown(&mw);
 

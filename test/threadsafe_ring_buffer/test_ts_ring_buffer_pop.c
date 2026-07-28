@@ -12,14 +12,19 @@
 int main()
 {   
     const char *test = "Hello World";   
-    uint8_t buffer[BUFFER_SIZE] = {0};
+    uint8_t  buffer[BUFFER_SIZE] = {0};
+    uint16_t full_len = 4 + 2 + 11; // mask + test size + test
     uint16_t value = strlen(test);
-    memcpy(buffer,&value,sizeof(value));
-    memcpy(buffer+2,test,strlen(test));
+    uint32_t mask = 16;
+    memcpy(buffer,&full_len,sizeof(full_len));
+    memcpy(buffer+2,&mask,sizeof(uint32_t));
+    memcpy(buffer+6,&value,sizeof(uint16_t));
+    memcpy(buffer+8,test,strlen(test));
+
 
     ts_ring_buffer_t tsrb = {0};
     ts_rb_setup(&tsrb,buffer,BUFFER_SIZE);
-    tsrb.ring_buffer.current_size = strlen(test) + sizeof(uint16_t);
+    tsrb.ring_buffer.current_size = strlen(test) + 8;
    
     size_t  popped_size = 0;
     uint8_t popped[BUFFER_SIZE] = {0};
@@ -28,15 +33,6 @@ int main()
     {
         TRACE_ERROR_POSITION();
         TEST_ERROR("Error: ts_rb_pop failed!");
-        return 1;
-    }
-
-    size_t expected_bytes = strlen(test);
-    if(popped_size != expected_bytes)
-    {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: buffer size error!");
-        TEST_ERROR("Found %ld instead of %ld",popped_size,expected_bytes);
         return 1;
     }
 

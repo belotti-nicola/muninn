@@ -5,6 +5,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <internal/protocols/muninn_messages/muninn_codec.h>
+#include <internal/protocols/muninn_messages/muninn_message.h>
+
+
 void *gateway_loop_fn(void *arg)
 {
     if(arg == NULL) return NULL;
@@ -14,7 +18,6 @@ void *gateway_loop_fn(void *arg)
     ts_queue_t *q2 = gw_data->q2; // Coda Console
     ts_ring_buffer_t *rb = gw_data->rb;
     
-
     size_t  read_buffer_bytes = 0;
     uint8_t read_buffer[LOG_MESSAGE_SIZE] = {0};
     while(ts_rb_pop(rb,read_buffer,LOG_MESSAGE_SIZE,&read_buffer_bytes))

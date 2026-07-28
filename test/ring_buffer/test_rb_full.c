@@ -163,10 +163,10 @@ int main()
                         i,rb.current_size,tc[i].current_data_size);
                     return 1;
                 }
-                if(rb_peek(&rb) != tc[i].available_data)
+                if(rb_available_space(&rb) != tc[i].available_data)
                 {
                     printf("Error at line %d at iteration %d: available_data computed(%ld) differs from expected(%ld)",__LINE__,
-                        i,rb_peek(&rb),tc[i].available_data);
+                        i,rb_available_space(&rb),tc[i].available_data);
                     return 1;
                 }
                 if(strncmp(rb.data + initial_offset,tc[i].buffer,rb.end-rb.start-1) != 0)
@@ -204,10 +204,10 @@ int main()
                         i,rb.current_size,tc[i].current_data_size);
                     return 1;
                 }
-                if(rb_peek(&rb) != tc[i].available_data)
+                if(rb_available_space(&rb) != tc[i].available_data)
                 {
                     printf("Error at line %d at iteration %d: available_data computed(%ld) differs from expected(%ld)",__LINE__,
-                        i,rb_peek(&rb),tc[i].available_data);
+                        i,rb_available_space(&rb),tc[i].available_data);
                     return 1;
                 }
                 if(strncmp(popped,tc[i].buffer,popped_dimension) != 0)

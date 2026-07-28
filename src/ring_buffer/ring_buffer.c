@@ -84,3 +84,9 @@ size_t rb_pop(ring_buffer *rb, uint8_t *out, size_t out_size)
     rb->start = (offset + bytes_to_read) % rb->data_size;
     return out_size; 
 }
+
+size_t rb_available_space(const ring_buffer *rb)
+{
+    if (rb == NULL) return 0;
+    return rb->data_size - rb->current_size;
+}

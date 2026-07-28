@@ -16,7 +16,8 @@
 #include <internal/clogger_th.h>
 #include <internal/compressor_th.h>
 
-#include <internal/protocols/messages/messages_codec.h>
+#include <internal/protocols/muninn_messages/muninn_codec.h>
+#include <internal/protocols/muninn_messages/muninn_message.h>
 
 
 
@@ -150,37 +151,25 @@ void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file,
 
     if ((size_t)req_len + 1 < sizeof(stack_buffer)) 
     {
-        stack_buffer[req_len]     = '\n'; //TODO POTENTIAL STACK OVERFLOW ? 
+        stack_buffer[req_len] = '\n'; 
         
         mw_post(&m->gateway,stack_buffer,req_len+1);
     }
 
     else 
     {
-        char   *heap_buffer = malloc(req_len + 1);
+        char *heap_buffer = malloc(req_len + 1);
         if(heap_buffer == NULL) return;        
 
         uint8_t *heap_postable = malloc(req_len + 200); //TODO POTENTIAL STACK OVERFLOW
         if(heap_postable == NULL) return;
         
-        
-        vsnprintf(heap_buffer, req_len + 1, fmt, args);
-
-        size_t encoded_bytes = 0;
-        mnn_data_t mnn_message;
-        mnn_message.msg_len = strlen(stack_buffer);
-        memcpy(mnn_message.msg,stack_buffer,req_len);
-
-        if(mm_encode(&m->mask,&mnn_message,heap_postable,1024,&encoded_bytes) == false ) 
-        {
-            return; // TODO 1024 
-        }
-                
-        mw_post(&m->gateway,heap_postable,encoded_bytes);
+        vsnprintf(heap_buffer, req_len + 1, fmt, args);  
+            
+        mw_post(&m->gateway,heap_postable,req_len+1);
             
         free(heap_buffer);
         free(heap_postable);
-        
     }
 }
 
