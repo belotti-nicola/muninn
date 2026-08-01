@@ -31,3 +31,8 @@ void muninn_config_set_compressor(CONFIG *cfg, bool enabled)
     if (!cfg) return;
     cfg->compressor.enabled = enabled;
 }
+
+void muninn_config_set_mask(CONFIG *cfg, muninn_message_mask mask)
+{
+    cfg->mask = mask;
+}

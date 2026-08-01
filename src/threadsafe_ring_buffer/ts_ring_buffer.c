@@ -89,12 +89,13 @@ bool ts_rb_push(ts_ring_buffer_t* tsrb, const uint8_t *buffer, size_t buffer_siz
     muninn_header header = {0};
     header.payload_len = buffer_size+6;
     muninn_payload payload = {0};
+    payload.mask = MEDM_MESSAGE; //todo
     payload.msg = buffer;
     payload.msg_len = buffer_size;
     
     muninn_message_set(&message,&header,&payload);
     
-    if(muninn_messages_encode(&message,MEDM_MESSAGE,encoded,&encoded_size) == false)
+    if(muninn_messages_encode(&message,encoded,&encoded_size) == false)
     {
         pthread_mutex_unlock(&tsrb->mutex);
 

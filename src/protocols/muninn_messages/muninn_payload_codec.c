@@ -4,7 +4,7 @@
 #include <internal/protocols/muninn_messages/muninn_message_mask.h>
 #include <internal/protocols/muninn_messages/muninn_codec_utility.h>
 
-bool muninn_payload_encode(muninn_payload *muninn_payload, muninn_message_mask mask, uint8_t *out, size_t *out_size)
+bool muninn_payload_encode(muninn_payload *muninn_payload, uint8_t *out, size_t *out_size)
 {
     if(muninn_payload == NULL || out == NULL || out_size == NULL) return false;
     
@@ -14,6 +14,8 @@ bool muninn_payload_encode(muninn_payload *muninn_payload, muninn_message_mask m
     mcu_encoder_setup(&enc,out,*out_size);
 
     bool retVal = true;
+
+    muninn_message_mask mask = muninn_payload->mask;
 
     if(true)
     {

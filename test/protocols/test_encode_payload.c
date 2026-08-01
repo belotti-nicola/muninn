@@ -27,6 +27,7 @@ int main()
     size_t out_size = BUFFER_SIZE;
 
     muninn_payload payload;
+    payload.mask = MEDM_ALL;
     payload.file = PL_FILE;
     payload.file_len = strlen(PL_FILE);
     payload.func = PL_FUNCTION;
@@ -40,7 +41,7 @@ int main()
     payload.pid = PL_PID;
 
 
-    bool exit_code = muninn_payload_encode(&payload,MEDM_ALL,out,&out_size);
+    bool exit_code = muninn_payload_encode(&payload,out,&out_size);
     if(exit_code == false)
     {
         TRACE_ERROR_POSITION();

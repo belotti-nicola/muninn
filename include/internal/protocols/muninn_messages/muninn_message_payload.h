@@ -3,8 +3,12 @@
 
 #include <stdint.h>
 
+#include <internal/protocols/muninn_messages/muninn_message_mask.h>
+
 typedef struct muninn_payload  
 {
+    muninn_message_mask mask;
+
     uint64_t timestamp;
     uint64_t thread_id;
     uint32_t line;

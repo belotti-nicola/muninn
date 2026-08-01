@@ -20,13 +20,9 @@
 
 #include <internal/muninn_config.h>
 
-#include <internal/protocols/muninn_messages/muninn_message_mask.h>
-
 typedef struct muninn_t 
 {
     CONFIG             config;
-
-    muninn_message_mask  mask;
 
     uint64_t           start_ts;
     atomic_bool        running;

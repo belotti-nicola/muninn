@@ -130,7 +130,7 @@ bool muninn_init(muninn_t *muninn, CONFIG config)
     atomic_init(&muninn->threshold, (char)0);
     atomic_init(&muninn->running, true);
 
-    muninn->mask = MEDM_MESSAGE;
+    muninn->config.mask = MEDM_MESSAGE;
 
     return true;
 }

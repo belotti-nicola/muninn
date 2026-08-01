@@ -6,3 +6,8 @@ void muninn_message_set(muninn_message *mm, muninn_header *mh, muninn_payload *m
     mm->payload = mp;
 }
 
+void muninn_message_set_by_payload(muninn_message *mm, muninn_payload *mp)
+{
+    
+}
+

@@ -1,11 +1,12 @@
 #include <internal/protocols/muninn_messages/muninn_codec.h>
+
 #include <internal/protocols/muninn_messages/muninn_message.h>
 #include <internal/protocols/muninn_messages/muninn_message_mask.h>
 #include <internal/protocols/muninn_messages/muninn_payload_codec.h>
 #include <internal/protocols/muninn_messages/muninn_header_codec.h>
 
 
-bool muninn_messages_encode(muninn_message *mm, muninn_message_mask mmm, uint8_t *out, size_t *out_size)
+bool muninn_messages_encode(muninn_message *mm, uint8_t *out, size_t *out_size)
 {
     if(mm == NULL || out == NULL || out_size == NULL || *out_size == 0) return false;
 
@@ -14,7 +15,7 @@ bool muninn_messages_encode(muninn_message *mm, muninn_message_mask mmm, uint8_t
 
     uint8_t     *target = offset + out;
     size_t payload_size = *out_size - offset;
-    if(muninn_payload_encode(mm->payload,mmm,target,&payload_size) == false)
+    if(muninn_payload_encode(mm->payload,target,&payload_size) == false)
     {
         return false;
     }

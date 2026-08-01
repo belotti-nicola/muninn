@@ -41,6 +41,8 @@ int main()
         muninn_payload payload = {0};
         muninn_header header = {0};
         
+        payload.mask = mask;
+
         if(mask & MEDM_PID)
         {
             payload.pid  = (uint32_t)strtoul(parsed[offset], NULL, 10);
@@ -107,7 +109,6 @@ int main()
        
         bool ok = muninn_messages_encode(
             &mm,
-            mask,
             buffer,&encoded_bytes
         );
         if(ok == false)
