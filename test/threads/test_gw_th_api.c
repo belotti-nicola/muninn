@@ -28,6 +28,7 @@ int main()
     mw_start(&mw);
     
     sleep_ms(10);
+    
     if(mw_running(&mw) == false)
     {
         mw_shutdown(&mw);
@@ -38,7 +39,6 @@ int main()
 
     mw_shutdown(&mw);
 
-    sleep_ms(10);
     if(mw_running(&mw) == true)
     {
         mw_shutdown(&mw);

@@ -50,6 +50,8 @@ int main(void)
         TEST_ERROR("Error: fgets is null for file %s.",logfile);
         return 1;
     }
+
+    
     
     /*
     if(strncmp(buffer,"hello",strlen("hello")) != 0)

@@ -7,7 +7,7 @@
 #include "test_utils.h"
 
 
-#define MESSAGE_SIZE            120
+#define MESSAGE_SIZE            128
 #define MESSAGE_PER_THREAD    80000
 #define THREADS_NUMBER           30
 
@@ -20,7 +20,6 @@ void* stress_producer_routine(void *arg)
     
     char message[MESSAGE_SIZE];
     memset(message,(int)'a',MESSAGE_SIZE);
-    message[MESSAGE_SIZE-1] ='\0';
 
     for (int i = 0; i < MESSAGE_PER_THREAD; i++)
     {
@@ -117,7 +116,7 @@ int main()
         pthread_join(competitors[i],NULL);
     }
 
-    sleep_ms(1000*10);
+    sleep_ms(100);
     mw_shutdown(&mw);
 
 

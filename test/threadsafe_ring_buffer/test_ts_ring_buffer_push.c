@@ -25,7 +25,7 @@ int main()
         return 1;
     }
 
-    size_t expected_bytes = strlen(test)+sizeof(uint16_t) + 4 + 2;
+    size_t expected_bytes = strlen(test);
     if ( tsrb.ring_buffer.current_size != expected_bytes)
     {
         TRACE_ERROR_POSITION();
@@ -49,7 +49,7 @@ int main()
         return 1;
     }
 
-    if( memcmp(tsrb.ring_buffer.data + 8,test,strlen(test)) != 0)
+    if( memcmp(tsrb.ring_buffer.data,test,strlen(test)) != 0)
     {
         TRACE_ERROR_POSITION();
         TEST_ERROR("Error: strncmp fail!");

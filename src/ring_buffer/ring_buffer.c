@@ -16,21 +16,11 @@ bool rb_setup(ring_buffer *rb, uint8_t *data, size_t data_size)
     return true;
 }
 
-size_t rb_peek(ring_buffer *rb)
-{
-    if(rb == NULL)
-    {
-        return 0;
-    }
-
-    return rb->data_size - rb->current_size;
-}
-
 size_t rb_push(ring_buffer *rb, const uint8_t *buff, size_t buff_size)
 {
     if (rb == NULL || buff == NULL || buff_size == 0) return 0;
 
-    size_t available_space = rb_peek(rb);
+    size_t available_space = rb_available_space(rb);
     if (available_space < buff_size)
     {
         return 0; // Drop policy
@@ -85,8 +75,48 @@ size_t rb_pop(ring_buffer *rb, uint8_t *out, size_t out_size)
     return out_size; 
 }
 
-size_t rb_available_space(const ring_buffer *rb)
+size_t rb_available_space(ring_buffer *rb)
 {
     if (rb == NULL) return 0;
+
     return rb->data_size - rb->current_size;
+}
+
+bool rb_peek(ring_buffer *rb, uint8_t *out, size_t out_size)
+{
+    if (rb == NULL || out == NULL || rb->data_size == 0) return false;
+
+    if (out_size == 0) return false;
+
+    if (out_size > rb->current_size) return false;
+
+    size_t start = rb->start;
+    size_t max_size = rb->data_size;
+    uint8_t *target = rb->data + start;
+
+    if (start + out_size > max_size)
+    {
+        size_t right_bytes = max_size - start;
+        memcpy(out, target, right_bytes);
+        out      += right_bytes;
+        out_size -= right_bytes;
+        target    = rb->data;
+    }
+    
+    memcpy(out, target, out_size);
+    
+    return true;
+}
+
+bool rb_advance(ring_buffer *rb, size_t offset)
+{
+    if (rb == NULL || rb->data_size == 0) return false;
+    if (offset == 0) return true;
+
+    if (offset > rb->current_size) return false;
+
+    rb->start = (rb->start + offset) % rb->data_size;
+    rb->current_size -= offset;
+
+    return true;
 }
