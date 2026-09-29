@@ -10,6 +10,8 @@
 #include <internal/protocols/muninn_messages/muninn_payload_codec.h>
 #include <internal/protocols/muninn_messages/muninn_message.h>
 
+#define MESSAGE_LEN 2048
+
 void *gateway_loop_fn(void *arg)
 {
     if (arg == NULL) return NULL;
@@ -19,13 +21,53 @@ void *gateway_loop_fn(void *arg)
     ts_queue_t *q2 = gw_data->q2; 
     ts_ring_buffer_t *rb = gw_data->rb;
     
-    size_t  read_buffer_bytes = 0;
     uint8_t read_buffer[LOG_MESSAGE_SIZE] = {0};
 
-    while (ts_rb_pop(rb, read_buffer, LOG_MESSAGE_SIZE, &read_buffer_bytes))
+    muninn_message message = {0};
+    muninn_header header   = {0};
+    muninn_payload payload = {0};
+
+    uint8_t payload_msg[MESSAGE_LEN] = {0}; 
+
+    payload.msg = payload_msg;
+    
+    message.header  = &header;
+    message.payload = &payload;
+    
+
+    size_t header_size     = sizeof(muninn_header);
+
+    while ( true )
     {
-        ts_queue_n_push(q1, 1, read_buffer, read_buffer_bytes);
-        ts_queue_n_push(q2, 1, read_buffer, read_buffer_bytes);   
+        if ( ts_rb_peek( rb, read_buffer, header_size) == false )
+        {
+            break;
+        }
+
+        if ( muninn_header_decode(read_buffer,header_size,&header) == false )
+        {
+            break;
+        }
+
+        size_t message_size = (size_t)header.payload_len + header_size ;
+
+        if ( ts_rb_peek( rb, read_buffer, message_size) == false )
+        {
+            break;
+        }
+
+        if ( muninn_messages_decode(read_buffer,message_size,&message) == false )
+        {
+            break;
+        }
+
+        if ( ts_rb_advance( rb, message_size ) == false )
+        {
+            break;
+        }
+
+        ts_queue_n_push(q1, 1, message.payload->msg, message.payload->msg_len);
+        ts_queue_n_push(q2, 1, message.payload->msg, message.payload->msg_len);
     }
 
     printf("Gateway end\n");
@@ -76,6 +118,7 @@ void *gateway_post_fn(void *context, void *data, size_t data_size)
     {
         return NULL;
     }
+
     ts_rb_push(tsrb,buffer,buffer_size);
 
     return NULL;

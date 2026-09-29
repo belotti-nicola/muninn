@@ -37,3 +37,6 @@ typedef struct {
     size_t capacity; // Dimensione massima allocata
     size_t size;     // Byte effettivamente letti/scritti
 } muninn_buffer;
+
+
+muninn_message with pointers

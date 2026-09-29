@@ -23,4 +23,8 @@ bool         ts_rb_push(ts_ring_buffer_t* tsrb, const uint8_t *buffer, size_t bu
 void         ts_rb_stop(ts_ring_buffer_t *tsrb);
 void         ts_rb_release(ts_ring_buffer_t *tsrb);
 
+
+bool         ts_rb_peek(ts_ring_buffer_t *tsrb, uint8_t *out, size_t peekable_bytes);
+bool         ts_rb_advance(ts_ring_buffer_t *tsrb, size_t bytes_advanced);
+
 #endif

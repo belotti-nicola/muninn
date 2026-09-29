@@ -25,34 +25,14 @@ bool ts_rb_push(ts_ring_buffer_t* tsrb, const uint8_t *buffer, size_t buffer_siz
 {
     if (tsrb == NULL || buffer == NULL || buffer_size == 0) return false;
 
-    muninn_payload payload;
-    payload.mask    = MEDM_MESSAGE;
-    payload.msg_len = buffer_size;
-    payload.msg     = buffer;
-
-
-    muninn_header header;
-    header.payload_len = buffer_size + 4 + 2 + 2;
-
-    muninn_message m;
-    muninn_message_set(&m,&header,&payload);
-
-
-    uint8_t enc_buff[2048] = {0};
-    size_t  enc_buff_size  = 2048;
-    if(muninn_messages_encode(&m,enc_buff,&enc_buff_size) == false)
-    {
-        return false;
-    }
-
     pthread_mutex_lock(&tsrb->mutex);
     
-    while (rb_available_space(&tsrb->ring_buffer) < enc_buff_size && !tsrb->stop) 
+    while (rb_available_space(&tsrb->ring_buffer) < buffer_size && !tsrb->stop) 
     {
         pthread_cond_wait(&tsrb->full, &tsrb->mutex);
     }
         
-    if (tsrb->stop || rb_available_space(&tsrb->ring_buffer) < enc_buff_size)
+    if (tsrb->stop || rb_available_space(&tsrb->ring_buffer) < buffer_size)
     {
         pthread_mutex_unlock(&tsrb->mutex);
         return false;
@@ -170,4 +150,68 @@ void ts_rb_release(ts_ring_buffer_t *tsrb)
     pthread_mutex_destroy(&(tsrb->mutex));
     pthread_cond_destroy(&(tsrb->empty));
     pthread_cond_destroy(&(tsrb->full));
+}
+
+bool ts_rb_peek(ts_ring_buffer_t *tsrb, uint8_t *out, size_t peekable_bytes)
+{
+    if ( tsrb == NULL || out == NULL || peekable_bytes == 0) return false;
+
+    pthread_mutex_lock(&tsrb->mutex);
+
+    while ( !tsrb->stop  && tsrb->ring_buffer.current_size < peekable_bytes && !tsrb->stop) 
+    {
+        pthread_cond_wait(&tsrb->empty, &tsrb->mutex);
+    }
+
+    if ( tsrb->stop && tsrb->ring_buffer.current_size == 0 ) 
+    {
+        pthread_mutex_unlock(&tsrb->mutex);
+        return false;
+    }
+
+    if ( rb_peek( &tsrb->ring_buffer, out, peekable_bytes) == false )
+    {
+        pthread_mutex_unlock(&tsrb->mutex);
+
+        return false;
+    }
+    
+    pthread_mutex_unlock(&tsrb->mutex);
+
+    return true;
+}
+
+bool ts_rb_advance(ts_ring_buffer_t *tsrb, size_t bytes_advanced)
+{
+    if ( tsrb == NULL || bytes_advanced == 0) return false;
+
+    pthread_mutex_lock(&tsrb->mutex);
+
+    while ( !tsrb->stop && tsrb->ring_buffer.current_size < bytes_advanced && !tsrb->stop) 
+    {
+        pthread_mutex_unlock(&tsrb->mutex);
+        
+        return false;
+    }
+
+    if ( tsrb->stop && tsrb->ring_buffer.current_size == 0 ) 
+    {
+        pthread_mutex_unlock(&tsrb->mutex);
+        
+        return false;
+    }
+
+    if ( rb_advance( &tsrb->ring_buffer, bytes_advanced ) == false )
+    {
+        pthread_mutex_unlock(&tsrb->mutex);
+
+        return false;
+    }
+
+    pthread_cond_broadcast(&tsrb->full);
+
+    pthread_mutex_unlock(&tsrb->mutex);
+    
+    return true;
+
 }
