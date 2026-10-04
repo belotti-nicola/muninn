@@ -26,6 +26,8 @@ bool muninn_init(muninn_t *muninn, CONFIG config)
     if(muninn == NULL) return false;
     memset(muninn, 0, sizeof(muninn_t));
 
+    muninn_encoding_mask_init(&muninn->config.encoding_mask,config.encoding_mask.mask);
+
     muninn->start_ts = timestamp_u64();
     size_t offset;
 
@@ -129,8 +131,6 @@ bool muninn_init(muninn_t *muninn, CONFIG config)
 
     atomic_init(&muninn->threshold, (char)0);
     atomic_init(&muninn->running, true);
-
-    muninn->config.mask = MEDM_MESSAGE;
 
     return true;
 }

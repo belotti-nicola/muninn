@@ -24,6 +24,8 @@ typedef struct muninn_t
 {
     CONFIG             config;
 
+    atomic_uint    encoding_mask;
+
     uint64_t           start_ts;
     atomic_bool        running;
     atomic_char        threshold;

@@ -20,7 +20,7 @@ int main(void)
     }
     
     CONFIG CONF;
-    CONF.mask = MEDM_ALL;
+    muninn_config_set_mask(&CONF,MEDM_ALL);
     
     muninn_config_default(&CONF);
     muninn_config_set_file(&CONF,true,logfile);

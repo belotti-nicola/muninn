@@ -21,6 +21,7 @@ int main(void)
     CONFIG CONF;
     muninn_config_default(&CONF);
     muninn_config_set_file(&CONF,true,file);
+    muninn_config_set_mask(&CONF,MEDM_MESSAGE);
 
     muninn_t muninn;
     muninn_init(&muninn,CONF);

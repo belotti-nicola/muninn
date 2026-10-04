@@ -31,6 +31,7 @@ int main(void)
     muninn_config_set_file(&CONF,true,filepath);
     muninn_config_set_console(&CONF,false,false);
     muninn_config_set_compressor(&CONF,true);
+    muninn_config_set_mask(&CONF,MEDM_ALL);
 
     muninn_t muninn;
     muninn_init(&muninn,CONF);

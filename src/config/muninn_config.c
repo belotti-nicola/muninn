@@ -34,5 +34,6 @@ void muninn_config_set_compressor(CONFIG *cfg, bool enabled)
 
 void muninn_config_set_mask(CONFIG *cfg, muninn_message_mask mask)
 {
-    cfg->mask = mask;
+    muninn_encoding_mask_t *mm_mask = &cfg->encoding_mask;
+    muninn_encoding_mask_set(mm_mask,mask);
 }

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <internal/muninn_int.h>
 #include <internal/protocols/muninn_messages/muninn_message_mask.h>
+#include <internal/muninn_encoding_mask.h>
 
 
 typedef struct {
@@ -22,7 +23,7 @@ typedef struct {
 
 typedef struct CONFIG 
 {
-    muninn_message_mask  mask;
+    muninn_encoding_mask_t encoding_mask;
 
     file_logger_cfg_t    file;
     console_logger_cfg_t console;
