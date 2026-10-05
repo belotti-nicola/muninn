@@ -7,6 +7,7 @@
 #include <internal/protocols/muninn_messages/muninn_message.h>
 #include <internal/protocols/muninn_messages/muninn_codec.h>
 
+#include <string.h>
 
 
 void ts_rb_setup(ts_ring_buffer_t *tsrb, uint8_t *buffer, size_t buffer_dim)

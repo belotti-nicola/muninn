@@ -10,6 +10,7 @@
 #include <internal/protocols/muninn_messages/muninn_payload_codec.h>
 #include <internal/protocols/muninn_messages/muninn_message.h>
 
+
 #define MESSAGE_LEN 2048
 
 void *gateway_loop_fn(void *arg)
@@ -94,6 +95,9 @@ void *gateway_post_fn(void *context, void *data, size_t data_size)
     if(gw_data->rb == NULL) return NULL;
     ts_ring_buffer_t *tsrb = gw_data->rb;
 
+    muninn_encoding_mask_t *gw_mask = gw_data->mask;
+    muninn_message_mask mask        = muninn_encoding_mask_get(gw_mask);
+
 
     muninn_header header = 
     {
@@ -102,9 +106,16 @@ void *gateway_post_fn(void *context, void *data, size_t data_size)
 
     muninn_payload payload = 
     {
-        .msg = (uint8_t *)message_data,
         .msg_len = data_size,
-        .mask = MEDM_MESSAGE
+        .msg = (uint8_t *)message_data,
+        .timestamp = 0,
+        .thread_id = 0,
+        .line = 192,
+        .severity = 1,
+        .pid = 9,
+        .file = "123",
+        .file_len = 3,
+        .mask = mask
     };
     muninn_message mm = 
     {

@@ -28,6 +28,7 @@ typedef struct CONFIG
     file_logger_cfg_t    file;
     console_logger_cfg_t console;
     compressor_cfg_t     compressor;
+
 } CONFIG;
 
 

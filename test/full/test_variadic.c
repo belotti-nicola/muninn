@@ -24,7 +24,7 @@ int main(void)
     muninn_config_set_mask(&CONF,MEDM_MESSAGE);
 
     muninn_t muninn;
-    muninn_init(&muninn,CONF);
+    muninn_init(&muninn,&CONF);
 
     muninn_log_info(&muninn,"%s","Hello");
 

@@ -39,4 +39,5 @@ typedef struct {
 } muninn_buffer;
 
 
-muninn_message with pointers
+muninn message creation in the muninn.c 
+gateway uses the post.

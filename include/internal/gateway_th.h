@@ -10,6 +10,9 @@
 #include <internal/ts_ring_buffer.h>
 #include <internal/ts_queue.h>
 
+#include <internal/muninn_encoding_mask.h>
+
+
 
 typedef struct muninn_t muninn_t;
 
@@ -19,6 +22,8 @@ typedef struct gateway_th_data
 
     ts_queue_t *q1;
     ts_queue_t *q2;
+
+    muninn_encoding_mask_t *mask;
 
 } gateway_th_data;
 

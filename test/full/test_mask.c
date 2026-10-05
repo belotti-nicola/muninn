@@ -1,5 +1,7 @@
 #include "muninn.h"
 
+#include <internal/protocols/muninn_messages/muninn_message_mask.h>
+
 #include <assert.h>
 #include <string.h>
 #include <unistd.h>
@@ -29,6 +31,13 @@ int main(void)
     muninn_log_fatal(&muninn, "hello");
     muninn_log_fatal(&muninn, "world");
 
+    sleep_ms(10);
+
+    muninn_config_set_mask(&CONF,MEDM_LINE);
+
+    muninn_log_fatal(&muninn, "hello");
+    muninn_log_fatal(&muninn, "world");
+
     muninn_shutdown(&muninn);
 
     FILE *test_file = fopen(log, "r");
@@ -54,6 +63,20 @@ int main(void)
         TEST_ERROR("Error: buffer(%s) is not substring of the expected(%s)",buffer,"hello");
         return 1;
     }
+
+    if(fgets(buffer, 256, test_file) == NULL)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Error: fgets is null for file %s.",log);
+        return 1;
+    }
+    if(strncmp(buffer,"world",strlen("world")) != 0)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("Error: buffer(%s) is not substring of the expected(%s)",buffer,"world");
+        return 1;
+    }
+
 
     if(fgets(buffer, 256, test_file) == NULL)
     {

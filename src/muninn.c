@@ -21,12 +21,12 @@
 
 
 
-bool muninn_init(muninn_t *muninn, CONFIG config)
+bool muninn_init(muninn_t *muninn, CONFIG *config)
 {
     if(muninn == NULL) return false;
     memset(muninn, 0, sizeof(muninn_t));
 
-    muninn_encoding_mask_init(&muninn->config.encoding_mask,config.encoding_mask.mask);
+    muninn->config = config;
 
     muninn->start_ts = timestamp_u64();
     size_t offset;
@@ -34,10 +34,10 @@ bool muninn_init(muninn_t *muninn, CONFIG config)
     // ==========================================
     // FLOGGER (FILE)
     // ==========================================
-    if (config.file.enabled) 
+    if (config->file.enabled) 
     {
         // Copia sicura del path del file
-        strncpy(muninn->flogger_th.path, config.file.path, P_SIZE - 1);
+        strncpy(muninn->flogger_th.path, config->file.path, P_SIZE - 1);
         muninn->flogger_th.path[P_SIZE - 1] = '\0';
 
         offset = 0;
@@ -52,7 +52,7 @@ bool muninn_init(muninn_t *muninn, CONFIG config)
     // ==========================================
     // COMPRESSOR
     // ==========================================
-    if (config.compressor.enabled) 
+    if (config->compressor.enabled) 
     {
         offset = 0;
         for(int i=0; i<COMP_QUEUE_SIZE; i++) {
@@ -66,7 +66,7 @@ bool muninn_init(muninn_t *muninn, CONFIG config)
     // ==========================================
     // CLOGGER (CONSOLE)
     // ==========================================
-    if (config.console.enabled) 
+    if (config->console.enabled) 
     {
         offset = 0;
         for(int i=0; i<CONS_QUEUE_SIZE; i++) {
@@ -83,8 +83,10 @@ bool muninn_init(muninn_t *muninn, CONFIG config)
     ts_rb_setup(&muninn->gateway_rb, (uint8_t *)muninn->gateway_buff, LOG_RB_SIZE);
     muninn->gateway_th.rb = &muninn->gateway_rb;
     
-    muninn->gateway_th.q1 = config.file.enabled    ? &muninn->flogger_q : NULL;
-    muninn->gateway_th.q2 = config.console.enabled ? &muninn->clogger_q : NULL;
+    muninn->gateway_th.q1 = config->file.enabled    ? &muninn->flogger_q : NULL;
+    muninn->gateway_th.q2 = config->console.enabled ? &muninn->clogger_q : NULL;
+
+    muninn->gateway_th.mask = &muninn->config->encoding_mask;
     
     atomic_init(&muninn->gateway.running, false);
     mw_init(&muninn->gateway, "muninn_gateway",
@@ -94,10 +96,10 @@ bool muninn_init(muninn_t *muninn, CONFIG config)
     mw_start(&muninn->gateway);
 
     
-    if (config.file.enabled) 
+    if (config->file.enabled) 
     {
         muninn->flogger_th.reading_queue = &muninn->flogger_q;        
-        muninn->flogger_th.output_queue  = config.compressor.enabled ? &muninn->fcompressor_q : NULL; 
+        muninn->flogger_th.output_queue  = config->compressor.enabled ? &muninn->fcompressor_q : NULL; 
         
         atomic_init(&muninn->flogger.running, false);
         mw_init(&muninn->flogger, "muninn_flogger", 
@@ -107,7 +109,7 @@ bool muninn_init(muninn_t *muninn, CONFIG config)
         mw_start(&muninn->flogger);
     }
 
-    if (config.console.enabled) 
+    if (config->console.enabled) 
     {
         muninn->clogger_th.q = &muninn->clogger_q; 
         atomic_init(&muninn->clogger.running, false);
@@ -118,7 +120,7 @@ bool muninn_init(muninn_t *muninn, CONFIG config)
         mw_start(&muninn->clogger);
     }
 
-    if (config.compressor.enabled) 
+    if (config->compressor.enabled) 
     {
         muninn->fcompressor_th.q = &muninn->fcompressor_q; 
         atomic_init(&muninn->fcompressor.running, false);

@@ -42,10 +42,14 @@ int main()
     }
     ts_queue_setup(&q2,messages2,QUEUE_SIZE);
 
+    muninn_encoding_mask_t mem = {0};
+    muninn_encoding_mask_init(&mem,MEDM_MESSAGE);
+
     gateway_th_data gwdata = {0};
-    gwdata.rb = &tsrb;
-    gwdata.q1 = &q1;
-    gwdata.q2 = &q2;
+    gwdata.rb   = &tsrb;
+    gwdata.q1   = &q1;
+    gwdata.q2   = &q2;
+    gwdata.mask = &mem;
 
     muninn_worker_t mw;
     mw_init(&mw,

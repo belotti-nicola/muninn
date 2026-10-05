@@ -22,6 +22,7 @@ endfunction()
 
 add_munin_test(TestInstantiatorThApi           test_th_api.c)
 add_munin_test(TestInstantiatorSimpleLog       test_simple_log.c)
+add_munin_test(TestInstantiatorMask            test_mask.c)
 add_munin_test(TestInstantiatorCodec           test_codec.c)
 add_munin_test(TestInstantiatorTestVariadic    test_variadic.c)
 add_munin_test(TestInstantiatorPanicFlush      test_panic_flush.c)

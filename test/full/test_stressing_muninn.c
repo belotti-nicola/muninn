@@ -47,7 +47,7 @@ int main(void)
     muninn_config_set_mask(&CONF,MEDM_MESSAGE);
 
     muninn_t muninn;
-    muninn_init(&muninn,CONF);
+    muninn_init(&muninn,&CONF);
 
     pthread_t competitors[NUM_THREADS];
     for (int i = 0; i < NUM_THREADS; i++)

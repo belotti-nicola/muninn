@@ -22,7 +22,7 @@
 
 typedef struct muninn_t 
 {
-    CONFIG             config;
+    CONFIG             *config;
 
     atomic_uint    encoding_mask;
 
@@ -58,7 +58,7 @@ typedef struct muninn_t
     
 } muninn_t;
 
-bool     muninn_init(muninn_t *m,CONFIG c);
+bool     muninn_init(muninn_t *m, CONFIG *c);
 
          //DO NOT USE THIS
 void     muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file, int line, const char *fmt, ...);

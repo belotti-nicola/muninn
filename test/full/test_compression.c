@@ -31,10 +31,10 @@ int main(void)
     muninn_config_set_file(&CONF,true,filepath);
     muninn_config_set_console(&CONF,false,false);
     muninn_config_set_compressor(&CONF,true);
-    muninn_config_set_mask(&CONF,MEDM_ALL);
+    muninn_config_set_mask(&CONF,MEDM_MESSAGE);
 
     muninn_t muninn;
-    muninn_init(&muninn,CONF);
+    muninn_init(&muninn,&CONF);
 
     char message[BUFFER_SIZE];
     char a = 'a';
