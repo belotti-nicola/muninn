@@ -1,5 +1,5 @@
-#ifndef MUNINN_MESSAGE_H
-#define MUNINN_MESSAGE_H
+#ifndef MUNINN_MESSAGE_H_TODO
+#define MUNINN_MESSAGE_H_TODO
 
 #include <stddef.h>
 #include <stdint.h>

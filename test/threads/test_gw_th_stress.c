@@ -6,6 +6,8 @@
 
 #include "test_utils.h"
 
+#include <internal/muninn_message.h>
+
 
 #define MESSAGE_SIZE            128
 #define MESSAGE_PER_THREAD    80000
@@ -21,9 +23,15 @@ void* stress_producer_routine(void *arg)
     char message[MESSAGE_SIZE];
     memset(message,(int)'a',MESSAGE_SIZE);
 
+    muninn_message_t m = 
+    {
+        .msg     = message,
+        .msg_len = MESSAGE_SIZE
+    };
+
     for (int i = 0; i < MESSAGE_PER_THREAD; i++)
     {
-        mw_post(mw,message,MESSAGE_SIZE);
+        mw_post(mw,&m,0);
     }
 
     return NULL;

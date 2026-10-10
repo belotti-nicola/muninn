@@ -3,6 +3,8 @@
 #include <internal/ts_ring_buffer.h>
 #include <string.h>
 
+#include <internal/muninn_message.h>
+
 #include "test_utils.h"
 
 #define BUFFER_SIZE 100
@@ -61,8 +63,20 @@ int main()
     );
     mw_start(&mw);
 
-    mw_post(&mw,"Hello",strlen("Hello"));
-    mw_post(&mw,"World",strlen("World"));
+    muninn_message_t m1 = 
+    {
+        .msg     = "Hello",
+        .msg_len = strlen("Hello")
+    };
+
+    muninn_message_t m2 = 
+    {
+        .msg     = "World",
+        .msg_len = strlen("World")
+    };
+
+    mw_post(&mw,&m1,0);//TODO
+    mw_post(&mw,&m2,0);//TODO
 
     sleep_ms(10);
 

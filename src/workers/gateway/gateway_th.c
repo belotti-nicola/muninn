@@ -10,6 +10,10 @@
 #include <internal/protocols/muninn_messages/muninn_payload_codec.h>
 #include <internal/protocols/muninn_messages/muninn_message.h>
 
+#include <internal/timestamp_gen.h>
+
+#include <internal/muninn_message.h>
+
 
 #define MESSAGE_LEN 2048
 
@@ -90,7 +94,7 @@ void *gateway_post_fn(void *context, void *data, size_t data_size)
     if(context == NULL || data == NULL) return NULL;
     
     gateway_th_data *gw_data = (gateway_th_data *)context;
-    const char *message_data = (const char *)data;
+    muninn_message_t *msg    = (muninn_message_t *)data;
 
     if(gw_data->rb == NULL) return NULL;
     ts_ring_buffer_t *tsrb = gw_data->rb;
@@ -106,15 +110,16 @@ void *gateway_post_fn(void *context, void *data, size_t data_size)
 
     muninn_payload payload = 
     {
-        .msg_len = data_size,
-        .msg = (uint8_t *)message_data,
-        .timestamp = 0,
-        .thread_id = 0,
-        .line = 192,
-        .severity = 1,
-        .pid = 9,
-        .file = "123",
-        .file_len = 3,
+        .msg_len = msg->msg_len,
+        .msg = msg->msg,
+        .timestamp = msg->timestamp,
+        .thread_id = msg->thread_id,
+        .line = msg->line,
+        .severity = msg->severity,
+        .pid = msg->pid,
+        .file = msg->file,
+        .file_len = msg->file_len,
+
         .mask = mask
     };
     muninn_message mm = 

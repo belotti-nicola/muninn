@@ -19,6 +19,11 @@
 #include <internal/protocols/muninn_messages/muninn_codec.h>
 #include <internal/protocols/muninn_messages/muninn_message.h>
 
+#include <internal/muninn_message.h>
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/syscall.h>
 
 
 bool muninn_init(muninn_t *muninn, CONFIG *config)
@@ -137,7 +142,7 @@ bool muninn_init(muninn_t *muninn, CONFIG *config)
     return true;
 }
 
-void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file, int line, const char *fmt, ...)
+void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file, int line, const char *func, const char *fmt, ...)
 {
     if (!atomic_load(&m->running)) return;
     if (severity < atomic_load(&m->threshold)) return;
@@ -151,11 +156,28 @@ void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file,
 
     if (req_len < 0) return;
 
+    muninn_message_t msg;
+    msg.file       = file;
+    msg.file_len   = strlen(file);
+    msg.func       = func;
+    msg.func_len   = strlen(func);
+    msg.line       = line;
+    msg.severity   = severity;
+    msg.thread_id  = 2;
+    msg.timestamp  = timestamp_u64();
+
+    msg.thread_id  = (uint64_t)syscall(SYS_gettid);
+    msg.pid        = (uint32_t)getpid();
+
+
     if ((size_t)req_len + 1 < sizeof(stack_buffer)) 
     {
         stack_buffer[req_len] = '\n'; 
+
+        msg.msg     = stack_buffer;
+        msg.msg_len = req_len + 1;
         
-        mw_post(&m->gateway,stack_buffer,req_len+1);
+        mw_post(&m->gateway,&msg,0);//TODO
     }
 
     else 
@@ -166,9 +188,12 @@ void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file,
         uint8_t *heap_postable = malloc(req_len + 200); //TODO POTENTIAL STACK OVERFLOW
         if(heap_postable == NULL) return;
         
-        vsnprintf(heap_buffer, req_len + 1, fmt, args);  
+        vsnprintf(heap_buffer, req_len + 1, fmt, args);
+
+        msg.msg     = heap_buffer;
+        msg.msg_len = req_len + 1;
             
-        mw_post(&m->gateway,heap_postable,req_len+1);
+        mw_post(&m->gateway,&msg,0);//TODO
             
         free(heap_buffer);
         free(heap_postable);

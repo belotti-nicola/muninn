@@ -61,14 +61,14 @@ typedef struct muninn_t
 bool     muninn_init(muninn_t *m, CONFIG *c);
 
          //DO NOT USE THIS
-void     muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file, int line, const char *fmt, ...);
+void     muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file, int line, const char *func, const char *fmt, ...);
 
          //USE THESE INSTEAD:
-#define  muninn_log_info(m, fmt, ...)    muninn_log_internal(m, LOG_INFO,  __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-#define  muninn_log_debug(m, fmt, ...)   muninn_log_internal(m, LOG_DEBUG, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-#define  muninn_log_warning(m, fmt, ...) muninn_log_internal(m, LOG_WARN, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-#define  muninn_log_error(m, fmt, ...)   muninn_log_internal(m, LOG_ERROR, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
-#define  muninn_log_fatal(m, fmt, ...)   muninn_log_internal(m, LOG_FATAL, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define  muninn_log_info(m, fmt, ...)    muninn_log_internal(m, LOG_INFO,  __FILE__, __LINE__,__func__, fmt, ##__VA_ARGS__)
+#define  muninn_log_debug(m, fmt, ...)   muninn_log_internal(m, LOG_DEBUG, __FILE__, __LINE__,__func__, fmt, ##__VA_ARGS__)
+#define  muninn_log_warning(m, fmt, ...) muninn_log_internal(m, LOG_WARN, __FILE__ , __LINE__,__func__, fmt, ##__VA_ARGS__)
+#define  muninn_log_error(m, fmt, ...)   muninn_log_internal(m, LOG_ERROR, __FILE__, __LINE__,__func__, fmt, ##__VA_ARGS__)
+#define  muninn_log_fatal(m, fmt, ...)   muninn_log_internal(m, LOG_FATAL, __FILE__, __LINE__,__func__, fmt, ##__VA_ARGS__)
 
 
 void     muninn_shutdown(muninn_t *muninn);
