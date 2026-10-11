@@ -8,7 +8,6 @@
 - more compressed formats
 - more tests
 
-- thread_id / __FILE__:__LINE__
 - telemetrying
 - init threads + dispatcher
 - rc start
@@ -22,7 +21,6 @@ Architecture changes:
 
 
 - compute test protocols size
-- if mask change...
 - buffer overflow for fields
 - if post is ok, then return 1;
 
@@ -39,5 +37,7 @@ typedef struct {
 } muninn_buffer;
 
 
-muninn message creation in the muninn.c 
-gateway uses the post.
+gateway uses the post with 0 argument.
+
+
+TEST_ERROR("FOO)

@@ -101,7 +101,7 @@ void *fcompressor_post_fn(void *context,void *arg, size_t size)
     if( arg == NULL || context == NULL ) return NULL;
     compressor_th_data *cth_data = (compressor_th_data *)context;
 
-    ts_queue_n_push(cth_data->q,1,arg,size);
+    ts_queue_n_push(cth_data->q,arg,size);
 
     return NULL;
 }

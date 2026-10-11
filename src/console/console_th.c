@@ -22,7 +22,7 @@ void *clogger_post_fn(void *context, void *arg, size_t size)
     clogger_th_data *cth_data = (clogger_th_data *)context;
     const char      *message  = (const char      *)arg;
 
-    ts_queue_n_push(cth_data->q,1,message,size);
+    ts_queue_n_push(cth_data->q,message,size);
 
     return NULL;
 }

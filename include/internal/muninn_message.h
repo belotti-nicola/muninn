@@ -11,13 +11,13 @@ typedef struct muninn_message_t
     uint8_t   severity;
     uint32_t  pid;
 
-    const uint8_t  *file; 
+    uint8_t  *file; 
     uint8_t         file_len;
 
-    const uint8_t  *func;
+    uint8_t  *func;
     uint8_t         func_len;
 
-    const uint8_t  *msg;
+    uint8_t  *msg;
     uint16_t        msg_len;
     
 } muninn_message_t;

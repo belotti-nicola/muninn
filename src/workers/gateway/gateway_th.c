@@ -71,8 +71,8 @@ void *gateway_loop_fn(void *arg)
             break;
         }
 
-        ts_queue_n_push(q1, 1, message.payload->msg, message.payload->msg_len);
-        ts_queue_n_push(q2, 1, message.payload->msg, message.payload->msg_len);
+        ts_queue_n_push(q1, message.payload->msg, message.payload->msg_len);
+        ts_queue_n_push(q2, message.payload->msg, message.payload->msg_len);
     }
 
     printf("Gateway end\n");

@@ -91,7 +91,7 @@ void ts_queue_stop(ts_queue_t *q)
 
 }
 
-bool ts_queue_n_push(ts_queue_t* q, log_severity_t severity, const char *msg, size_t size)
+bool ts_queue_n_push(ts_queue_t* q, const char *msg, size_t size)
 {
     if(q == NULL || size == 0 || size > 512)//TODO SIZE
     {

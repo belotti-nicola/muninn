@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <sys/types.h>
 
 
 bool muninn_init(muninn_t *muninn, CONFIG *config)
@@ -163,7 +164,7 @@ void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file,
     msg.func_len   = strlen(func);
     msg.line       = line;
     msg.severity   = severity;
-    msg.thread_id  = 2;
+    msg.thread_id  = syscall(SYS_gettid);
     msg.timestamp  = timestamp_u64();
 
     msg.thread_id  = (uint64_t)syscall(SYS_gettid);

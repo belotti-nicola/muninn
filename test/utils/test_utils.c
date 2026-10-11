@@ -101,11 +101,6 @@ int files_counter_impl(const char* path, const char *calling_file)
     return count;
 }
 
-int compute_test_current_dir_impl(char* out, size_t out_size)
-{
-    
-}
-
 void sleep_ms_impl(int value_ms)
 {
     usleep(value_ms * 1000);
@@ -211,5 +206,16 @@ const void *MEMMEM_SIMPLE_impl(const void *haystack, size_t haystack_len,
     }
 
     return NULL;
+}
+
+char *get_test_file_data_path_impl(char *path, size_t path_max_size, char *append_this)
+{
+    if ( get_executable_directory(path,path_max_size) == NULL ) return NULL;
+
+    size_t append_this_size = strlen(append_this);
+
+    if ( strlen(path) + append_this_size > path_max_size) return NULL;
+
+    strncat(path,append_this,append_this_size);
 }
 

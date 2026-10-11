@@ -56,7 +56,7 @@ void *post_fn(void *arg,void *arg2,size_t arg3)
     THREAD_CTX_T *ctx = (THREAD_CTX_T *)arg;
 
     ts_queue_t *tsq = ctx->tsq;
-    ts_queue_n_push(tsq,1,arg2,arg3);
+    ts_queue_n_push(tsq,arg2,arg3);
 
     return NULL;
 }

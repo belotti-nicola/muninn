@@ -189,7 +189,7 @@ void *flogger_post_fn(void *context, void *data,size_t data_size)
     flogger_th_data *lth_data = (flogger_th_data *)context;
     char *message_content = (char *)data;
 
-    ts_queue_n_push(lth_data->reading_queue, 1, (const uint8_t *)message_content, data_size);
+    ts_queue_n_push(lth_data->reading_queue, (const uint8_t *)message_content, data_size);
 
     return NULL;
 }
