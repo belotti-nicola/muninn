@@ -10,9 +10,16 @@
 #include <internal/timestamp_gen.h>
 #include <stdlib.h>
 
+#include <internal/protocols/muninn_messages/muninn_message.h>
+#include <internal/protocols/muninn_messages/muninn_codec.h>
+
+#define MESSAGE_BUFFERS_SIZE 256
+
 #define TS_SIZE 16
 #define ROTATING_SUFFIX ".rotating"
 #define BUFFSIZE 65536 * 2
+
+#define DECODING_BUFFER_SIZE 1024
 
 void create_rotate_file_name(const char *in, char *out, size_t out_size)
 {
@@ -90,15 +97,34 @@ void *flogger_loop_fn(void *arg)
     char buffer[BUFFSIZE]; 
     size_t buffer_size = 0;
 
+    char file_buffer[MESSAGE_BUFFERS_SIZE] = {0};
+    char func_buffer[MESSAGE_BUFFERS_SIZE] = {0};
+    char  msg_buffer[MESSAGE_BUFFERS_SIZE] = {0};
 
+    muninn_header mh = {0};
+    muninn_payload mp = {0};
+    mp.file = file_buffer;
+    mp.func = func_buffer;
+    mp.msg  =  msg_buffer;
+
+    muninn_message popped_message = {0}; 
+    popped_message.header  = &mh;
+    popped_message.payload = &mp;
+
+
+    char decoding_buffer[DECODING_BUFFER_SIZE] = {0};
     size_t max_dim      = BUFFSIZE;
     size_t popped_bytes = 0;
     while (ts_queue_n_pop(q, buffer, max_dim, &popped_bytes))
     {
         if (popped_bytes == 0) continue;
 
+        if ( muninn_messages_decode(buffer,popped_bytes,&popped_message) == false ) continue;
+
+        // serialization goes here
+
         //write
-        size_t written = fwrite(buffer, 1, popped_bytes , lth->file);
+        size_t written = fwrite(popped_message.payload->file, 1, popped_message.payload->file_len , lth->file);
         lth->written_bytes += written;
 
         //rotation

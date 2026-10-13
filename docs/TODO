@@ -26,9 +26,7 @@ Architecture changes:
 
 
 
-ENCODED_DATA_MASK mask = (ENCODED_DATA_MASK)value; //works only if encoding (LE vs BE) is the same
 mm_encoder mm_payload_encoder + un decoder in utils
-RB WITH BOOL
 
 typedef struct {
     uint8_t *data;
@@ -41,3 +39,4 @@ gateway uses the post with 0 argument.
 
 
 TEST_ERROR("FOO)
+serializer AKA how do i serialize bytes???

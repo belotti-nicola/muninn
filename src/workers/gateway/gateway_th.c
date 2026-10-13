@@ -28,9 +28,20 @@ void *gateway_loop_fn(void *arg)
     
     uint8_t read_buffer[LOG_MESSAGE_SIZE] = {0};
 
+    uint8_t func_buffer[256] = {0};
+    uint8_t file_buffer[256] = {0};
+    uint8_t  msg_buffer[256] = {0};
+
+
     muninn_message message = {0};
+
     muninn_header header   = {0};
     muninn_payload payload = {0};
+
+    payload.func = func_buffer;
+    payload.file = file_buffer;
+    payload.msg  =  msg_buffer;
+
 
     uint8_t payload_msg[MESSAGE_LEN] = {0}; 
 
@@ -61,18 +72,13 @@ void *gateway_loop_fn(void *arg)
             break;
         }
 
-        if ( muninn_messages_decode(read_buffer,message_size,&message) == false )
-        {
-            break;
-        }
-
         if ( ts_rb_advance( rb, message_size ) == false )
         {
             break;
         }
 
-        ts_queue_n_push(q1, message.payload->msg, message.payload->msg_len);
-        ts_queue_n_push(q2, message.payload->msg, message.payload->msg_len);
+        ts_queue_n_push(q1, read_buffer, message_size );
+        ts_queue_n_push(q2, read_buffer, message_size );
     }
 
     printf("Gateway end\n");

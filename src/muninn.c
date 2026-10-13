@@ -158,9 +158,9 @@ void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file,
     if (req_len < 0) return;
 
     muninn_message_t msg;
-    msg.file       = file;
+    msg.file       = (char *)file;
     msg.file_len   = strlen(file);
-    msg.func       = func;
+    msg.func       = (char *)func;
     msg.func_len   = strlen(func);
     msg.line       = line;
     msg.severity   = severity;

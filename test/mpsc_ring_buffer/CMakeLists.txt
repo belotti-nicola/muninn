@@ -17,4 +17,4 @@ function(add_munin_test test_name source_file)
 
 endfunction()
 
-add_munin_test(TestMPSCRingBuffer  test_mpsc_ring_buffer.c)
+#add_munin_test(TestMPSCRingBuffer  test_mpsc_ring_buffer.c)

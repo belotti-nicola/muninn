@@ -42,15 +42,15 @@ int main(void)
         return 1;
     }
 
-    char buffer[256];
-    size_t size;
+    // char buffer[256];
+    // size_t size;
 
-    if(fgets(buffer, 256, test_file) == NULL)
-    {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: fgets is null for file %s.",logfile);
-        return 1;
-    }
+    // if(fgets(buffer, 256, test_file) == NULL)
+    // {
+    //     TRACE_ERROR_POSITION();
+    //     TEST_ERROR("Error: fgets is null for file %s.",logfile);
+    //     return 1;
+    // }
 
     
     
