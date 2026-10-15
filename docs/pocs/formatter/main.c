@@ -5,6 +5,8 @@
 
 #define MAX_FORMAT_TOKENS 16
 
+#include <stdlib.h>
+
 typedef enum {
     TOKEN_TEXT,       
     TOKEN_TIMESTAMP,  
@@ -62,7 +64,7 @@ void compile_log_pattern(const char *pattern, format_token_t *tokens, size_t *to
     *token_count = count;
 }
 
-size_t format_log_line(char *dest_buffer, format_token_t *tokens, size_t token_count, 
+void format_log_line(char *dest_buffer, format_token_t *tokens, size_t token_count, 
                        const char *raw_msg, const char *severity, const char *timestamp) 
 {
     size_t offset = 0;
@@ -97,6 +99,14 @@ size_t format_log_line(char *dest_buffer, format_token_t *tokens, size_t token_c
     }
 }
 
+void reset_buffer(char *out, size_t out_size)
+{
+    if ( out == NULL || out_size == 0) exit(-1);
+
+    memset(out,0,out_size);
+    out[0] = '\0';
+}
+
 int main()
 {
     const char *style1 = "%T|%L|%m -> 1 style";
@@ -109,6 +119,11 @@ int main()
     size_t token_count2;
     compile_log_pattern(style2,tokens2,&token_count2);
 
+    const char *style3 = "%m -> 3 style";
+    format_token_t tokens3[MAX_FORMAT_TOKENS];
+    size_t token_count3;
+    compile_log_pattern(style3,tokens3,&token_count3);
+
 
     char out[MAX_OUTPUT_LINE] = {0};
     const char *message   = "Hello world";
@@ -120,10 +135,17 @@ int main()
         message,severity,timestamp);
     printf("%s\n",out);
 
-    out[0] = '\0';
+    reset_buffer(out,MAX_OUTPUT_LINE);
 
     format_log_line(out,
         tokens2,token_count2,
+        message,severity,timestamp);
+    printf("%s\n",out);
+
+    reset_buffer(out,MAX_OUTPUT_LINE);
+
+    format_log_line(out,
+        tokens3,token_count3,
         message,severity,timestamp);
     printf("%s\n",out);
 

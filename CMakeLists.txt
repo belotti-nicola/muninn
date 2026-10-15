@@ -39,6 +39,9 @@ set(MUNINN_SOURCES
     src/protocols/muninn_messages/muninn_codec.c
     src/protocols/muninn_messages/muninn_message_mask.c
     src/protocols/muninn_messages/muninn_codec_utility.c
+    src/formatter/formatter_parser.h
+    src/formatter/formatter_parser.c
+    src/formatter/muninn_formatter.c
     src/internal/muninn_encoding_mask.c
     src/timestamp/timestamp_gen.c
     src/mpsc_rb/safe_buffer.c
