@@ -18,7 +18,6 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
                 {
                     if ( token_counter == MAX_TOKENS ) return false;
 
-                    token_counter += 1;
                     state = 1;
                     break; 
                 }
@@ -35,27 +34,27 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
                 }
                 if ( tmp == 'l' )
                 {
-                    state = 4;
+                    state = 6;
                     break; 
                 }
                 if ( tmp == 's' )
                 {
-                    state = 7;
+                    state = 10;
                     break; 
                 }
                 if ( tmp == 'p' )
                 {
-                    state = 9;
+                    state = 13;
                     break; 
                 }
                 if ( tmp == 'f' )
                 {
-                    state = 11;
+                    state = 16;
                     break; 
                 }
                 if ( tmp == 'm' )
                 {
-                    state = 13;
+                    state = 19;
                     break; 
                 }
             
@@ -70,7 +69,7 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
                 }
                 if ( tmp == 'i' )
                 {
-                    state = 15;
+                    state = 4;
                     break; 
                 }
                 
@@ -82,16 +81,16 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
                 {
                     return false;
                 }
-                
-                (out + token_counter)->type      = TIMESTAMP;
-                (out + token_counter)->text[0]   = tmp;
-                (out + token_counter)->text_size = 10;
 
+                (out + token_counter)->type = M_TIMESTAMP;
+                token_counter++;
+                
                 state = 0;
+                break;
             }
             case 4:
             {
-                if ( tmp == 'i' )
+                if ( tmp == '4' )
                 {
                     state = 5;
                     break; 
@@ -101,19 +100,20 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
             }
             case 5:
             {
-                if ( tmp == 'n' )
+                if ( tmp != '>' )
                 {
-                    state = 6;
-                    break; 
+                    return false; 
                 }
                 
-                return false;
+                (out + token_counter)->type = M_THREAD_ID;
+                state = 0;
+                break;
             }
             case 6:
             {
-                if ( tmp == 'e' )
+                if ( tmp == 'i' )
                 {
-                    state = 3;
+                    state = 7;
                     break; 
                 }
                 
@@ -121,7 +121,7 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
             }
             case 7:
             {
-                if ( tmp == 'e' )
+                if ( tmp == 'n' )
                 {
                     state = 8;
                     break; 
@@ -131,9 +131,9 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
             }
             case 8:
             {
-                if ( tmp == 'v' )
+                if ( tmp == 'e' )
                 {
-                    state = 3;
+                    state = 9;
                     break; 
                 }
                 
@@ -141,19 +141,20 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
             }
             case 9:
             {
-                if ( tmp == 'i' )
+                if ( tmp != '>' )
                 {
-                    state = 10;
-                    break; 
+                    return false;
                 }
                 
-                return false;
+                (out + token_counter)->type = M_LINE;
+                state = 0;
+                break;
             }
             case 10:
             {
-                if ( tmp == 'd' )
+                if ( tmp == 'e' )
                 {
-                    state = 3;
+                    state = 11;
                     break; 
                 }
                 
@@ -161,7 +162,7 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
             }
             case 11:
             {
-                if ( tmp == 'u' )
+                if ( tmp == 'v' )
                 {
                     state = 12;
                     break; 
@@ -171,17 +172,16 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
             }
             case 12:
             {
-                if ( tmp == 'n' )
+                if ( tmp != '>' )
                 {
-                    state = 3;
-                    break; 
+                    return false;
                 }
                 
-                return false;
+                (out + token_counter)->type = M_SEVERITY;
             }
             case 13:
             {
-                if ( tmp == 's' )
+                if ( tmp == 'i' )
                 {
                     state = 14;
                     break; 
@@ -191,9 +191,9 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
             }
             case 14:
             {
-                if ( tmp == 'g' )
+                if ( tmp == 'd' )
                 {
-                    state = 3;
+                    state = 15;
                     break; 
                 }
                 
@@ -201,13 +201,75 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
             }
             case 15:
             {
-                if ( tmp == 'd' )
+                if ( tmp != '>' )
                 {
-                    state = 3;
+                    return false;
+                }
+                
+                (out + token_counter)->type = M_PID;
+                state = 0;
+                break;
+            }
+            case 16:
+            {
+                if ( tmp == 'u' )
+                {
+                    state = 17;
                     break; 
                 }
                 
                 return false;
+            }
+            case 17:
+            {
+                if ( tmp == 'n' )
+                {
+                    state = 18;
+                    break; 
+                }
+                
+                return false;
+            }
+            case 18:
+            {
+                if ( tmp != '>' )
+                {
+                    return false;
+                }
+                
+                (out + token_counter)->type = M_FUNCTION;
+                break;
+            }
+            case 19:
+            {
+                if ( tmp == 's' )
+                {
+                    state = 20;
+                    break; 
+                }
+                
+                return false;
+            }
+            case 20:
+            {
+                if ( tmp == 'g' )
+                {
+                    state = 21;
+                    break; 
+                }
+                
+                return false;
+            }
+            case 21:
+            {
+                if ( tmp != '>' )
+                {
+                    return false;
+                }
+                
+                state = 0;
+                (out + token_counter)->type = M_MESSAGE;
+                break; 
             }
             default:
             {
@@ -215,4 +277,6 @@ bool parse_pattern_string(const char *string, size_t string_size, muninn_formatt
             }
         }
     }
+
+    return true;
 }

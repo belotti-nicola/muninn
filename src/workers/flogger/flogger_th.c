@@ -15,6 +15,8 @@
 
 #define MESSAGE_BUFFERS_SIZE 256
 
+#define SERIALIZED_MESSAGE_SIZE 2048
+
 #define TS_SIZE 16
 #define ROTATING_SUFFIX ".rotating"
 #define BUFFSIZE 65536 * 2
@@ -112,16 +114,18 @@ void *flogger_loop_fn(void *arg)
     popped_message.payload = &mp;
 
 
+    char serialized_message[SERIALIZED_MESSAGE_SIZE] = {0};
     char decoding_buffer[DECODING_BUFFER_SIZE] = {0};
     size_t max_dim      = BUFFSIZE;
     size_t popped_bytes = 0;
+    size_t expanded_bytes;
     while (ts_queue_n_pop(q, buffer, max_dim, &popped_bytes))
     {
         if (popped_bytes == 0) continue;
 
         if ( muninn_messages_decode(buffer,popped_bytes,&popped_message) == false ) continue;
 
-        // serialization goes here
+        if ( muninn_formatter_expand(lth->formatter,popped_message,serialized_message,&expanded_bytes,SERIALIZED_MESSAGE_SIZE) == false ) continue;
 
         //write
         size_t written = fwrite(popped_message.payload->file, 1, popped_message.payload->file_len , lth->file);

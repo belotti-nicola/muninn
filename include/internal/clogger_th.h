@@ -8,12 +8,16 @@
 #include <internal/ts_queue.h>
 #include <internal/console_handler.h>
 
+#include <internal/muninn_formatter.h>
+
 typedef struct muninn_t muninn_t;
 
 typedef struct clogger_th_data
 {
     console_handler_t ch;
     ts_queue_t *q;
+
+    muninn_formatter_t *formatter;
 
 } clogger_th_data;
 

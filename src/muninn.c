@@ -38,6 +38,11 @@ bool muninn_init(muninn_t *muninn, CONFIG *config)
     size_t offset;
 
     // ==========================================
+    // formatter
+    // ==========================================
+    muninn_formatter_init(&muninn->formatter,"todo",4);
+
+    // ==========================================
     // FLOGGER (FILE)
     // ==========================================
     if (config->file.enabled) 

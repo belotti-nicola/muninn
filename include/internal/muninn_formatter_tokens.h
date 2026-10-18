@@ -7,16 +7,16 @@
  
 typedef enum formatter_token_type_t
 {
-    TEXT,
+    M_TEXT,
 
-    TIMESTAMP,
-    THREAD_ID,
-    LINE,
-    SEVERITY,
-    PID,
-    FILE,
-    FUNCTION, 
-    MESSAGE
+    M_TIMESTAMP,
+    M_THREAD_ID,
+    M_LINE,
+    M_SEVERITY,
+    M_PID,
+    M_FILE,
+    M_FUNCTION, 
+    M_MESSAGE
     
 } formatter_token_type_t;
 

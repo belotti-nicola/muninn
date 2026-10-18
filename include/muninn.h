@@ -20,11 +20,13 @@
 
 #include <internal/muninn_config.h>
 
+#include <internal/muninn_formatter.h>
+
 typedef struct muninn_t 
 {
     CONFIG             *config;
 
-    atomic_uint    encoding_mask;
+    muninn_formatter_t formatter;
 
     uint64_t           start_ts;
     atomic_bool        running;

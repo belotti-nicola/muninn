@@ -8,6 +8,7 @@
 #include <internal/ts_queue.h>
 #include <stdio.h>
 
+#include <internal/muninn_formatter.h>
 
 typedef struct muninn_t muninn_t;
 
@@ -19,6 +20,8 @@ typedef struct flogger_th_data
 
     ts_queue_t  *reading_queue;
     ts_queue_t  *output_queue;
+
+    muninn_formatter_t *formatter;
 
 } flogger_th_data;
 
