@@ -1,4 +1,5 @@
 #include <internal/muninn_formatter.h>
+
 #include <string.h>
 #include "test_utils.h"
 

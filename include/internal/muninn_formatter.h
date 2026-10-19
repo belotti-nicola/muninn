@@ -9,6 +9,7 @@
 
 typedef struct muninn_formatter_t 
 {
+    size_t tokens_size;
     muninn_formatter_token_t tokens[MAX_TOKENS];
 
 } muninn_formatter_t;

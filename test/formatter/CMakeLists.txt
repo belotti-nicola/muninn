@@ -23,7 +23,7 @@ endfunction()
 add_munin_test(TestInstantiatorFormatterSimple test_formatter_simple.c)
 add_munin_test(TestInstantiatorFormatterCSV    test_formatter_csv.c)
 
-#muninn_copy_test_assets(TestInstantiatorLogInCSV  "data")
+muninn_copy_test_assets(TestInstantiatorFormatterCSV  "data")
 
 
 
