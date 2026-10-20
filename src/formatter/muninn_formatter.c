@@ -26,6 +26,8 @@ bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message mm, char *ou
 
     *out_size = 0;
 
+    char *backup = out;
+
     int bytes_counter = 0;
    
     for ( int i = 0 ; i < mf->tokens_size ; i++ )
@@ -42,7 +44,7 @@ bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message mm, char *ou
 
                 memcpy(out,token.text,token.text_size);
                 bytes_counter += token.text_size ;
-                out += bytes_counter;
+                out += token.text_size;
                 break;
             }
             case M_FILE:
@@ -54,7 +56,7 @@ bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message mm, char *ou
 
                 memcpy(out,mm.payload->file,mm.payload->file_len);
                 bytes_counter += mm.payload->file_len ;
-                out += bytes_counter;
+                out += mm.payload->file_len;
                 break;
             }
             case M_FUNCTION:
@@ -66,25 +68,18 @@ bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message mm, char *ou
                 
                 memcpy(out,mm.payload->func,mm.payload->func_len);
                 bytes_counter += mm.payload->func_len ;
-                out += bytes_counter;
+                out += mm.payload->func_len;
                 break;
             }
             case M_LINE:
             {
-                if ( bytes_counter + 10 > out_maximum_size )
-                {
-                    return false;
-                }
-
-                uint32_t tmp;
-                memcpy(&tmp,&mm.payload->line,sizeof(mm.payload->line));
                 size_t available_bytes = out_maximum_size - bytes_counter;
-                if ( format_uint32(out,available_bytes,tmp) != 10 )
+                if ( n_format_uint32(out,available_bytes,10,mm.payload->line) == false )
                 {
                     return false;
                 }
                 bytes_counter += 10 ;
-                out += bytes_counter;
+                out += 10;
                 break;
             }
             case M_MESSAGE:
@@ -96,79 +91,51 @@ bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message mm, char *ou
 
                 memcpy(out,mm.payload->msg,mm.payload->msg_len);
                 bytes_counter += mm.payload->msg_len ;
-                out += bytes_counter;
+                out += mm.payload->msg_len;
                 break;
             }
             case M_PID:
             {
-                if ( bytes_counter + 10 > out_maximum_size )
-                {
-                    return false;
-                }
-
-                uint32_t tmp;
-                memcpy(&tmp,&mm.payload->pid,sizeof(mm.payload->pid));
                 size_t available_bytes = out_maximum_size - bytes_counter;
-                if ( format_uint32(out,available_bytes,tmp) != 10 )
+                if ( n_format_uint32(out,available_bytes,10,mm.payload->pid) == false )
                 {
                     return false;
                 }
                 bytes_counter += 10 ;
-                out += bytes_counter;
+                out += 10;
                 break;
             }
             case M_SEVERITY:
             {
-                if ( bytes_counter + 3 > out_maximum_size )
-                {
-                    return false;
-                }
-
-                uint8_t tmp;
-                memcpy(&tmp,&mm.payload->severity,sizeof(mm.payload->severity));
                 size_t available_bytes = out_maximum_size - bytes_counter;
-                if ( format_uint8(out,available_bytes,tmp) != 3 )
+                if ( n_format_uint8(out,available_bytes,3,mm.payload->severity) == false )
                 {
                     return false;
                 }
                 bytes_counter += 3 ;
-                out += bytes_counter;
+                out += 3;
                 break;
             }
             case M_THREAD_ID:
-            {
-                if ( bytes_counter + 10 > out_maximum_size )
-                {
-                    return false;
-                }
-                
-                uint64_t tmp;
-                memcpy(&tmp,&mm.payload->thread_id,sizeof(mm.payload->thread_id));
+            {               
                 size_t available_bytes = out_maximum_size - bytes_counter;
-                if ( format_uint64(out,available_bytes,tmp) != 10 )
+                if ( n_format_uint64(out,available_bytes,20,mm.payload->thread_id) == false )
                 {
                     return false;
                 }
-                bytes_counter += 10 ;
-                out += bytes_counter;
+                bytes_counter += 20 ;
+                out += 20;
                 break;
             }
             case M_TIMESTAMP:
             {
-                if ( bytes_counter + 10 > out_maximum_size )
-                {
-                    return false;
-                }
-
-                uint64_t tmp;
-                memcpy(&tmp,&mm.payload->timestamp,sizeof(mm.payload->timestamp));
                 size_t available_bytes = out_maximum_size - bytes_counter;
-                if ( format_uint64(out,available_bytes,tmp) != 10 )
+                if ( n_format_uint64(out,available_bytes,20,mm.payload->timestamp) == false )
                 {
                     return false;
                 }
-                bytes_counter += 10 ;
-                out += bytes_counter;
+                bytes_counter += 20 ;
+                out += 20;
                 break;
             }
             default: 

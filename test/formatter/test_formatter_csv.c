@@ -96,6 +96,13 @@ int main()
             return 1;
         }
 
+        if ( expanded_size != strlen(expected) )
+        {
+            TRACE_ERROR_POSITION();
+            TEST_INFO("Error: expanded size (%ld) is different from expected one (%ld).",expanded_size,strlen(expected));
+            return 1;
+        }
+
         for ( int i = 0 ; i < expanded_size ; i++ )
         {
             if ( expected[ i ] != expanded[ i ] )

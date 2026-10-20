@@ -3,39 +3,102 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-#define FORMAT_UINT8_MIN_SIZE    4U   /* "255" + '\0' */
-#define FORMAT_UINT16_MIN_SIZE   6U   /* "65535" + '\0' */
-#define FORMAT_UINT32_MIN_SIZE  11U   /* "4294967295" + '\0' */
-#define FORMAT_UINT64_MIN_SIZE  21U   /* "18446744073709551615" + '\0' */
+#include <string.h>
 
-int format_uint8( char *out, size_t out_size, uint8_t value )
+bool n_format_uint8( char *out,size_t out_size, size_t n, uint8_t value)
 {
-    if ( out == NULL ) return -1;
-    if ( out_size < FORMAT_UINT8_MIN_SIZE ) return -2;
+    if ( out == NULL || n == 0 ) return false;
 
-    return snprintf(out, out_size, "%03" PRIu8, value);
+    if ( out_size < 3 ) return false;
+
+    char temp[64];
+    int len = snprintf(temp, sizeof(temp), "%" PRIu8, value);
+
+    if ( n < len ) return false;
+
+    char *ptr = out;
+    size_t offset = n - len;
+
+    if ( offset > 0 )
+    {
+        memset(ptr,' ',offset);
+        ptr += offset;
+    }
+
+    strncpy(out,temp,len);
+
+    return true;
 }
-
-int format_uint16( char *out, size_t out_size, uint16_t value )
+bool n_format_uint16( char *out,size_t out_size, size_t n, uint16_t value )
 {
-    if ( out == NULL ) return -1;
-    if ( out_size < FORMAT_UINT16_MIN_SIZE ) return -2;
+    if ( out == NULL || n == 0 ) return false;
+    
+    if ( out_size < 5 ) return false;
 
-    return snprintf(out, out_size, "%05" PRIu16, value);
+    char temp[64];
+    int len = snprintf(temp, sizeof(temp), "%" PRIu16, value);
+
+    if ( n < len ) return false;
+
+    char *ptr = out;
+    size_t offset = n - len;
+
+    if ( offset > 0 )
+    {
+        memset(ptr,' ',offset);
+        ptr += offset;
+    }
+
+    strncpy(ptr,temp,len);
+
+    return true;
 }
-
-int format_uint32( char *out, size_t out_size, uint32_t value )
+bool n_format_uint32( char *out,size_t out_size, size_t n, uint32_t value )
 {
-    if ( out == NULL ) return -1;
-    if ( out_size < FORMAT_UINT32_MIN_SIZE ) return -2;
+    if ( out == NULL || n == 0 ) return false;
+    
+    if ( out_size < 10 ) return false;
 
-    return snprintf(out, out_size, "%010" PRIu32, value);
+    char temp[64];
+    int len = snprintf(temp, sizeof(temp), "%" PRIu32, value);
+
+    if ( n < len ) return false;
+
+    char *ptr = out;
+    size_t offset = n - len;
+
+    if ( offset > 0 )
+    {
+        memset(ptr,' ',offset);
+        ptr += offset;
+    }
+
+    strncpy(ptr,temp,len);
+
+    return true;
+    
 }
-
-int format_uint64( char *out, size_t out_size, uint64_t value )
+bool n_format_uint64( char *out,size_t out_size, size_t n, uint64_t value )
 {
-    if ( out == NULL ) return -1;
-    if ( out_size < FORMAT_UINT64_MIN_SIZE ) return -2;
+    if ( out == NULL || n == 0 ) return false;
+    
+    if ( out_size < 20 ) return false;
 
-    return snprintf(out, out_size, "%010" PRIu64, value);
+    char temp[64] = {0};
+    int len = snprintf(temp, sizeof(temp), "%" PRIu64, value);
+
+    if ( n < len ) return false;
+
+    char *ptr = out;
+    size_t offset = n - len;
+
+    if ( offset > 0 )
+    {
+        memset(ptr,' ',offset);
+        ptr += offset;
+    }
+
+    strncpy(ptr,temp,len);
+
+    return true;
 }

@@ -1,11 +1,11 @@
 1792353192,
-1231456788,
+123145678,
 1003,
-89,
+123,
 429496,
 this_test_file.c,
 that_test_function,
 "Hello world! This is a sample example for the formatter!",
 <ts>a<tid>b<line>c<sev>d<pid>e<file>F<fun>g<msg>,
 15,
-1792353192a1231456788b1003c89d429496ethis_test_file.cFthat_test_functiogHello world! This is a sample example for the formatter!;
+"          1792353192a           123145678b      1003c123d    429496ethis_test_file.cFthat_test_functiongHello world! This is a sample example for the formatter!";
