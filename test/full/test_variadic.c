@@ -13,8 +13,7 @@ int main(void)
     char log[SIZE];
     if(compute_test_file_name(log,SIZE) == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error computing test file name in %d bytes",SIZE);
+        TRACE_ERROR_POSITION("Error computing test file name in %d bytes",SIZE);
         return -1;
     }
 

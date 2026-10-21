@@ -42,29 +42,25 @@ int main()
     char *buffer1 = malloc(sizeof(char) * TEST_BUFFER_SIZE * TEST_QUEUE_SIZE);
     if(buffer1 == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Malloc fail.");
+        TRACE_ERROR_POSITION("Malloc fail.");
         return 1;
     }
     char *buffer2 = malloc(sizeof(char) * TEST_BUFFER_SIZE * TEST_QUEUE_SIZE);
     if(buffer2 == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Malloc fail.");
+        TRACE_ERROR_POSITION("Malloc fail.");
         return 1;
     }
     queue_message_t *messages1 = calloc(TEST_QUEUE_SIZE, sizeof(queue_message_t));
     if(messages1 == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Malloc fail.");
+        TRACE_ERROR_POSITION("Malloc fail.");
         return 1;
     }
     queue_message_t *messages2 = calloc(TEST_QUEUE_SIZE, sizeof(queue_message_t));
     if(messages2 == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Malloc fail.");
+        TRACE_ERROR_POSITION("Malloc fail.");
         return 1;
     }
 
@@ -135,8 +131,7 @@ int main()
 
     if(q1.queue.size < THREADS_NUMBER * MESSAGE_PER_THREAD)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("%ld vs %d",q1.queue.size,THREADS_NUMBER * MESSAGE_PER_THREAD);
+        TRACE_ERROR_POSITION("%ld vs %d",q1.queue.size,THREADS_NUMBER * MESSAGE_PER_THREAD);
         free(buffer1);
         free(buffer2);
         free(messages1);

@@ -45,8 +45,7 @@ int main()
     bool rc = csvreader_open(&reader,"data/codec_dataset.csv");
     if(rc == false)
     {   
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error");
+        TRACE_ERROR_POSITION("Error csvreader_open");
         return 1;
     }
 
@@ -74,8 +73,7 @@ int main()
         { 
             if (binary_len >= sizeof(buf)) 
             {
-                TRACE_ERROR_POSITION();
-                TEST_ERROR("Buffer isn't big enough!");
+                TRACE_ERROR_POSITION("Buffer isn't big enough!");
                 csvreader_close(&reader);
                 return 1;
             }
@@ -101,8 +99,7 @@ int main()
         bool rc = muninn_messages_decode(buf,binary_len,&mm);
         if(rc == false)
         {
-            TRACE_ERROR_POSITION();
-            TEST_ERROR("mm_decode fail for iteration %d",iteration);
+            TRACE_ERROR_POSITION("mm_decode fail for iteration %d",iteration);
             return 1;
         }
        
@@ -113,10 +110,9 @@ int main()
             int expected = STRING_TO_INT(reader.records[buffer_offset]);
             if(expected != payload.pid)
             {
-                TRACE_ERROR_POSITION();
-                TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed pid is %d but %d was expected",payload.pid,expected);
-                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                TRACE_ERROR_POSITION("Iteration %d",iteration);
+                TRACE_ERROR_POSITION("Computed pid is %d but %d was expected",payload.pid,expected);
+                TRACE_ERROR_POSITION("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             buffer_offset += 1;
@@ -129,10 +125,9 @@ int main()
             uint64_t expected = STRING_TO_UINT64(target);
             if(expected != payload.thread_id)
             {
-                TRACE_ERROR_POSITION();
-                TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed pid is %ld but %ld was expected",payload.thread_id,expected);
-                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                TRACE_ERROR_POSITION("Iteration %d",iteration);
+                TRACE_ERROR_POSITION("Computed pid is %ld but %ld was expected",payload.thread_id,expected);
+                TRACE_ERROR_POSITION("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             buffer_offset += 1;
@@ -144,10 +139,9 @@ int main()
             uint64_t expected = STRING_TO_UINT64(reader.records[buffer_offset]);
             if(expected != payload.timestamp)
             {
-                TRACE_ERROR_POSITION();
-                TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed thread_id is %ld but %ld was expected",payload.timestamp,expected);
-                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                TRACE_ERROR_POSITION("Iteration %d",iteration);
+                TRACE_ERROR_POSITION("Computed thread_id is %ld but %ld was expected",payload.timestamp,expected);
+                TRACE_ERROR_POSITION("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             buffer_offset += 1;
@@ -160,10 +154,9 @@ int main()
             int expected = STRING_TO_INT(target);
             if(expected != payload.line)
             {
-                TRACE_ERROR_POSITION();
-                TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed line is %d but %d was expected",payload.line,expected);
-                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                TRACE_ERROR_POSITION("Iteration %d",iteration);
+                TRACE_ERROR_POSITION("Computed line is %d but %d was expected",payload.line,expected);
+                TRACE_ERROR_POSITION("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             buffer_offset += 1;
@@ -175,10 +168,9 @@ int main()
             int expected = STRING_TO_INT(reader.records[buffer_offset]);
             if(expected != payload.severity)
             {
-                TRACE_ERROR_POSITION();
-                TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed %d but %d was expected",payload.severity,expected);
-                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                TRACE_ERROR_POSITION("Iteration %d",iteration);
+                TRACE_ERROR_POSITION("Computed %d but %d was expected",payload.severity,expected);
+                TRACE_ERROR_POSITION("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             buffer_offset += 1;
@@ -190,10 +182,9 @@ int main()
             int expected = strlen(reader.records[buffer_offset]);
             if(expected != payload.file_len)
             {
-                TRACE_ERROR_POSITION();
-                TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed file_len is %d but %d was expected",payload.file_len,expected);
-                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                TRACE_ERROR_POSITION("Iteration %d",iteration);
+                TRACE_ERROR_POSITION("Computed file_len is %d but %d was expected",payload.file_len,expected);
+                TRACE_ERROR_POSITION("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             header_expected_size += sizeof(payload.file_len);
@@ -204,10 +195,9 @@ int main()
                 int expected = *target;
                 if(expected != payload.file[i])
                 {
-                    TRACE_ERROR_POSITION();
-                    TEST_ERROR("Iteration %d",iteration);
-                    TEST_ERROR("Computed file byte %d-th is %d but %d was expected",i,payload.file[i],expected);
-                    TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                    TRACE_ERROR_POSITION("Iteration %d",iteration);
+                    TRACE_ERROR_POSITION("Computed file byte %d-th is %d but %d was expected",i,payload.file[i],expected);
+                    TRACE_ERROR_POSITION("(record %s)",reader.records[buffer_offset]);
                     return 1;
                 }
             }
@@ -220,10 +210,9 @@ int main()
             int expected = strlen(reader.records[buffer_offset]);
             if(expected != payload.func_len)
             {
-                TRACE_ERROR_POSITION();
-                TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed func_len is %d but %d was expected",payload.func_len,expected);
-                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                TRACE_ERROR_POSITION("Iteration %d",iteration);
+                TRACE_ERROR_POSITION("Computed func_len is %d but %d was expected",payload.func_len,expected);
+                TRACE_ERROR_POSITION("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             header_expected_size += sizeof(payload.func_len);
@@ -235,10 +224,9 @@ int main()
                 int computed = payload.func[i];
                 if(expected != computed)
                 {
-                    TRACE_ERROR_POSITION();
-                    TEST_ERROR("Iteration %d",iteration);
-                    TEST_ERROR("Computed func byte %d-th is %d but %d was expected",i,computed,expected);
-                    TEST_ERROR("(record %s)",target);
+                    TRACE_ERROR_POSITION("Iteration %d",iteration);
+                    TRACE_ERROR_POSITION("Computed func byte %d-th is %d but %d was expected",i,computed,expected);
+                    TRACE_ERROR_POSITION("(record %s)",target);
                     return 1;
                 }
             }
@@ -252,10 +240,9 @@ int main()
             int expected = strlen(reader.records[buffer_offset]);
             if(expected != payload.msg_len)
             {
-                TRACE_ERROR_POSITION();
-                TEST_ERROR("Iteration %d",iteration);
-                TEST_ERROR("Computed file_len is %d but %d was expected",payload.msg_len,expected);
-                TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+                TRACE_ERROR_POSITION("Iteration %d",iteration);
+                TRACE_ERROR_POSITION("Computed file_len is %d but %d was expected",payload.msg_len,expected);
+                TRACE_ERROR_POSITION("(record %s)",reader.records[buffer_offset]);
                 return 1;
             }
             header_expected_size += sizeof(payload.msg_len);
@@ -268,11 +255,10 @@ int main()
                 int computed = payload.msg[i];
                 if(expected != computed)
                 {
-                    TRACE_ERROR_POSITION();
-                    TEST_ERROR("Iteration %d",iteration);
-                    TEST_ERROR("Computed msg byte %d-th is %d but %d was expected",i,computed,expected);
-                    TEST_ERROR("(record  %s)",reader.records[buffer_offset]);
-                    TEST_ERROR("(decoded %.*s)",payload.msg_len,payload.msg);
+                    TRACE_ERROR_POSITION("Iteration %d",iteration);
+                    TRACE_ERROR_POSITION("Computed msg byte %d-th is %d but %d was expected",i,computed,expected);
+                    TRACE_ERROR_POSITION("(record  %s)",reader.records[buffer_offset]);
+                    TRACE_ERROR_POSITION("(decoded %.*s)",payload.msg_len,payload.msg);
                     return 1;
                     
                 }
@@ -283,10 +269,9 @@ int main()
         
         if(header.payload_len != header_expected_size)
         {
-            TRACE_ERROR_POSITION();
-            TEST_ERROR("Iteration %d",iteration);
-            TEST_ERROR("Computed file payload_len len %d is different from expected one %ld",(int)header.payload_len,buffer_offset);
-            TEST_ERROR("(record %s)",reader.records[buffer_offset]);
+            TRACE_ERROR_POSITION("Iteration %d",iteration);
+            TRACE_ERROR_POSITION("Computed file payload_len len %d is different from expected one %ld",(int)header.payload_len,buffer_offset);
+            TRACE_ERROR_POSITION("(record %s)",reader.records[buffer_offset]);
             return 1;
         }
 

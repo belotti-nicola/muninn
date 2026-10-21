@@ -36,8 +36,7 @@ int main()
     if(mw_running(&mw) == false)
     {
         mw_shutdown(&mw);
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Running boolean is false instead of true during the test.");
+        TRACE_ERROR_POSITION("Running boolean is false instead of true during the test.");
         return 1;
     }
 
@@ -47,8 +46,7 @@ int main()
     if(mw_running(&mw) == true)
     {
         mw_shutdown(&mw);
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Running boolean is true instead of false at the end of the test.");
+        TRACE_ERROR_POSITION("Running boolean is true instead of false at the end of the test.");
         return 1;
     }
 

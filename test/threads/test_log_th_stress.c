@@ -38,8 +38,7 @@ int main()
     char filepath[PATH_SIZE];
     if(compute_test_file_name(filepath,PATH_SIZE) == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Could not compute test file name in %d bytes.",PATH_SIZE);
+        TRACE_ERROR_POSITION("Could not compute test file name in %d bytes.",PATH_SIZE);
         return 1;
     }
 
@@ -87,16 +86,14 @@ int main()
     char cwd[PATH_SIZE];
     if(get_executable_directory(cwd,PATH_SIZE) == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: could not detect executable directory.");
+        TRACE_ERROR_POSITION("Error: could not detect executable directory.");
         return 1;
     }
 
     long counter = count_rows_across_files(cwd,"test_log_th_stress");
     if( counter != THREADS_NUMBER * MESSAGE_PER_THREAD)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("%ld vs %d",counter, THREADS_NUMBER * MESSAGE_PER_THREAD);
+        TRACE_ERROR_POSITION("%ld vs %d",counter, THREADS_NUMBER * MESSAGE_PER_THREAD);
         return 1;
     }
     

@@ -11,10 +11,13 @@
     printf("[TEST ERROR] " fmt "\n", ##__VA_ARGS__)
 
 #define TEST_INFO(fmt, ...) \
-    printf("[TEST INFO]  " fmt "\n", ##__VA_ARGS__)
+    printf("[TEST INFO ]  " fmt "\n", ##__VA_ARGS__)
 
-#define TRACE_ERROR_POSITION() \
-    printf("Error at %s:%d\n",__FILE__,__LINE__);
+#define TRACE_ERROR_POSITION(fmt, ...) \
+    do { \
+        printf("[TEST ERROR] %s:%d\n", __FILE__, __LINE__); \
+        printf("[TEST ERROR] " fmt "\n", ##__VA_ARGS__); \
+    } while(0)
 
 #define file_exists(filepath)                         file_exists_impl(filepath)
 #define test_file_exists(out)                         test_file_exists_impl(out)

@@ -35,8 +35,8 @@ int main(void)
     char testlog[PATHSIZE];
     if(compute_test_file_name(testlog,PATHSIZE) == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Could not compute test file.");
+        TRACE_ERROR_POSITION("Could not compute test file.");
+        return 1;
     }
 
     CONFIG CONF;
@@ -65,14 +65,12 @@ int main(void)
     char cwd[PATHSIZE];
     if(get_executable_directory(cwd,PATHSIZE) == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: could not detect executable directory.");
+        TRACE_ERROR_POSITION("Error: could not detect executable directory.");
         return 1;
     }
     if(count_rows_across_files(cwd,"test_stressing") < MSG_PER_THREAD * NUM_THREADS * 0.99 )
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("countRows fail:%ld instead of %f.",count_rows_across_files(cwd,"test_stressing"),NUM_THREADS * MSG_PER_THREAD * 0.99);
+        TRACE_ERROR_POSITION("countRows fail:%ld instead of %f.",count_rows_across_files(cwd,"test_stressing"),NUM_THREADS * MSG_PER_THREAD * 0.99);
         return 1;
     }
 

@@ -20,39 +20,34 @@ int main()
     bool push_rc = ts_rb_push(&tsrb,test,strlen(test));
     if(push_rc == false)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: ts_rb_push failed!");
+        TRACE_ERROR_POSITION("Error: ts_rb_push failed!");
         return 1;
     }
 
     size_t expected_bytes = strlen(test);
     if ( tsrb.ring_buffer.current_size != expected_bytes)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: rb size is %ld instead of the expected %ld!",tsrb.ring_buffer.current_size,expected_bytes);
+        TRACE_ERROR_POSITION("Error: rb size is %ld instead of the expected %ld!",tsrb.ring_buffer.current_size,expected_bytes);
         return 1;
     }
     
     if ( tsrb.ring_buffer.start != 0 )
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error start index error!");
+        TRACE_ERROR_POSITION("Error start index error!");
         return 1;
     }
     
     size_t expected_end_index = expected_bytes;
     if ( tsrb.ring_buffer.end != expected_end_index )
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: ring buffer end index!");
-        TEST_ERROR("Found %ld instead of %ld!",tsrb.ring_buffer.end,expected_end_index);
+        TRACE_ERROR_POSITION("Error: ring buffer end index!");
+        TRACE_ERROR_POSITION("Found %ld instead of %ld!",tsrb.ring_buffer.end,expected_end_index);
         return 1;
     }
 
     if( memcmp(tsrb.ring_buffer.data,test,strlen(test)) != 0)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: strncmp fail!");
+        TRACE_ERROR_POSITION("Error: strncmp fail!");
         return 1;
     }
 

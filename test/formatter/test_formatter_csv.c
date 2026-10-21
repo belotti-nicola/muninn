@@ -19,8 +19,7 @@ int main()
 
     if ( get_test_file_data_path(test_file,TEST_FILE_SIZE,"/data/test_formatter_csv_data.csv") == NULL )
     {
-        TRACE_ERROR_POSITION();
-        TEST_INFO("Error: could not get test data file.");
+        TRACE_ERROR_POSITION("Error: could not get test data file.");
         return 1;
     }
 
@@ -29,8 +28,7 @@ int main()
     bool rc = csvreader_open(&reader,test_file);
     if(rc == false)
     {   
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: could not open %s",test_file);
+        TRACE_ERROR_POSITION("Error: could not open %s",test_file);
         return 1;
     }
 
@@ -56,8 +54,7 @@ int main()
     {
         if ( reader.records_size < 11 )
         {
-            TRACE_ERROR_POSITION();
-            TEST_INFO("Error at %d iteration: records size is %ld (less than 17).",iteration,reader.records_size);
+            TRACE_ERROR_POSITION("Error at %d iteration: records size is %ld (less than 17).",iteration,reader.records_size);
             return 1;
         }
 
@@ -98,8 +95,7 @@ int main()
 
         if ( expanded_size != strlen(expected) )
         {
-            TRACE_ERROR_POSITION();
-            TEST_INFO("Error: expanded size (%ld) is different from expected one (%ld).",expanded_size,strlen(expected));
+            TRACE_ERROR_POSITION("Error: expanded size (%ld) is different from expected one (%ld).",expanded_size,strlen(expected));
             return 1;
         }
 
@@ -107,8 +103,7 @@ int main()
         {
             if ( expected[ i ] != expanded[ i ] )
             {
-                TRACE_ERROR_POSITION();
-                TEST_INFO("Error at iteration %d: expected '%c', found '%c' instead.",i,expected[ i ], expanded[ i ]);
+                TRACE_ERROR_POSITION("Error at iteration %d: expected '%c', found '%c' instead.",i,expected[ i ], expanded[ i ]);
                 return 1;
             }
         }       

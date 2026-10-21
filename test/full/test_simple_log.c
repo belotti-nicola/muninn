@@ -13,8 +13,7 @@ int main(void)
     char log[SIZE];
     if(compute_test_file_name(log,SIZE) == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Cannot compute test file");
+        TRACE_ERROR_POSITION("Cannot compute test file");
         return 1;
     }
     
@@ -34,8 +33,7 @@ int main(void)
     FILE *test_file = fopen(log, "r");
     if(test_file == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: char pointer is null for file %s.",log);
+        TRACE_ERROR_POSITION("Error: char pointer is null for file %s.",log);
         return 1;
     }
 

@@ -13,8 +13,7 @@ int main(void)
     
     if( compute_test_file_name(file,PATH_SIZE) == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Could not compute test file name with %d bytes!",PATH_SIZE);
+        TRACE_ERROR_POSITION("Could not compute test file name with %d bytes!",PATH_SIZE);
         return -1;
     }
 
@@ -46,8 +45,7 @@ int main(void)
     FILE *ptr = fopen(file,"r");
     if( ptr == NULL )
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Could not open test file %s !",file);
+        TRACE_ERROR_POSITION("Could not open test file %s !",file);
         return 1;
     }
 

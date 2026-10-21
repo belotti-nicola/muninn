@@ -27,8 +27,7 @@ int main()
     char test_log[PATH_SIZE];
     if(compute_test_file_name(test_log,PATH_SIZE) == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Could not compute test file name in %d bytes.",PATH_SIZE);
+        TRACE_ERROR_POSITION("Could not compute test file name in %d bytes.",PATH_SIZE);
         return 1;
     }
 
@@ -59,8 +58,7 @@ int main()
     FILE *test_file = fopen(test_log, "r");
     if(test_file == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: char pointer is null for file %s.",test_log);
+        TRACE_ERROR_POSITION("Error: char pointer is null for file %s.",test_log);
         return 1;
     }
 

@@ -75,8 +75,7 @@ int main()
     pthread_t consumer;
     if ( pthread_create(&consumer,NULL,consumer_function,&sb) != 0 )
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Could not create consumer.");
+        TRACE_ERROR_POSITION("Could not create consumer.");
         return 1;
     }
 
@@ -85,8 +84,7 @@ int main()
     {
         if ( pthread_create(&producers[i],NULL,producers_function,&sb) != 0)
         {
-            TRACE_ERROR_POSITION();
-            TEST_ERROR("Could not create producer.");
+            TRACE_ERROR_POSITION("Could not create producer.");
             return 1;
         }
     }

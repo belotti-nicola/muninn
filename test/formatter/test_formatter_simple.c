@@ -41,8 +41,7 @@ int main()
 
     if ( buffer_size != buffer_msg_size )
     {
-        TRACE_ERROR_POSITION();
-        TEST_INFO("Error: expanded bytes are %ld instead of %ld" , buffer_size , buffer_msg_size );
+        TRACE_ERROR_POSITION("Error: expanded bytes are %ld instead of %ld" , buffer_size , buffer_msg_size );
         return 1;
     }
 
@@ -50,8 +49,7 @@ int main()
     {
         if ( buffer_msg[ i ] != buffer[ i ] )
         {
-            TRACE_ERROR_POSITION();
-            TEST_INFO("Error: found %u instead of %u" , buffer_msg[ i ] , buffer[ i ] );
+            TRACE_ERROR_POSITION("Error: found %u instead of %u" , buffer_msg[ i ] , buffer[ i ] );
             return 1;
         }
     }

@@ -89,8 +89,7 @@ int main()
 
     if( counter != 2) 
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: counter(%d) is not 2",counter);
+        TRACE_ERROR_POSITION("Error: counter(%d) is not 2",counter);
     }
     
     return 0;

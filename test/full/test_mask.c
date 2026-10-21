@@ -15,8 +15,7 @@ int main(void)
     char log[SIZE];
     if(compute_test_file_name(log,SIZE) == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Cannot compute test file");
+        TRACE_ERROR_POSITION("Cannot compute test file");
         return 1;
     }
     

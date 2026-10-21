@@ -17,8 +17,7 @@ int  main()
     ring_buffer rb = {0};
     if (rb_setup(&rb,buffer,BUFFER_SIZE) == false)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Setup error.");
+        TRACE_ERROR_POSITION("Setup error.");
         return 1;
     }
     rb.current_size = strlen(TEST_STRING);
@@ -26,15 +25,13 @@ int  main()
     uint8_t out[BUFFER_SIZE] = {0};
     if(rb_peek(&rb,out,test_size) == false)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("rb_peek error.");
+        TRACE_ERROR_POSITION("rb_peek error.");
         return 1;
     }
 
     if(memcmp(out,buffer,test_size) != 0)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("rb_peek error: memcmp failed");
+        TRACE_ERROR_POSITION("rb_peek error: memcmp failed");
         return 1;
     }
 

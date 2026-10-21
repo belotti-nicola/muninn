@@ -19,23 +19,20 @@ int  main()
     ring_buffer rb = {0};
     if (rb_setup(&rb,buffer,BUFFER_SIZE) == false)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Setup error.");
+        TRACE_ERROR_POSITION("Setup error.");
         return 1;
     }
     rb.current_size = strlen(TEST_STRING);
 
     if(rb_advance(&rb,1) == false)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("rb_advance error.");
+        TRACE_ERROR_POSITION("rb_advance error.");
         return 1;
     }
 
     if(rb.start != 1)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("rb_advance error: rb.start(%ld) differs from expected(%d)",rb.start,1);
+        TRACE_ERROR_POSITION("rb_advance error: rb.start(%ld) differs from expected(%d)",rb.start,1);
         return 1;
     }
 

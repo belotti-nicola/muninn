@@ -44,8 +44,7 @@ int main()
     bool exit_code = muninn_payload_encode(&payload,out,&out_size);
     if(exit_code == false)
     {
-        TRACE_ERROR_POSITION();
-        TEST_INFO("muninn_payload_encode failed!");
+        TRACE_ERROR_POSITION("muninn_payload_encode failed!");
         return 1;
     }
 
@@ -65,8 +64,7 @@ int main()
     
     if(out_size != expected_bytes)
     {
-        TRACE_ERROR_POSITION();
-        TEST_INFO("muninn_payload_encode expected bytes number(%ld) differs from computed one (%ld!)",
+        TRACE_ERROR_POSITION("muninn_payload_encode expected bytes number(%ld) differs from computed one (%ld!)",
             expected_bytes,
             out_size
         );

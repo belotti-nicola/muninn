@@ -14,8 +14,7 @@ int main(void)
     char logfile[SIZE];
     if(compute_test_file_name(logfile,SIZE) == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Cannot compute test file");
+        TRACE_ERROR_POSITION("Cannot compute test file");
         return 1;
     }
     
@@ -37,8 +36,7 @@ int main(void)
     FILE *test_file = fopen(logfile, "r");
     if(test_file == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: char pointer is null for file %s.",logfile);
+        TRACE_ERROR_POSITION("Error: char pointer is null for file %s.",logfile);
         return 1;
     }
 
@@ -47,8 +45,7 @@ int main(void)
 
     // if(fgets(buffer, 256, test_file) == NULL)
     // {
-    //     TRACE_ERROR_POSITION();
-    //     TEST_ERROR("Error: fgets is null for file %s.",logfile);
+    //     TRACE_ERROR_POSITION("Error: fgets is null for file %s.",logfile);
     //     return 1;
     // }
 

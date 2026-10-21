@@ -21,16 +21,14 @@ int main()
     char test_samples_path[2048];
     if ( get_test_file_data_path(test_samples_path,2048,"/data/test_log_in_csv_data.csv") == NULL )
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: could not compute test data file");
+        TRACE_ERROR_POSITION("Error: could not compute test data file");
         return 1;
     }
 
     char test_file[TEST_FILE_SIZE] = {0};
     if ( compute_test_file_name(test_file,TEST_FILE_SIZE) == NULL )
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: could not compute test file path");
+        TRACE_ERROR_POSITION("Error: could not compute test file path");
         return 1;
     }
     TEST_INFO("test_file: '%s'",test_file);
@@ -41,8 +39,7 @@ int main()
     bool rc = csvreader_open(&reader,test_samples_path);
     if(rc == false)
     {   
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: could not open %s",test_samples_path);
+        TRACE_ERROR_POSITION("Error: could not open %s",test_samples_path);
         return 1;
     }
 

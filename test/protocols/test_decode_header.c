@@ -20,15 +20,13 @@ int main()
     bool exit_code = muninn_header_decode(in,in_size,&muninn_header);
     if(exit_code == false)
     {
-        TRACE_ERROR_POSITION();
-        TEST_INFO("muninn_header_decode failed!");
+        TRACE_ERROR_POSITION("muninn_header_decode failed!");
         return 1;
     }
 
     if(muninn_header.payload_len != 2007)
     {
-        TRACE_ERROR_POSITION();
-        TEST_INFO("muninn_header.payload_len is %d instead of %d!",muninn_header.payload_len,2007);
+        TRACE_ERROR_POSITION("muninn_header.payload_len is %d instead of %d!",muninn_header.payload_len,2007);
         return 1;
     }
     

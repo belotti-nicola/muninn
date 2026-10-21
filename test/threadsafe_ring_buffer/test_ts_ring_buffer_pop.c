@@ -34,15 +34,13 @@ int main()
     bool rc = ts_rb_pop(&tsrb,popped,BUFFER_SIZE,&popped_size);
     if(rc == false)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: ts_rb_pop failed!");
+        TRACE_ERROR_POSITION("Error: ts_rb_pop failed!");
         return 1;
     }
 
     if(strncmp(popped,test,strlen(test)) != 0)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error: strncmp failed");
+        TRACE_ERROR_POSITION("Error: strncmp failed");
         return 1;
     }
 

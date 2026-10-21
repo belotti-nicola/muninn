@@ -21,8 +21,7 @@ int main()
     bool rc = csvreader_open(&reader,"data/codec_dataset.csv");
     if(rc == false)
     {   
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Error");
+        TRACE_ERROR_POSITION("Error");
         return 1;
     }
 
@@ -113,17 +112,15 @@ int main()
         );
         if(ok == false)
         {
-            TRACE_ERROR_POSITION();
-            TEST_ERROR("Iteration %d",record);
-            TEST_ERROR("Encoding fail!");
+            TRACE_ERROR_POSITION("Iteration %d",record);
+            TRACE_ERROR_POSITION("Encoding fail!");
             return 1;
         }
         
         if(encoded_bytes != expected_bytes)
         {
-            TRACE_ERROR_POSITION();
-            TEST_ERROR("Iteration %d",record);
-            TEST_ERROR("Encoded bytes %ld differs from %ld",encoded_bytes,expected_bytes);
+            TRACE_ERROR_POSITION("Iteration %d",record);
+            TRACE_ERROR_POSITION("Encoded bytes %ld differs from %ld",encoded_bytes,expected_bytes);
             return 1;
         }
 
@@ -136,15 +133,13 @@ int main()
             
             if (computed_value != expected_value)
             {
-                TRACE_ERROR_POSITION();
-                TEST_ERROR("Encoded byte differs from expected (tmp: %ld, record %d)", tmp, record);
-                
-                TEST_ERROR("(computed: %d [ASCII: '%c'], expected: %d [ASCII: '%c'])", 
+                TRACE_ERROR_POSITION("Encoded byte differs from expected (tmp: %ld, record %d)", tmp, record);   
+                TRACE_ERROR_POSITION("(computed: %d [ASCII: '%c'], expected: %d [ASCII: '%c'])", 
                         computed_value, 
                         (computed_value >= 32 && computed_value <= 126) ? computed_value : '?', 
                         expected_value, 
                         (expected_value >= 32 && expected_value <= 126) ? expected_value : '?');
-                TEST_ERROR("(%s)",target);
+                TRACE_ERROR_POSITION("(%s)",target);
                 return 1;
             }
 

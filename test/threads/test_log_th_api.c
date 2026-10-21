@@ -25,8 +25,7 @@ int main()
     char test_log[PATH_SIZE];
     if(compute_test_file_name(test_log,PATH_SIZE) == NULL)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Could not compute test file name in %d bytes.",PATH_SIZE);
+        TRACE_ERROR_POSITION("Could not compute test file name in %d bytes.",PATH_SIZE);
         return 1;
     }
 
@@ -48,8 +47,7 @@ int main()
     if(mw_running(&mw) == false)
     {
         mw_shutdown(&mw);
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Running boolean is false instead of true during the test.");
+        TRACE_ERROR_POSITION("Running boolean is false instead of true during the test.");
         return 1;
     }
 
@@ -59,8 +57,7 @@ int main()
     if(mw_running(&mw) == true)
     {
         mw_shutdown(&mw);
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Running boolean is true instead of false at the end of the test.");
+        TRACE_ERROR_POSITION("Running boolean is true instead of false at the end of the test.");
         return 1;
     }
 

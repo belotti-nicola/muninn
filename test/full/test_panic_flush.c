@@ -19,8 +19,7 @@ int main()
 
     if(!file_exists(MUNINN_DUMP))
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("File %s was not created!\n",MUNINN_DUMP);
+        TRACE_ERROR_POSITION("File %s was not created!\n",MUNINN_DUMP);
         return 1;
     }
 

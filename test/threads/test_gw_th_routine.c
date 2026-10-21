@@ -84,15 +84,13 @@ int main()
 
     if(q1.queue.size != 2)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Q1 size is %ld instead of 2",q1.queue.size);
+        TRACE_ERROR_POSITION("Q1 size is %ld instead of 2",q1.queue.size);
         return 1;
     }
 
     if(q2.queue.size != 2)
     {
-        TRACE_ERROR_POSITION();
-        TEST_ERROR("Q2 size is %ld instead of 2",q2.queue.size);
+        TRACE_ERROR_POSITION("Q2 size is %ld instead of 2",q2.queue.size);
         return 1;
     }
 
