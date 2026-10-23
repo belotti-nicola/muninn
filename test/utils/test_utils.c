@@ -219,3 +219,16 @@ char *get_test_file_data_path_impl(char *path, size_t path_max_size, char *appen
     strncat(path,append_this,append_this_size);
 }
 
+int count_occurencies(const char *string, size_t string_size, char c)
+{
+    int retVal = 0;
+    for ( int i = 0 ; i < string_size ; i++)
+    {
+        if ( string[ i ] == c )
+        {
+            retVal += 1;
+        }
+    }
+
+    return retVal;
+}

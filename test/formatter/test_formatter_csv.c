@@ -45,35 +45,20 @@ int main()
     char *pattern;
     char *expected;
     size_t expanded_size;
-    int tokens;
 
     char expanded[EXPANDED_MAX_SIZE] = {0};
 
     int iteration = 0;   
     while ( csvreader_next( &reader ) != false )
     {
-        if ( reader.records_size < 11 )
+        if ( reader.records_size == 0 )
         {
-            TRACE_ERROR_POSITION("Error at %d iteration: records size is %ld (less than 17).",iteration,reader.records_size);
+            TRACE_ERROR_POSITION("Error at %ld iteration: records size is 0.",reader.records_size);
             return 1;
         }
 
-        mp.timestamp = STRING_TO_UINT64(reader.records[0]);
-        mp.thread_id = STRING_TO_UINT64(reader.records[1]);
-        mp.line = STRING_TO_INT(reader.records[2]);
-        mp.severity = STRING_TO_INT(reader.records[3]);
-        mp.pid = STRING_TO_INT(reader.records[4]);
-        mp.file = reader.records[5];
-        mp.file_len = strlen(reader.records[5]);
-        mp.func = reader.records[6];
-        mp.func_len = strlen(reader.records[6]);
-        mp.msg = reader.records[7];
-        mp.msg_len = strlen(reader.records[7]);
-
-        pattern = reader.records[8];
-
-        tokens = STRING_TO_INT(reader.records[9]);
-        expected = reader.records[10];
+        pattern = reader.records[0];
+        size_t pattern_size = strlen(pattern);
 
         if ( muninn_formatter_init( &formatter,pattern,strlen(pattern) ) == false )
         {
@@ -81,21 +66,85 @@ int main()
             return 1;
         }
 
-        if ( muninn_formatter_expand( &formatter,mm,expanded,&expanded_size,EXPANDED_MAX_SIZE) == false )
+        size_t expected_tokens = count_occurencies(pattern,pattern_size,'<');
+        size_t non_text_tokens = 0;
+        for ( int i = 0 ; i < formatter.tokens_size ; i++ )
         {
-            TEST_INFO("NOK muninn_formatter_expand");
+            formatter_token_type_t type = formatter.tokens[ i ].type;
+            if ( type == M_TEXT ) continue;
+
+            non_text_tokens += 1;
+        }
+
+        if ( expected_tokens + 2 ==  non_text_tokens )
+        {
+            TRACE_ERROR_POSITION("Error at %d iteration: expected tokens %ld + 2 differs from non text_tokens %d",
+                iteration,
+                non_text_tokens,
+                count_occurencies(pattern,pattern_size,'<'));
             return 1;
         }
 
-        if ( formatter.tokens_size != tokens )
+        size_t record_i = 1;
+        for ( int i = 0 ; i < formatter.tokens_size ; i++ )
         {
-            TEST_INFO("NOK muninn_formatter_expand: wrong number of tokens (found %ld instead of %d)",formatter.tokens_size,tokens);
+            formatter_token_type_t type = formatter.tokens[ i ].type;
+            if ( type == M_TEXT ) continue;
+
+            if ( type == M_TIMESTAMP )
+            {
+                mp.timestamp = STRING_TO_UINT64(reader.records[record_i]);
+            }
+            else if ( type == M_THREAD_ID ) 
+            {
+                mp.thread_id = STRING_TO_UINT64(reader.records[record_i]);
+            }
+            else if ( type == M_LINE )
+            {
+                mp.line = STRING_TO_INT(reader.records[record_i]);
+            }
+            else if ( type == M_SEVERITY )
+            {
+                mp.severity = STRING_TO_INT(reader.records[record_i]);
+            }
+            else if ( type == M_PID )
+            {
+                mp.pid = STRING_TO_INT(reader.records[record_i]);
+            }
+            else if ( type == M_FILE )
+            {
+                mp.file     = reader.records[record_i];
+                mp.file_len = strlen(reader.records[record_i]);
+            }
+            else if ( type == M_FUNCTION)
+            {
+                mp.func     = reader.records[record_i];
+                mp.func_len = strlen(reader.records[record_i]);
+            }
+            else if ( type == M_MESSAGE )
+            {
+                mp.msg     = reader.records[record_i];
+                mp.msg_len = strlen(reader.records[record_i]);   
+            } else 
+            {
+                TRACE_ERROR_POSITION("Token error!");
+                return 1;
+            }
+
+            record_i += 1;            
+        }
+
+        expected = reader.records[record_i];
+       
+        if ( muninn_formatter_expand( &formatter,mm,expanded,&expanded_size,EXPANDED_MAX_SIZE) == false )
+        {
+            TEST_INFO("NOK at iteration %d: muninn_formatter_expand",iteration);
             return 1;
         }
 
         if ( expanded_size != strlen(expected) )
         {
-            TRACE_ERROR_POSITION("Error: expanded size (%ld) is different from expected one (%ld).",expanded_size,strlen(expected));
+            TRACE_ERROR_POSITION("Error at iteration %d: expanded size (%ld) is different from expected one (%ld).",iteration,expanded_size,strlen(expected));
             return 1;
         }
 
@@ -103,7 +152,7 @@ int main()
         {
             if ( expected[ i ] != expanded[ i ] )
             {
-                TRACE_ERROR_POSITION("Error at iteration %d: expected '%c', found '%c' instead.",i,expected[ i ], expanded[ i ]);
+                TRACE_ERROR_POSITION("Error at iteration %d: expected '%c', found '%c' instead.",iteration,expected[ i ], expanded[ i ]);
                 return 1;
             }
         }       

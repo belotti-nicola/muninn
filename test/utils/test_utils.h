@@ -47,6 +47,8 @@ uint64_t STRING_TO_UINT64_impl(char *value);
 const void *MEMMEM_SIMPLE_impl(const void *haystack, size_t haystack_len,const void *needle, size_t needle_len);
 char *get_test_file_data_path_impl(char *path, size_t path_max_size, char *append);
 
+int count_occurencies(const char *string, size_t string_size, char c);
+
 
 #endif // TEST_UTILS_H
 

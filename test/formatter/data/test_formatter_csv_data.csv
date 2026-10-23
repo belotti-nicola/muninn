@@ -1,3 +1,10 @@
+<ts>,
+12343,
+"               12343";
+<msg>,
+sas,
+sas;
+<ts>a<tid>b<line>c<sev>d<pid>e<file>F<fun>g<msg>,
 1792353192,
 123145678,
 1003,
@@ -6,6 +13,7 @@
 this_test_file.c,
 that_test_function,
 "Hello world! This is a sample example for the formatter!",
-<ts>a<tid>b<line>c<sev>d<pid>e<file>F<fun>g<msg>,
-15,
 "          1792353192a           123145678b      1003c123d    429496ethis_test_file.cFthat_test_functiongHello world! This is a sample example for the formatter!";
+<file>,
+"file.c",
+"file.c";
