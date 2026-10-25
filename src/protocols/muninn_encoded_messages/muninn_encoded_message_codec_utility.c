@@ -1,4 +1,4 @@
-#include <internal/protocols/muninn_messages/muninn_codec_utility.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec_utility.h>
 
 #include <string.h>
 

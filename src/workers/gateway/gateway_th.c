@@ -5,10 +5,10 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <internal/protocols/muninn_messages/muninn_codec.h>
-#include <internal/protocols/muninn_messages/muninn_header_codec.h>
-#include <internal/protocols/muninn_messages/muninn_payload_codec.h>
-#include <internal/protocols/muninn_messages/muninn_message.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_header_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_payload_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
 
 #include <internal/timestamp_gen.h>
 

@@ -1,11 +1,11 @@
 #include <internal/ts_ring_buffer.h>
 
-#include <internal/protocols/muninn_messages/muninn_message_header.h>
-#include <internal/protocols/muninn_messages/muninn_message_payload.h>
-#include <internal/protocols/muninn_messages/muninn_header_codec.h>
-#include <internal/protocols/muninn_messages/muninn_payload_codec.h>
-#include <internal/protocols/muninn_messages/muninn_message.h>
-#include <internal/protocols/muninn_messages/muninn_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_header.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_payload.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_header_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_payload_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec.h>
 
 #include <string.h>
 

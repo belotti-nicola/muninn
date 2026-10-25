@@ -1,6 +1,6 @@
-#include <internal/protocols/muninn_messages/muninn_codec.h>
-#include <internal/protocols/muninn_messages/muninn_message_mask.h>
-#include <internal/protocols/muninn_messages/muninn_message.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_mask.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
 
 #include "reader/csv_reader.h"
 #include <stdlib.h>

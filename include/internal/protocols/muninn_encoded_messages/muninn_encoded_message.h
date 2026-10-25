@@ -1,11 +1,11 @@
-#ifndef MUNINN_MESSAGE_H_TODO
-#define MUNINN_MESSAGE_H_TODO
+#ifndef MUNINN_ENCODED_MESSAGE_H
+#define MUNINN_ENCODED_MESSAGE_H
 
 #include <stddef.h>
 #include <stdint.h>
 
-#include <internal/protocols/muninn_messages/muninn_message_header.h>
-#include <internal/protocols/muninn_messages/muninn_message_payload.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_header.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_payload.h>
 
 typedef struct muninn_message
 {

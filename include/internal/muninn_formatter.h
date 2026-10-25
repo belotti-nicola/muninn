@@ -1,7 +1,7 @@
 #ifndef MUNINN_FORMATTER_H
 #define MUNINN_FORMATTER_H
 
-#include <internal/protocols/muninn_messages/muninn_message.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
 #include <internal/muninn_formatter_tokens.h>
 #include <stdbool.h>
 

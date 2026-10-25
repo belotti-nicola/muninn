@@ -1,9 +1,9 @@
-#ifndef MUNINN_MESSAGE_PAYLOAD_H
-#define MUNINN_MESSAGE_PAYLOAD_H
+#ifndef MUNINN_ENCODED_MESSAGE_PAYLOAD_H
+#define MUNINN_ENCODED_MESSAGE_PAYLOAD_H
 
 #include <stdint.h>
 
-#include <internal/protocols/muninn_messages/muninn_message_mask.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_mask.h>
 
 typedef struct muninn_payload  
 {

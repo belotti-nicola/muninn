@@ -1,5 +1,5 @@
-#ifndef MUNINN_MESSAGES_H
-#define MUNINN_MESSAGES_H
+#ifndef MUNINN_ENCODED_MESSAGES_CODEC_H
+#define MUNINN_ENCODED_MESSAGES_CODEC_H
 
 #include <stdbool.h>
 #include <stddef.h>

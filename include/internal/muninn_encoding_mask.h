@@ -1,7 +1,7 @@
 #ifndef MUNINN_ENCODING_MASK
 #define MUNINN_ENCODING_MASK
 
-#include <internal/protocols/muninn_messages/muninn_message_mask.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_mask.h>
 #include <stdint.h>
 #include <stdatomic.h>
 

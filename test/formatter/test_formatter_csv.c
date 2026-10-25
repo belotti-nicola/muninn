@@ -6,9 +6,9 @@
 
 #include <internal/muninn_formatter.h>
 
-#include <internal/protocols/muninn_messages/muninn_message.h>
-#include <internal/protocols/muninn_messages/muninn_message_payload.h>
-#include <internal/protocols/muninn_messages/muninn_message_header.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_payload.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_header.h>
 
 #define TEST_FILE_SIZE 100
 #define EXPANDED_MAX_SIZE 1024

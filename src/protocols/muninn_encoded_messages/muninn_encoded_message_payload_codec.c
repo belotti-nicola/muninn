@@ -1,8 +1,8 @@
-#include <internal/protocols/muninn_messages/muninn_payload_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_payload_codec.h>
 
-#include <internal/protocols/muninn_messages/muninn_message.h>
-#include <internal/protocols/muninn_messages/muninn_message_mask.h>
-#include <internal/protocols/muninn_messages/muninn_codec_utility.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_mask.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec_utility.h>
 
 bool muninn_payload_encode(muninn_payload *muninn_payload, uint8_t *out, size_t *out_size)
 {

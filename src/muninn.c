@@ -16,8 +16,8 @@
 #include <internal/clogger_th.h>
 #include <internal/compressor_th.h>
 
-#include <internal/protocols/muninn_messages/muninn_codec.h>
-#include <internal/protocols/muninn_messages/muninn_message.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
 
 #include <internal/muninn_message.h>
 

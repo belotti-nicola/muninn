@@ -1,6 +1,6 @@
 #include "muninn.h"
 
-#include <internal/protocols/muninn_messages/muninn_message_mask.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_mask.h>
 
 #include <assert.h>
 #include <string.h>

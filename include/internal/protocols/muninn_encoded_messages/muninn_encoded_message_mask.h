@@ -1,5 +1,5 @@
-#ifndef MUNINN_MESSAGE_MASK_H
-#define MUNINN_MESSAGE_MASK_H
+#ifndef MUNINN_ENCODED_MESSAGE_MASK_H
+#define MUNINN_ENCODED_MESSAGE_MASK_H
 
 typedef enum muninn_message_mask
 {

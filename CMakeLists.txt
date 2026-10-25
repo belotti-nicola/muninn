@@ -33,12 +33,15 @@ set(MUNINN_SOURCES
     src/threadsafe_ring_buffer/ts_rb_decoder.c
     src/threadsafe_ring_buffer/ts_rb_message.c
     src/console/console_th.c
-    src/protocols/muninn_messages/muninn_messages.c
-    src/protocols/muninn_messages/muninn_payload_codec.c
-    src/protocols/muninn_messages/muninn_header_codec.c
-    src/protocols/muninn_messages/muninn_codec.c
-    src/protocols/muninn_messages/muninn_message_mask.c
-    src/protocols/muninn_messages/muninn_codec_utility.c
+    src/protocols/muninn_encoded_messages/muninn_encoded_message_codec.c
+    
+    src/protocols/muninn_encoded_messages/muninn_encoded_message.c
+    src/protocols/muninn_encoded_messages/muninn_encoded_message_payload_codec.c
+    src/protocols/muninn_encoded_messages/muninn_encoded_message_header_codec.c
+
+    src/protocols/muninn_encoded_messages/muninn_encoded_message_mask.c
+    src/protocols/muninn_encoded_messages/muninn_encoded_message_codec_utility.c
+
     src/formatter/formatter_utility.h
     src/formatter/formatter_utility.c
     src/formatter/formatter_parser.h

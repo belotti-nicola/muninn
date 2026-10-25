@@ -1,5 +1,5 @@
-#ifndef CODEC_UTILITY_H
-#define CODEC_UTILITY_H
+#ifndef MUNINN_ENCODED_MESSAGE_CODEC_UTILITY_H
+#define MUNINN_ENCODED_MESSAGE_CODEC_UTILITY_H
 
 #include <stdbool.h>
 #include <stdint.h>

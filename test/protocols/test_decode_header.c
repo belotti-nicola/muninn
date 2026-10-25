@@ -1,5 +1,5 @@
-#include <internal/protocols/muninn_messages/muninn_message_header.h>
-#include <internal/protocols/muninn_messages/muninn_header_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_header.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_header_codec.h>
 
 #define BUFFER_SIZE 1024
 

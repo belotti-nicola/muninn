@@ -1,5 +1,5 @@
-#ifndef MUNINN_PAYLOAD_CODEC_H
-#define MUNINN_PAYLOAD_CODEC_H
+#ifndef MUNINN_ENCODED_MESSAGE_PAYLOAD_CODEC_H
+#define MUNINN_ENCODED_MESSAGE_PAYLOAD_CODEC_H
 
 #include <stdbool.h>
 #include <stddef.h>

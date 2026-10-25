@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <internal/muninn_int.h>
-#include <internal/protocols/muninn_messages/muninn_message_mask.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_mask.h>
 #include <internal/muninn_encoding_mask.h>
 
 

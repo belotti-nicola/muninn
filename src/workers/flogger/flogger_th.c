@@ -10,8 +10,8 @@
 #include <internal/timestamp_gen.h>
 #include <stdlib.h>
 
-#include <internal/protocols/muninn_messages/muninn_message.h>
-#include <internal/protocols/muninn_messages/muninn_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec.h>
 
 #define MESSAGE_BUFFERS_SIZE 256
 

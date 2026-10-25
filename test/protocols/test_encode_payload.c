@@ -1,6 +1,6 @@
-#include <internal/protocols/muninn_messages/muninn_message_payload.h>
-#include <internal/protocols/muninn_messages/muninn_payload_codec.h>
-#include <internal/protocols/muninn_messages/muninn_message_mask.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_payload.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_payload_codec.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_mask.h>
 
 
 #define BUFFER_SIZE 1024
