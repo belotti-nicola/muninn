@@ -10,6 +10,8 @@
 #include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_payload_codec.h>
 #include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
 
+#include <internal/protocols/gateway_message_codec/gateway_message_codec.h>
+
 #include <internal/timestamp_gen.h>
 
 #include <internal/muninn_message.h>
@@ -100,48 +102,17 @@ void *gateway_post_fn(void *context, void *data, size_t data_size)
     if(context == NULL || data == NULL) return NULL;
     
     gateway_th_data *gw_data = (gateway_th_data *)context;
-    muninn_message_t *msg    = (muninn_message_t *)data;
+    uint8_t *message         = (uint8_t *)data;
 
     if(gw_data->rb == NULL) return NULL;
     ts_ring_buffer_t *tsrb = gw_data->rb;
 
-    muninn_encoding_mask_t *gw_mask = gw_data->mask;
-    muninn_message_mask mask        = muninn_encoding_mask_get(gw_mask);
-
-
-    muninn_header header = 
-    {
-        .payload_len = 2 + data_size
-    };
-
-    muninn_payload payload = 
-    {
-        .msg_len = msg->msg_len,
-        .msg = msg->msg,
-        .timestamp = msg->timestamp,
-        .thread_id = msg->thread_id,
-        .line = msg->line,
-        .severity = msg->severity,
-        .pid = msg->pid,
-        .file = msg->file,
-        .file_len = msg->file_len,
-
-        .mask = mask
-    };
-    muninn_message mm = 
-    {
-        .header  = &header,
-        .payload = &payload
-    };
-
-    uint8_t buffer[2048] = {0};
-    size_t buffer_size   = 2048;
-    if(muninn_messages_encode(&mm,buffer,&buffer_size) == false)
+    if ( gateway_message_codec_prependable_size(data_size,message,2048,NULL) == false )
     {
         return NULL;
     }
 
-    ts_rb_push(tsrb,buffer,buffer_size);
+    ts_rb_push(tsrb,message,data_size+2);
 
     return NULL;
 }

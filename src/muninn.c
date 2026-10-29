@@ -17,7 +17,7 @@
 #include <internal/compressor_th.h>
 
 #include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec.h>
-#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_mask.h>
 
 #include <internal/muninn_message.h>
 
@@ -178,12 +178,20 @@ void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file,
 
     if ((size_t)req_len + 1 < sizeof(stack_buffer)) 
     {
-        stack_buffer[req_len] = '\n'; 
+        stack_buffer[req_len];
 
         msg.msg     = stack_buffer;
-        msg.msg_len = req_len + 1;
+        msg.msg_len = req_len;
+
+        uint8_t encoding_buffer[2048] = {0};
+        size_t buffer_concrete_size;
+        muninn_message_mask mask = muninn_encoding_mask_get(&m->config->encoding_mask);
+        if ( muninn_messages_encode(&msg,mask,encoding_buffer,2048,&buffer_concrete_size) == false )
+        {
+            return;
+        }
         
-        mw_post(&m->gateway,&msg,0);//TODO
+        mw_post(&m->gateway,encoding_buffer,buffer_concrete_size);
     }
 
     else 
@@ -199,7 +207,18 @@ void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file,
         msg.msg     = heap_buffer;
         msg.msg_len = req_len + 1;
             
-        mw_post(&m->gateway,&msg,0);//TODO
+        uint8_t encoding_buffer[2048] = {0};
+        size_t buffer_concrete_size;
+        muninn_message_mask mask = muninn_encoding_mask_get(&m->config->encoding_mask);
+        if ( muninn_messages_encode(&msg,mask,
+                encoding_buffer + 2,
+                2048 - 2,
+                &buffer_concrete_size) == false )
+        {
+            return;
+        }
+        
+        mw_post(&m->gateway,encoding_buffer,buffer_concrete_size);
             
         free(heap_buffer);
         free(heap_postable);

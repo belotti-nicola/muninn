@@ -33,6 +33,8 @@ set(MUNINN_SOURCES
     src/threadsafe_ring_buffer/ts_rb_decoder.c
     src/threadsafe_ring_buffer/ts_rb_message.c
     src/console/console_th.c
+
+    src/protocols/gateway_message_codec/gateway_message_codec.c
     src/protocols/muninn_encoded_messages/muninn_encoded_message_codec.c
     
     src/protocols/muninn_encoded_messages/muninn_encoded_message.c
