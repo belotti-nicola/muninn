@@ -16,8 +16,8 @@ bool gateway_message_codec_prependable_size(
     size_t total_size = sizeof(uint16_t) + in_size;
     if (out_size < total_size) return false;
 
-    uint16_t casted_in_size = (uint16_t)in_size;
-    memcpy(out, &casted_in_size, sizeof(uint16_t));
+    uint16_t len16 = (uint16_t)in_size;
+    memcpy(out, &len16, sizeof(uint16_t));
 
     if (bytes_written != NULL) 
     {

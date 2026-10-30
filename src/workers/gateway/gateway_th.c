@@ -28,32 +28,10 @@ void *gateway_loop_fn(void *arg)
     ts_queue_t *q2 = gw_data->q2; 
     ts_ring_buffer_t *rb = gw_data->rb;
     
-    uint8_t read_buffer[LOG_MESSAGE_SIZE] = {0};
+    uint8_t read_buffer[LOG_MESSAGE_SIZE] = {0}; // todo
 
-    uint8_t func_buffer[256] = {0};
-    uint8_t file_buffer[256] = {0};
-    uint8_t  msg_buffer[256] = {0};
-
-
-    muninn_message message = {0};
-
-    muninn_header header   = {0};
-    muninn_payload payload = {0};
-
-    payload.func = func_buffer;
-    payload.file = file_buffer;
-    payload.msg  =  msg_buffer;
-
-
-    uint8_t payload_msg[MESSAGE_LEN] = {0}; 
-
-    payload.msg = payload_msg;
-    
-    message.header  = &header;
-    message.payload = &payload;
-    
-
-    size_t header_size     = sizeof(muninn_header);
+    size_t header_size      = sizeof(uint16_t); // todo
+    size_t read_buffer_size = 0; 
 
     while ( true )
     {
@@ -62,25 +40,20 @@ void *gateway_loop_fn(void *arg)
             break;
         }
 
-        if ( muninn_header_decode(read_buffer,header_size,&header) == false )
+        if ( gateway_message_codec_decode_message_size(read_buffer,&read_buffer_size) == false )
         {
             break;
         }
 
-        size_t message_size = (size_t)header.payload_len + header_size ;
-
-        if ( ts_rb_peek( rb, read_buffer, message_size) == false )
+        if ( ts_rb_advance( rb,read_buffer_size ) == false )
         {
             break;
         }
 
-        if ( ts_rb_advance( rb, message_size ) == false )
-        {
-            break;
-        }
+        ts_queue_n_push(q1, read_buffer + header_size , read_buffer_size - header_size);
+        ts_queue_n_push(q2, read_buffer + header_size , read_buffer_size - header_size);
 
-        ts_queue_n_push(q1, read_buffer, message_size );
-        ts_queue_n_push(q2, read_buffer, message_size );
+
     }
 
     printf("Gateway end\n");
@@ -112,7 +85,7 @@ void *gateway_post_fn(void *context, void *data, size_t data_size)
         return NULL;
     }
 
-    ts_rb_push(tsrb,message,data_size+2);
+    ts_rb_push(tsrb,message,data_size);
 
     return NULL;
 }

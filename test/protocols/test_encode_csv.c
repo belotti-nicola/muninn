@@ -96,7 +96,7 @@ int main()
             mm.msg_len  = (uint16_t)strlen(parsed[offset]),
             mm.msg      = parsed[offset],
             offset             += 1;
-            expected_bytes     += sizeof(mm.msg_len);
+            expected_bytes     += sizeof(mm.msg_len) + (size_t)mm.msg_len;
         }
 
         encoded_bytes = expected_bytes;
@@ -128,7 +128,7 @@ int main()
             
             if (computed_value != expected_value)
             {
-                TRACE_ERROR_POSITION("Encoded byte differs from expected (tmp: %ld, record %d)", tmp, record);   
+                TRACE_ERROR_POSITION("Encoded byte differs(%d) from expected (%d)", computed_value, expected_value);   
                 TRACE_ERROR_POSITION("(computed: %d [ASCII: '%c'], expected: %d [ASCII: '%c'])", 
                         computed_value, 
                         (computed_value >= 32 && computed_value <= 126) ? computed_value : '?', 

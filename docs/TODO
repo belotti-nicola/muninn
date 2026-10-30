@@ -39,3 +39,5 @@ gateway uses the post with 0 argument.
 
 
 simplify gateway logic (0-copy if possible)
+
+decoder: how big is the buffer? to avoid SIGSEGV

@@ -63,20 +63,11 @@ int main()
     );
     mw_start(&mw);
 
-    muninn_message_t m1 = 
-    {
-        .msg     = "Hello",
-        .msg_len = strlen("Hello")
-    };
+    uint8_t m1[] = "00Hello";
+    uint8_t m2[] = "00World";
 
-    muninn_message_t m2 = 
-    {
-        .msg     = "World",
-        .msg_len = strlen("World")
-    };
-
-    mw_post(&mw,&m1,0);//TODO
-    mw_post(&mw,&m2,0);//TODO
+    mw_post(&mw,m1,strlen(m1));
+    mw_post(&mw,m2,strlen(m2));
 
     sleep_ms(10);
 
