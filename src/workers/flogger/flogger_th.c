@@ -10,8 +10,9 @@
 #include <internal/timestamp_gen.h>
 #include <stdlib.h>
 
-#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
+#include <internal/muninn_message.h>
 #include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec.h>
+
 
 #define MESSAGE_BUFFERS_SIZE 256
 
@@ -103,15 +104,10 @@ void *flogger_loop_fn(void *arg)
     char func_buffer[MESSAGE_BUFFERS_SIZE] = {0};
     char  msg_buffer[MESSAGE_BUFFERS_SIZE] = {0};
 
-    muninn_header mh = {0};
-    muninn_payload mp = {0};
-    mp.file = file_buffer;
-    mp.func = func_buffer;
-    mp.msg  =  msg_buffer;
-
-    muninn_message popped_message = {0}; 
-    popped_message.header  = &mh;
-    popped_message.payload = &mp;
+    muninn_message_t popped_message = {0};
+    popped_message.file = file_buffer;
+    popped_message.func = func_buffer;
+    popped_message.msg  =  msg_buffer;
 
 
     char serialized_message[SERIALIZED_MESSAGE_SIZE] = {0};
@@ -125,10 +121,11 @@ void *flogger_loop_fn(void *arg)
 
         if ( muninn_messages_decode(buffer,popped_bytes,&popped_message) == false ) continue;
 
-        if ( muninn_formatter_expand(lth->formatter,popped_message,serialized_message,&expanded_bytes,SERIALIZED_MESSAGE_SIZE) == false ) continue;
+        //if ( muninn_formatter_expand(lth->formatter,popped_message,serialized_message,&expanded_bytes,SERIALIZED_MESSAGE_SIZE) == false ) continue;
+
 
         //write
-        size_t written = fwrite(popped_message.payload->file, 1, popped_message.payload->file_len , lth->file);
+        size_t written = fwrite(popped_message.file, 1, popped_message.file_len , lth->file);
         lth->written_bytes += written;
 
         //rotation
