@@ -21,17 +21,11 @@ void* stress_producer_routine(void *arg)
     muninn_worker_t *mw = (muninn_worker_t *)arg;
     
     char message[MESSAGE_SIZE];
-    memset(message,(int)'a',MESSAGE_SIZE);
-
-    muninn_message_t m = 
-    {
-        .msg     = message,
-        .msg_len = MESSAGE_SIZE
-    };
+    memset(message,(int)'0',MESSAGE_SIZE);
 
     for (int i = 0; i < MESSAGE_PER_THREAD; i++)
     {
-        mw_post(mw,&m,0);
+        mw_post(mw,message,MESSAGE_SIZE);
     }
 
     return NULL;

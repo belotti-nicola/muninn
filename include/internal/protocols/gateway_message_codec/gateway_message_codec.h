@@ -18,4 +18,9 @@ bool gateway_message_codec_decode_message_size(
     size_t        *offset
 );
 
+bool gateway_message_prepend_size(
+    uint8_t       *out,
+    size_t         out_size
+);
+
 #endif

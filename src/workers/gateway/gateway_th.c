@@ -6,8 +6,6 @@
 #include <stdio.h>
 
 #include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec.h>
-#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_header_codec.h>
-#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_payload_codec.h>
 #include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
 
 #include <internal/protocols/gateway_message_codec/gateway_message_codec.h>
@@ -41,6 +39,11 @@ void *gateway_loop_fn(void *arg)
         }
 
         if ( gateway_message_codec_decode_message_size(read_buffer,&read_buffer_size) == false )
+        {
+            break;
+        }
+
+        if ( ts_rb_peek( rb, read_buffer, read_buffer_size) == false )
         {
             break;
         }
@@ -80,11 +83,11 @@ void *gateway_post_fn(void *context, void *data, size_t data_size)
     if(gw_data->rb == NULL) return NULL;
     ts_ring_buffer_t *tsrb = gw_data->rb;
 
-    if ( gateway_message_codec_prependable_size(data_size,message,2048,NULL) == false )
+    if ( gateway_message_prepend_size(data,data_size) == false )
     {
         return NULL;
     }
-
+    
     ts_rb_push(tsrb,message,data_size);
 
     return NULL;

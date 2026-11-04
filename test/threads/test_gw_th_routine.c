@@ -63,15 +63,22 @@ int main()
     );
     mw_start(&mw);
 
-    uint8_t m1[] = "00Hello";
-    uint8_t m2[] = "00World";
+    uint8_t m1[] = {'0','0','H','e','l','l','o'};
+    size_t  m1_message_size = sizeof(m1) - 2;
+    uint8_t expected_m1_encoding[] = "80Hello";
+    uint8_t m2[] = {'0','0','W','o','r','l','d','!'};
+    size_t  m2_message_size = sizeof(m2) - 2;
+    uint8_t expected_m2_encoding[] = "80World!";
 
-    mw_post(&mw,m1,strlen(m1));
-    mw_post(&mw,m2,strlen(m2));
+    mw_post(&mw,m1,sizeof(m1));
+    mw_post(&mw,m2,sizeof(m2));
 
     sleep_ms(10);
 
     mw_shutdown(&mw);
+
+    uint8_t computed[1024] = {0};
+    size_t  computed_size;
 
     if(q1.queue.size != 2)
     {
@@ -79,11 +86,97 @@ int main()
         return 1;
     }
 
+    if ( queue_pop(&q1.queue,computed,1024,&computed_size) == false )
+    {
+        TRACE_ERROR_POSITION("first pop failed");
+        return 1;
+    }
+
+    if ( computed_size != m1_message_size)
+    {
+        TRACE_ERROR_POSITION("first pop failed: incorrect popped size (computed %ld instead of %ld)",computed_size,m1_message_size);
+        return 1;
+    }
+
+    for ( int i = 0 ; i < computed_size ; i++ )
+    {
+        if ( computed[ i ] != expected_m1_encoding[ i + 2 ] ) 
+        {
+            TRACE_ERROR_POSITION("check data fail: found %d instead of %d(iteration %d)",computed[ i ], expected_m1_encoding[ i + 2 ],i);
+            return 1;
+        }
+    }
+
+    if ( queue_pop(&q1.queue,computed,1024,&computed_size) == false )
+    {
+        TRACE_ERROR_POSITION("second pop failed");
+        return 1;
+    }
+
+    if ( computed_size != m2_message_size)
+    {
+        TRACE_ERROR_POSITION("second pop failed: incorrect popped size (computed %ld instead of %ld)",computed_size,m2_message_size);
+        return 1;
+    }
+
+    for ( int i = 0 ; i < computed_size ; i++ )
+    {
+        if ( computed[ i ] != expected_m2_encoding[ i + 2 ] ) 
+        {
+            TRACE_ERROR_POSITION("check data fail: found %d instead of %d(iteration %d)",computed[ i ], expected_m2_encoding[ i + 2 ],i);
+            return 1;
+        }
+    }
+
+
     if(q2.queue.size != 2)
     {
         TRACE_ERROR_POSITION("Q2 size is %ld instead of 2",q2.queue.size);
         return 1;
     }
+
+    if ( queue_pop(&q2.queue,computed,1024,&computed_size) == false )
+    {
+        TRACE_ERROR_POSITION("first pop failed");
+        return 1;
+    }
+
+    if ( computed_size != m1_message_size)
+    {
+        TRACE_ERROR_POSITION("first pop failed: incorrect popped size (computed %ld instead of %ld)",computed_size,m1_message_size);
+        return 1;
+    }
+
+    for ( int i = 0 ; i < computed_size ; i++ )
+    {
+        if ( computed[ i ] != expected_m1_encoding[ i + 2 ] ) 
+        {
+            TRACE_ERROR_POSITION("check data fail: found %d instead of %d(iteration %d)",computed[ i ], expected_m1_encoding[ i + 2 ],i);
+            return 1;
+        }
+    }
+
+    if ( queue_pop(&q2.queue,computed,1024,&computed_size) == false )
+    {
+        TRACE_ERROR_POSITION("second pop failed");
+        return 1;
+    }
+
+    if ( computed_size != m2_message_size)
+    {
+        TRACE_ERROR_POSITION("second pop failed: incorrect popped size (computed %ld instead of %ld)",computed_size,m2_message_size);
+        return 1;
+    }
+
+    for ( int i = 0 ; i < computed_size ; i++ )
+    {
+        if ( computed[ i ] != expected_m2_encoding[ i + 2 ] ) 
+        {
+            TRACE_ERROR_POSITION("check data fail: found %d instead of %d(iteration %d)",computed[ i ], expected_m2_encoding[ i + 2 ],i);
+            return 1;
+        }
+    }
+
 
     return 0;
 }

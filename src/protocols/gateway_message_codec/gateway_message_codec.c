@@ -37,3 +37,18 @@ bool gateway_message_codec_decode_message_size(
 
     return true;
 }
+
+bool gateway_message_prepend_size(
+    uint8_t       *out,
+    size_t         out_size)
+{
+    if ( out == NULL || out_size < 2)
+    {
+        return false;
+    }
+
+    uint16_t len16 = (uint16_t)out_size;
+    memcpy(out, &len16, sizeof(uint16_t));
+
+    return true;
+}
