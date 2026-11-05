@@ -56,7 +56,6 @@ void *gateway_loop_fn(void *arg)
         ts_queue_n_push(q1, read_buffer + header_size , read_buffer_size - header_size);
         ts_queue_n_push(q2, read_buffer + header_size , read_buffer_size - header_size);
 
-
     }
 
     printf("Gateway end\n");

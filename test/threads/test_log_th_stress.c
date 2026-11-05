@@ -15,6 +15,9 @@
 #define TEST_QUEUE_SIZE   (MESSAGE_PER_THREAD * THREADS_NUMBER + 100)
 #define TEST_BUFFER_SIZE  (MESSAGE_SIZE + 50)
 
+#include <internal/muninn_message.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec.h>
+
 void* stress_producer_routine(void *arg)
 {
     muninn_worker_t *mw = (muninn_worker_t *)arg;
@@ -24,9 +27,21 @@ void* stress_producer_routine(void *arg)
     message[MESSAGE_SIZE-2] ='\n';
     message[MESSAGE_SIZE-1] ='\0';
 
+    muninn_message_t mm;
+    mm.msg = message;
+    mm.msg_len = MESSAGE_SIZE;
+
+    uint8_t enc[MESSAGE_SIZE + 20] = {0};
+    size_t  enc_size = MESSAGE_SIZE + 20;
+    size_t  written_bytes = 0;
+    if ( muninn_messages_encode(&mm,MEDM_MESSAGE,enc,enc_size,&written_bytes) == false )
+    {
+        return NULL;
+    }
+
     for (int i = 0; i < MESSAGE_PER_THREAD; i++)
     {
-        mw_post(mw,message,MESSAGE_SIZE);
+        mw_post(mw,enc,written_bytes);
     }
 
     return NULL;

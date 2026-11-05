@@ -4,6 +4,8 @@
 #include <string.h>
 
 #include <internal/ts_rb_encoder.h>
+#include <internal/muninn_message.h>
+#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_codec.h>
 
 #include "test_utils.h"
 
@@ -44,13 +46,24 @@ int main()
         (void *)&flogger_data     
     );
     mw_start(&mw);
-    
-    //TODO :: CODIFY THE MESSAGE
-    
-    char first[] = "TestLog\n";
-    mw_post(&mw,first, strlen(first));
-    char second[] = "ThRoutine\n";
-    mw_post(&mw,second,strlen(second));
+       
+    char first[] = "TestLog";
+    muninn_message_t mm;
+    mm.msg_len = strlen(first);
+    mm.msg = first;
+
+    char encoded[256];
+    size_t written_bytes = 0;
+    if ( muninn_messages_encode(&mm,MEDM_MESSAGE,encoded,256,&written_bytes) == false ) 
+    {
+        TRACE_ERROR_POSITION("Error encoding first message");
+        return 1;
+    }
+
+
+    mw_post(&mw,encoded, written_bytes);
+    char second[] = "ThRoutine";
+    mw_post(&mw,encoded, written_bytes);
 
     sleep_ms(10);   
     mw_shutdown(&mw);
@@ -64,13 +77,13 @@ int main()
 
     char tmp[256] = {0};
     
-    // if(fgets(tmp, 256, test_file) == NULL)
-    // {
-    //     TRACE_ERROR_POSITION();
-    //     TEST_ERROR("%s",test_log);
-    //     TEST_ERROR("Error: char pointer is null.");
-    //     return 1;
-    // }
+    if(fgets(tmp, 256, test_file) == NULL)
+    {
+        TRACE_ERROR_POSITION();
+        TEST_ERROR("%s",test_log);
+        TEST_ERROR("Error: char pointer is null.");
+        return 1;
+    }
     // if(strstr(tmp, "TestLog") == NULL)
     // {
     //     TRACE_ERROR_POSITION();

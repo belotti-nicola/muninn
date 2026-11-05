@@ -20,7 +20,7 @@
 
 #define TS_SIZE 16
 #define ROTATING_SUFFIX ".rotating"
-#define BUFFSIZE 65536 * 2
+#define BUFFSIZE (65536 * 2)
 
 #define DECODING_BUFFER_SIZE 1024
 
@@ -96,7 +96,6 @@ void *flogger_loop_fn(void *arg)
     queue_message_t msg = {0};
     setup_queue_message(&msg, data, LOG_MESSAGE_SIZE);
 
-    // Allocato una volta sola all'avvio del thread
     char buffer[BUFFSIZE]; 
     size_t buffer_size = 0;
 
@@ -110,11 +109,12 @@ void *flogger_loop_fn(void *arg)
     popped_message.msg  =  msg_buffer;
 
 
-    char serialized_message[SERIALIZED_MESSAGE_SIZE] = {0};
-    char decoding_buffer[DECODING_BUFFER_SIZE] = {0};
+    char serialized_message[120] = {0};
+    size_t expanded_bytes = 120;
+
+
     size_t max_dim      = BUFFSIZE;
     size_t popped_bytes = 0;
-    size_t expanded_bytes;
     while (ts_queue_n_pop(q, buffer, max_dim, &popped_bytes))
     {
         if (popped_bytes == 0) continue;
@@ -123,9 +123,8 @@ void *flogger_loop_fn(void *arg)
 
         //if ( muninn_formatter_expand(lth->formatter,popped_message,serialized_message,&expanded_bytes,SERIALIZED_MESSAGE_SIZE) == false ) continue;
 
-
         //write
-        size_t written = fwrite(popped_message.file, 1, popped_message.file_len , lth->file);
+        size_t written = fwrite(popped_message.msg, 1, popped_message.msg_len, lth->file);
         lth->written_bytes += written;
 
         //rotation
@@ -196,6 +195,7 @@ void *flogger_loop_fn(void *arg)
     }
 
     fprintf(stdout, "Logger end.\n");
+    printf("Logger end\n");
     return NULL;
 }
 

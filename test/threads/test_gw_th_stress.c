@@ -20,8 +20,8 @@ void* stress_producer_routine(void *arg)
 {
     muninn_worker_t *mw = (muninn_worker_t *)arg;
     
-    char message[MESSAGE_SIZE];
-    memset(message,(int)'0',MESSAGE_SIZE);
+    uint8_t message[MESSAGE_SIZE];
+    memset(message,0,MESSAGE_SIZE);
 
     for (int i = 0; i < MESSAGE_PER_THREAD; i++)
     {
@@ -85,10 +85,8 @@ int main()
     }
     ts_queue_setup(&q2,messages2,TEST_QUEUE_SIZE);
 
-
     muninn_encoding_mask_t mem = {0};
     muninn_encoding_mask_init(&mem,MEDM_MESSAGE);
-
 
     gateway_th_data gwdata = {0};
     gwdata.rb   = &tsrb;
