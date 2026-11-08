@@ -19,6 +19,7 @@ set(MUNINN_SOURCES
     src/workers/muninn_worker.c
     src/workers/gateway/gateway_th.c
     src/workers/flogger/flogger_th.c
+    src/workers/clogger/clogger_th.c
     src/config/muninn_config.c
     src/internal/panic_flusher.c
     src/internal/console_handler.c
@@ -32,7 +33,6 @@ set(MUNINN_SOURCES
     src/threadsafe_ring_buffer/ts_rb_encoder.c
     src/threadsafe_ring_buffer/ts_rb_decoder.c
     src/threadsafe_ring_buffer/ts_rb_message.c
-    src/console/console_th.c
 
     src/protocols/gateway_message_codec/gateway_message_codec.c
     src/protocols/muninn_encoded_messages/muninn_encoded_message_codec.c

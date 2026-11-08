@@ -1,3 +1,5 @@
+#include <internal/flogger_th.h>
+
 #include <string.h>
 #include <unistd.h>
 
@@ -6,7 +8,6 @@
 #include <internal/ts_rb_decoder.h>
 
 #include <internal/ts_queue.h>
-#include <internal/flogger_th.h>
 #include <internal/timestamp_gen.h>
 #include <stdlib.h>
 

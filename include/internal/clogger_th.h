@@ -17,13 +17,12 @@ typedef struct clogger_th_data
     console_handler_t ch;
     ts_queue_t *q;
 
-    muninn_formatter_t *formatter;
+    muninn_formatter_t formatter;
 
 } clogger_th_data;
 
 void *clogger_loop_fn(void *arg);
 void *clogger_stop_fn(void *arg);
-void *clogger_join_fn(void *arg);
-void *clogger_post_fn(void *context,void *arg,size_t size);
+void *clogger_post_fn(void *context, void *arg, size_t data_size);
 
 #endif 
