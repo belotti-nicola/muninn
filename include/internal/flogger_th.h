@@ -21,7 +21,7 @@ typedef struct flogger_th_data
     ts_queue_t  *reading_queue;
     ts_queue_t  *output_queue;
 
-    muninn_formatter_t *formatter;
+    muninn_formatter_t formatter;
 
 } flogger_th_data;
 

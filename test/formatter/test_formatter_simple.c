@@ -2,6 +2,8 @@
 
 #include <string.h>
 #include "test_utils.h"
+#include <internal/muninn_message.h>
+
 
 #define BUFFER_SIZE 1048
 #define PATTERN "<msg>"
@@ -13,16 +15,11 @@ int main()
     char *buffer_msg = "Hello world...";
     size_t buffer_msg_size = strlen(buffer_msg);
 
+    muninn_message_t mm = {0};
 
-    muninn_header  mh = {0};
-    muninn_payload mp = {0};
+    mm.msg     = buffer_msg;
+    mm.msg_len = buffer_msg_size;
 
-    mp.msg     = buffer_msg;
-    mp.msg_len = buffer_msg_size;
-
-    muninn_message mm = {0};
-    mm.header  = &mh;
-    mm.payload = &mp;
 
     muninn_formatter_t formatter = {0};
 

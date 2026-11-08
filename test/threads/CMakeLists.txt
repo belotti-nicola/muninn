@@ -26,6 +26,12 @@ function(add_munin_test test_name source_file)
             PASS_REGULAR_EXPRESSION "${ARG_PASS_REGEX}"
         )
     endif()
+
+    if(ARG_LABELS)
+        set_tests_properties(${test_name} PROPERTIES
+            LABELS "${ARG_LABELS}")
+    endif()
+    
 endfunction()
 
 add_munin_test(TestInstantiatorMuninnWorkerRB  test_muninn_worker_rb.c)

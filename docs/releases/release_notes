@@ -19,5 +19,7 @@ Currently doing:
 
 Further developments
 Double buffer Qs
-cond waits vs drop policy
+cond waits vs drop policy(atomic)
+0-copy
+network worker
     

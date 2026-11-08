@@ -16,7 +16,7 @@
 
 #define MESSAGE_BUFFERS_SIZE 256
 
-#define SERIALIZED_MESSAGE_SIZE 2048
+#define EXPANDED_BYTES_SIZE 2048
 
 #define TS_SIZE 16
 #define ROTATING_SUFFIX ".rotating"
@@ -109,9 +109,16 @@ void *flogger_loop_fn(void *arg)
     popped_message.msg  =  msg_buffer;
 
 
-    char serialized_message[120] = {0};
-    size_t expanded_bytes = 120;
+    char expanded[EXPANDED_BYTES_SIZE] = {0};
+    size_t expanded_bytes = 0;
 
+    const char *pattern = "<msg>";
+    size_t pattern_size = 5;
+    if ( muninn_formatter_init(&lth->formatter,pattern,pattern_size) == false )
+    {
+        printf("muninn_formatter_init error\n");
+        return NULL;
+    }
 
     size_t max_dim      = BUFFSIZE;
     size_t popped_bytes = 0;
@@ -121,10 +128,13 @@ void *flogger_loop_fn(void *arg)
 
         if ( muninn_messages_decode(buffer,popped_bytes,&popped_message) == false ) continue;
 
-        //if ( muninn_formatter_expand(lth->formatter,popped_message,serialized_message,&expanded_bytes,SERIALIZED_MESSAGE_SIZE) == false ) continue;
+        if ( muninn_formatter_expand(&lth->formatter,popped_message,expanded,&expanded_bytes,EXPANDED_BYTES_SIZE) == false ) continue;
 
-        //write
-        size_t written = fwrite(popped_message.msg, 1, popped_message.msg_len, lth->file);
+        size_t written = 0;
+        
+        written += fwrite(popped_message.msg, 1, popped_message.msg_len, lth->file);
+        written += fwrite("\n", 1, 1, lth->file);
+
         lth->written_bytes += written;
 
         //rotation
@@ -194,7 +204,7 @@ void *flogger_loop_fn(void *arg)
         lth->file = NULL;
     }
 
-    fprintf(stdout, "Logger end.\n");
+    //fprintf(stdout, "Logger end.\n");
     printf("Logger end\n");
     return NULL;
 }

@@ -1,6 +1,7 @@
-#include "formatter_parser.h"
-
 #include <internal/muninn_formatter.h>
+
+
+#include "formatter_parser.h"
 #include "formatter_utility.h"
 #include <string.h>
 
@@ -20,7 +21,7 @@ bool muninn_formatter_init(muninn_formatter_t *mf, const char* pattern, size_t p
     return true;
 }
 
-bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message mm, char *out, size_t *out_size, size_t out_maximum_size)
+bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message_t mm, char *out, size_t *out_size, size_t out_maximum_size)
 {
     if ( mf == NULL || out == NULL || out_maximum_size == 0 || out_size == NULL ) return false;
 
@@ -49,32 +50,32 @@ bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message mm, char *ou
             }
             case M_FILE:
             {
-                if ( bytes_counter + mm.payload->file_len > out_maximum_size )
+                if ( bytes_counter + mm.file_len > out_maximum_size )
                 {
                     return false;
                 }
 
-                memcpy(out,mm.payload->file,mm.payload->file_len);
-                bytes_counter += mm.payload->file_len ;
-                out += mm.payload->file_len;
+                memcpy(out,mm.file,mm.file_len);
+                bytes_counter += mm.file_len ;
+                out += mm.file_len;
                 break;
             }
             case M_FUNCTION:
             {
-                if ( bytes_counter + mm.payload->func_len > out_maximum_size )
+                if ( bytes_counter + mm.func_len > out_maximum_size )
                 {
                     return false;
                 }
                 
-                memcpy(out,mm.payload->func,mm.payload->func_len);
-                bytes_counter += mm.payload->func_len ;
-                out += mm.payload->func_len;
+                memcpy(out,mm.func,mm.func_len);
+                bytes_counter += mm.func_len ;
+                out += mm.func_len;
                 break;
             }
             case M_LINE:
             {
                 size_t available_bytes = out_maximum_size - bytes_counter;
-                if ( n_format_uint32(out,available_bytes,10,mm.payload->line) == false )
+                if ( n_format_uint32(out,available_bytes,10,mm.line) == false )
                 {
                     return false;
                 }
@@ -84,20 +85,20 @@ bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message mm, char *ou
             }
             case M_MESSAGE:
             {
-                if ( bytes_counter + mm.payload->msg_len > out_maximum_size )
+                if ( bytes_counter + mm.msg_len > out_maximum_size )
                 {
                     return false;
                 }
 
-                memcpy(out,mm.payload->msg,mm.payload->msg_len);
-                bytes_counter += mm.payload->msg_len ;
-                out += mm.payload->msg_len;
+                memcpy(out,mm.msg,mm.msg_len);
+                bytes_counter += mm.msg_len ;
+                out += mm.msg_len;
                 break;
             }
             case M_PID:
             {
                 size_t available_bytes = out_maximum_size - bytes_counter;
-                if ( n_format_uint32(out,available_bytes,10,mm.payload->pid) == false )
+                if ( n_format_uint32(out,available_bytes,10,mm.pid) == false )
                 {
                     return false;
                 }
@@ -108,7 +109,7 @@ bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message mm, char *ou
             case M_SEVERITY:
             {
                 size_t available_bytes = out_maximum_size - bytes_counter;
-                if ( n_format_uint8(out,available_bytes,3,mm.payload->severity) == false )
+                if ( n_format_uint8(out,available_bytes,3,mm.severity) == false )
                 {
                     return false;
                 }
@@ -119,7 +120,7 @@ bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message mm, char *ou
             case M_THREAD_ID:
             {               
                 size_t available_bytes = out_maximum_size - bytes_counter;
-                if ( n_format_uint64(out,available_bytes,20,mm.payload->thread_id) == false )
+                if ( n_format_uint64(out,available_bytes,20,mm.thread_id) == false )
                 {
                     return false;
                 }
@@ -130,7 +131,7 @@ bool muninn_formatter_expand(muninn_formatter_t *mf, muninn_message mm, char *ou
             case M_TIMESTAMP:
             {
                 size_t available_bytes = out_maximum_size - bytes_counter;
-                if ( n_format_uint64(out,available_bytes,20,mm.payload->timestamp) == false )
+                if ( n_format_uint64(out,available_bytes,20,mm.timestamp) == false )
                 {
                     return false;
                 }

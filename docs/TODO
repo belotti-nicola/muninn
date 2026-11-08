@@ -43,3 +43,5 @@ simplify gateway logic (0-copy if possible)
 decoder: how big is the buffer? to avoid SIGSEGV
 
 ts_queue uint8_t
+
+we have still the BUFFEROVERFLOW PROBLEM

@@ -186,12 +186,13 @@ void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file,
         uint8_t encoding_buffer[2048] = {0};
         size_t buffer_concrete_size;
         muninn_message_mask mask = muninn_encoding_mask_get(&m->config->encoding_mask);
-        if ( muninn_messages_encode(&msg,mask,encoding_buffer,2048,&buffer_concrete_size) == false )
+        if ( muninn_messages_encode(&msg,mask,encoding_buffer+2,2048-2,&buffer_concrete_size) == false )
         {
             return;
         }
         
-        mw_post(&m->gateway,encoding_buffer,buffer_concrete_size);
+        size_t message_concrete_size = buffer_concrete_size + 2; 
+        mw_post(&m->gateway,encoding_buffer,message_concrete_size);
     }
 
     else 

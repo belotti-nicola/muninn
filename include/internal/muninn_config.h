@@ -6,15 +6,19 @@
 #include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_mask.h>
 #include <internal/muninn_encoding_mask.h>
 
+#define PATTERN_SIZE 256
+
 
 typedef struct {
     bool enabled;
     char path[P_SIZE];
+    char pattern[PATTERN_SIZE];
 } file_logger_cfg_t;
 
 typedef struct {
     bool enabled;
     bool colored;
+    char pattern[PATTERN_SIZE];
 } console_logger_cfg_t;
 
 typedef struct {
@@ -37,6 +41,7 @@ void muninn_config_set_file(CONFIG *cfg, bool enabled, const char *path);
 void muninn_config_set_console(CONFIG *cfg, bool enabled, bool colored);
 void muninn_config_set_compressor(CONFIG *cfg, bool enabled);
 void muninn_config_set_mask(CONFIG *cfg, muninn_message_mask mask);
+void muninn_config_set_formatter(CONFIG *cfg,const char *pattern);
 
 
 #endif

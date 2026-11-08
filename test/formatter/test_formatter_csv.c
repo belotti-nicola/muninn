@@ -7,8 +7,6 @@
 #include <internal/muninn_formatter.h>
 
 #include <internal/protocols/muninn_encoded_messages/muninn_encoded_message.h>
-#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_payload.h>
-#include <internal/protocols/muninn_encoded_messages/muninn_encoded_message_header.h>
 
 #define TEST_FILE_SIZE 100
 #define EXPANDED_MAX_SIZE 1024
@@ -33,12 +31,7 @@ int main()
     }
 
     
-    muninn_message   mm;
-    muninn_payload   mp;
-    muninn_header    mh;
-
-    mm.header  = &mh;
-    mm.payload = &mp;
+    muninn_message_t mm;
 
     muninn_formatter_t formatter = {0};
 
@@ -93,38 +86,38 @@ int main()
 
             if ( type == M_TIMESTAMP )
             {
-                mp.timestamp = STRING_TO_UINT64(reader.records[record_i]);
+                mm.timestamp = STRING_TO_UINT64(reader.records[record_i]);
             }
             else if ( type == M_THREAD_ID ) 
             {
-                mp.thread_id = STRING_TO_UINT64(reader.records[record_i]);
+                mm.thread_id = STRING_TO_UINT64(reader.records[record_i]);
             }
             else if ( type == M_LINE )
             {
-                mp.line = STRING_TO_INT(reader.records[record_i]);
+                mm.line = STRING_TO_INT(reader.records[record_i]);
             }
             else if ( type == M_SEVERITY )
             {
-                mp.severity = STRING_TO_INT(reader.records[record_i]);
+                mm.severity = STRING_TO_INT(reader.records[record_i]);
             }
             else if ( type == M_PID )
             {
-                mp.pid = STRING_TO_INT(reader.records[record_i]);
+                mm.pid = STRING_TO_INT(reader.records[record_i]);
             }
             else if ( type == M_FILE )
             {
-                mp.file     = reader.records[record_i];
-                mp.file_len = strlen(reader.records[record_i]);
+                mm.file     = reader.records[record_i];
+                mm.file_len = strlen(reader.records[record_i]);
             }
             else if ( type == M_FUNCTION)
             {
-                mp.func     = reader.records[record_i];
-                mp.func_len = strlen(reader.records[record_i]);
+                mm.func     = reader.records[record_i];
+                mm.func_len = strlen(reader.records[record_i]);
             }
             else if ( type == M_MESSAGE )
             {
-                mp.msg     = reader.records[record_i];
-                mp.msg_len = strlen(reader.records[record_i]);   
+                mm.msg     = reader.records[record_i];
+                mm.msg_len = strlen(reader.records[record_i]);   
             } else 
             {
                 TRACE_ERROR_POSITION("Token error!");

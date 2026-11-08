@@ -13,7 +13,7 @@
 #define NUM_THREADS         40
 #define MSG_PER_THREAD   50000
 
-#define MESSAGE_SIZE       400
+#define MESSAGE_SIZE       100
 
 void* stress_producer_routine(void *arg)
 {
@@ -24,7 +24,7 @@ void* stress_producer_routine(void *arg)
 
     for (int i = 0; i < MSG_PER_THREAD; i++)
     {
-        muninn_log_info(m,msg_buffer);
+        muninn_log_fatal(m,msg_buffer);
     }
 
     return NULL;
@@ -38,6 +38,7 @@ int main(void)
         TRACE_ERROR_POSITION("Could not compute test file.");
         return 1;
     }
+    TEST_INFO("Test file is: %s",testlog);
 
     CONFIG CONF;
     muninn_config_default(&CONF);

@@ -82,7 +82,7 @@ void *gateway_post_fn(void *context, void *data, size_t data_size)
     if(gw_data->rb == NULL) return NULL;
     ts_ring_buffer_t *tsrb = gw_data->rb;
 
-    if ( gateway_message_prepend_size(data,data_size) == false )
+    if ( gateway_message_prepend_size(message,data_size) == false )
     {
         return NULL;
     }
