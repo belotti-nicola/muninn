@@ -37,6 +37,12 @@ int main()
     strcpy(flogger_data.path,test_log);
     flogger_data.reading_queue = &q;
 
+    if ( muninn_formatter_init(&flogger_data.formatter,"<msg>",5) == false )
+    {
+        TRACE_ERROR_POSITION("muninn_formatter_init error");
+        return 1;
+    }
+
     muninn_worker_t mw;
     mw_init(&mw,
         "test_function",

@@ -25,7 +25,7 @@ bool n_format_uint8( char *out,size_t out_size, size_t n, uint8_t value)
         ptr += offset;
     }
 
-    strncpy(out,temp,len);
+    strncpy(ptr,temp,len);
 
     return true;
 }

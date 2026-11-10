@@ -26,8 +26,6 @@ typedef struct muninn_t
 {
     CONFIG             *config;
 
-    muninn_formatter_t formatter;
-
     uint64_t           start_ts;
     atomic_bool        running;
     atomic_char        threshold;

@@ -40,7 +40,8 @@ bool muninn_init(muninn_t *muninn, CONFIG *config)
     // ==========================================
     // formatter
     // ==========================================
-    muninn_formatter_init(&muninn->formatter,"todo",4);
+    muninn_formatter_init(&muninn->clogger_th.formatter,config->console.pattern,strlen(config->console.pattern));
+    muninn_formatter_init(&muninn->flogger_th.formatter,config->file.pattern,strlen(config->file.pattern));
 
     // ==========================================
     // FLOGGER (FILE)

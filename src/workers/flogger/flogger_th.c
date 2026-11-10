@@ -109,17 +109,8 @@ void *flogger_loop_fn(void *arg)
     popped_message.func = func_buffer;
     popped_message.msg  =  msg_buffer;
 
-
     char expanded[EXPANDED_BYTES_SIZE] = {0};
     size_t expanded_bytes = 0;
-
-    const char *pattern = "<msg>";
-    size_t pattern_size = 5;
-    if ( muninn_formatter_init(&lth->formatter,pattern,pattern_size) == false )
-    {
-        printf("muninn_formatter_init error\n");
-        return NULL;
-    }
 
     size_t max_dim      = BUFFSIZE;
     size_t popped_bytes = 0;
@@ -133,7 +124,7 @@ void *flogger_loop_fn(void *arg)
 
         size_t written = 0;
         
-        written += fwrite(popped_message.msg, 1, popped_message.msg_len, lth->file);
+        written += fwrite(expanded, 1, expanded_bytes, lth->file);
         written += fwrite("\n", 1, 1, lth->file);
 
         lth->written_bytes += written;
