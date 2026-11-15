@@ -10,11 +10,17 @@ int main()
 
   CONFIG CONF;
   muninn_config_default(&CONF);
+
+  muninn_message_mask mask = MEDM_SEVERITY | MEDM_MESSAGE;
+  muninn_config_set_mask(&CONF,mask);
+
   muninn_config_set_file(&CONF,true,POC_LOG);
+  muninn_config_set_console(&CONF,true,true);
 
 
   muninn_t m;
-  muninn_init(&m,CONF);
+  muninn_init(&m,&CONF);
+  
   muninn_log_debug(&m,"This is a debug log");
   muninn_log_info(&m,"This is a info log");
   muninn_log_warning(&m,"This is a warning log");

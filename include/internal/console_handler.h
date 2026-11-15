@@ -13,6 +13,7 @@ extern const char * const MUNINN_COLOR_STRINGS[__COLOR_MAX__];
 typedef struct console_handler_s
 {
     bool is_terminal;
+    bool is_color;
 
 } console_handler_t;
 

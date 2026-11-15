@@ -38,6 +38,9 @@ void *clogger_loop_fn(void *arg)
     char expanded[2048] = {0};
     size_t expanded_size = 2048;
 
+    console_handler_setup(&cth_data->ch);
+    cth_data->ch.is_color = cth_data->is_color;
+
     while( ts_queue_n_pop(cth_data->q,buffer,1024,&buffer_size) )
     {
         if(buffer_size == 0)

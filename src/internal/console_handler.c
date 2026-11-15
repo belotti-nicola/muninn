@@ -28,28 +28,31 @@ void console_handler(console_handler_t *oh, uint8_t severity, const char *msg, s
 {
     if (oh == NULL || msg == NULL) return;
 
-    const char *sev_str = "UNKN ";
     MUNINN_COLORS color_idx = COLOR_RESET;
-    switch (severity) {
-        case LOG_NONE:  sev_str = "NONE "; color_idx = COLOR_WHITE;   break;
-        case LOG_DEBUG: sev_str = "DEBUG"; color_idx = COLOR_CYAN;    break;
-        case LOG_INFO:  sev_str = "INFO "; color_idx = COLOR_GREEN;   break;
-        case LOG_WARN:  sev_str = "WARN "; color_idx = COLOR_YELLOW;  break;
-        case LOG_ERROR: sev_str = "ERROR"; color_idx = COLOR_RED;     break;
-        case LOG_FATAL: sev_str = "FATAL"; color_idx = COLOR_MAGENTA; break;
+    switch (severity) 
+    {
+        case LOG_NONE:  color_idx = COLOR_WHITE;   break;
+        case LOG_DEBUG: color_idx = COLOR_CYAN;    break;
+        case LOG_INFO:  color_idx = COLOR_GREEN;   break;
+        case LOG_WARN:  color_idx = COLOR_YELLOW;  break;
+        case LOG_ERROR: color_idx = COLOR_RED;     break;
+        case LOG_FATAL: color_idx = COLOR_MAGENTA; break;
     }
 
-    if (oh->is_terminal) 
+    if (oh->is_terminal && oh->is_color) 
     {
-        fprintf(stdout, "%s[%s] %.*s%s\n", 
-                MUNINN_COLOR_STRINGS[color_idx], 
-                sev_str, 
+        const char *color = MUNINN_COLOR_STRINGS[color_idx];
+        const char *reset = MUNINN_COLOR_STRINGS[COLOR_RESET];
+
+        fprintf(stdout, "%s%.*s%s\n", 
+                color, 
                 (int)msg_len, 
                 msg, 
-                MUNINN_COLOR_STRINGS[COLOR_RESET]);
+                reset
+        );
     } 
     else 
     {
-        fprintf(stdout, "[%s] %.*s\n", sev_str, (int)msg_len, msg);
+        fprintf(stdout, "%.*s\n", (int)msg_len, msg);
     }
 }

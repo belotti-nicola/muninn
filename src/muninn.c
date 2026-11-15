@@ -80,6 +80,8 @@ bool muninn_init(muninn_t *muninn, CONFIG *config)
     // ==========================================
     if (config->console.enabled) 
     {
+        muninn->clogger_th.is_color = config->console.colored;
+
         offset = 0;
         for(int i=0; i<CONS_QUEUE_SIZE; i++) {
             char *tmp = muninn->clogger_buff + offset;

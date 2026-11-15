@@ -19,6 +19,8 @@ typedef struct clogger_th_data
 
     muninn_formatter_t formatter;
 
+    bool is_color;
+
 } clogger_th_data;
 
 void *clogger_loop_fn(void *arg);
