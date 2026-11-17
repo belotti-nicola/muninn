@@ -1,0 +1,6 @@
+Download sqlite3.c (the amalgamation)
+
+Just compile it with your program as follows:
+
+Compile:
+gcc main.c sqlite3.c -o main

@@ -1,0 +1,5 @@
+Build:
+gcc main.c -o main
+
+Check syslog:
+journalctl -f
