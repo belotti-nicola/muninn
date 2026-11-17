@@ -23,6 +23,7 @@ set(MUNINN_SOURCES
     src/config/muninn_config.c
     src/internal/panic_flusher.c
     src/internal/console_handler.c
+    src/internal/utility.c
     src/queue/queue_message.c
     src/queue/queue_rb.c
     src/thread_safe_queue/ts_queue.c

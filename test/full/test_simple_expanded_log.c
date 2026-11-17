@@ -50,7 +50,7 @@ int main(void)
         return 1;
     }
 
-    snprintf(expected, sizeof expected, "[%s:%10d:%3d]hello\n", __FILE__, line,5);
+    snprintf(expected, sizeof expected, "[%s:%10d:%3d]hello\n", "test_simple_expanded_log.c", line,200);
     if (strcmp(buffer, expected) != 0) 
     {
         TRACE_ERROR_POSITION("Error: computed is different from expected one");

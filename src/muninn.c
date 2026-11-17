@@ -10,6 +10,7 @@
 #include <internal/compressor_th.h>
 #include <internal/flogger_th.h>
 #include <internal/panic_flusher.h>
+#include <internal/utility.h>
 
 #include <internal/gateway_th.h>
 #include <internal/flogger_th.h>
@@ -25,6 +26,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
+
 
 
 bool muninn_init(muninn_t *muninn, CONFIG *config)
@@ -165,9 +167,12 @@ void muninn_log_internal(muninn_t *m, log_severity_t severity, const char *file,
 
     if (req_len < 0) return;
 
+    size_t file_offset;
+    extract_file_name(file,strlen(file),&file_offset);
+
     muninn_message_t msg;
-    msg.file       = (char *)file;
-    msg.file_len   = strlen(file);
+    msg.file       = (char *)file + file_offset;
+    msg.file_len   = strlen(file) - file_offset;
     msg.func       = (char *)func;
     msg.func_len   = strlen(func);
     msg.line       = line;

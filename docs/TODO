@@ -1,48 +1,32 @@
-- running / enable compression
-- big endian / little endian encoding
-- test with file name -> test compression to others
-- buffer initialization: test environment or deploy?
-- QUEUE SIZE
-- remove(TESTPATH) initials
-
-- more compressed formats
-- more tests
-
-- telemetrying
-- init threads + dispatcher
-- rc start
-- QUEUE / RINGBUFFER SETUP WITH ONE AND ONLY ONE FUNCTION
-- tcp/udp/sqlite3 or something / custom worker
+On going:
+- formatters with formats/n_bytes
 
 Architecture changes:
-- sem_wait for pushes with full buffer! 
 - double buffering architecture
-- lock free
+- lock free + futexes for pretty fast logging capability
 
+Pretty developments:
+- test with file name -> test compression to others
+- buffer initialization: test environment or deploy?
+- QUEUE SIZE / buffersizes configurables
+
+- telemetrying
+- QUEUE / RINGBUFFER SETUP WITH ONE AND ONLY ONE FUNCTION
+- tcp/udp/sqlite3 or something / custom worker
+- console colors palette
+- big endian / little endian encoding
 
 
 - compute test protocols size
 - buffer overflow for fields
 - if post is ok, then return 1;
 
+- unique point for formatters entries
+- formatter with formats and bytes len
 
 
-mm_encoder mm_payload_encoder + un decoder in utils
+- simplify gateway logic (0-copy if possible)
 
-typedef struct {
-    uint8_t *data;
-    size_t capacity; // Dimensione massima allocata
-    size_t size;     // Byte effettivamente letti/scritti
-} muninn_buffer;
+Major issues:
 
-
-gateway uses the post with 0 argument.
-
-
-simplify gateway logic (0-copy if possible)
-
-decoder: how big is the buffer? to avoid SIGSEGV
-
-ts_queue uint8_t
-
-we have still the BUFFEROVERFLOW PROBLEM
+- we have still the BUFFEROVERFLOW PROBLEM somewhere

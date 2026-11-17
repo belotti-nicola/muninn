@@ -5,13 +5,13 @@
 
 typedef enum log_severity_t
 {
-    LOG_NONE,
+    LOG_NONE = 0,
 
-    LOG_DEBUG,
-    LOG_INFO,
-    LOG_WARN,
-    LOG_ERROR,
-    LOG_FATAL
+    LOG_DEBUG = 40,
+    LOG_INFO = 80,
+    LOG_WARN = 120,
+    LOG_ERROR = 160,
+    LOG_FATAL = 200
 
 } log_severity_t;
 

@@ -66,9 +66,11 @@ void     muninn_log_internal(muninn_t *m, log_severity_t severity, const char *f
          //USE THESE INSTEAD:
 #define  muninn_log_info(m, fmt, ...)    muninn_log_internal(m, LOG_INFO,  __FILE__, __LINE__,__func__, fmt, ##__VA_ARGS__)
 #define  muninn_log_debug(m, fmt, ...)   muninn_log_internal(m, LOG_DEBUG, __FILE__, __LINE__,__func__, fmt, ##__VA_ARGS__)
-#define  muninn_log_warning(m, fmt, ...) muninn_log_internal(m, LOG_WARN, __FILE__ , __LINE__,__func__, fmt, ##__VA_ARGS__)
+#define  muninn_log_warning(m, fmt, ...) muninn_log_internal(m, LOG_WARN,  __FILE__, __LINE__,__func__, fmt, ##__VA_ARGS__)
 #define  muninn_log_error(m, fmt, ...)   muninn_log_internal(m, LOG_ERROR, __FILE__, __LINE__,__func__, fmt, ##__VA_ARGS__)
 #define  muninn_log_fatal(m, fmt, ...)   muninn_log_internal(m, LOG_FATAL, __FILE__, __LINE__,__func__, fmt, ##__VA_ARGS__)
+
+#define  muninn_log_raw(m, fmt, ...)     muninn_log_internal(m, severity,  __FILE__, __LINE__,__func__, fmt, ##__VA_ARGS__)
 
 
 void     muninn_shutdown(muninn_t *muninn);
